@@ -15,7 +15,7 @@ import pandas as pd
 import torch
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 
-from plm_steering.l42_steering_repro import (
+from src.l38.l42_steering_repro import (
     difference_of_means_vector,
     is_degenerate_sequence,
     ivywrel_fraction,
@@ -149,7 +149,7 @@ def score_thermostability_proxy(sequences):
 
 
 def main():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"device: {device}", flush=True)
 
     df = pd.read_csv(DATA_PATH)

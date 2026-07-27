@@ -3,8 +3,8 @@
 Three linked experiments on causally steering protein language models via
 inference-time activation addition (no retraining) — one honest failure,
 one reproduction that initially looked like a false positive and wasn't,
-and one generalization check currently blocked on infrastructure, not on
-methodology.
+and one generalization check that found a second, different false positive
+and correctly did not report it as a win.
 
 **Headline findings:**
 
@@ -31,11 +31,19 @@ methodology.
   (0.1–0.5), with a clean monotonic dose-response on 57–58 of 60 held-out
   sequences. See [`docs/L42_STEERING_REPRO.md`](docs/L42_STEERING_REPRO.md).
 - **L43 — does the L42 reproduction generalize to a second target
-  (solubility)? Code complete, GPU run pending.** Same validated recipe
-  (model, vector construction, degeneracy filter, significance test), new
-  dataset and scoring function only. See
+  (solubility)? AMBIGUOUS — a second artifact, caught before being reported
+  as a win.** Same validated recipe (model, vector construction, degeneracy
+  filter, significance test), new dataset (real soluble/insoluble labels)
+  and scoring function (GRAVY hydropathy) only. Run on Apple Silicon via
+  PyTorch MPS after AWS credentials for the original GPU host expired
+  (verified MPS reproduces L42's result bit-for-bit first). The one alpha
+  that cleared statistical significance did so in the *wrong direction* and
+  the effect vanished entirely once the dominant substituted residues
+  (alanine/glycine) were excluded from scoring — the same category of
+  compositional artifact as L42's leucine collapse, this time correctly
+  identified rather than reported as a pass. See
   [`docs/L43_SOLUBILITY_STEERING.md`](docs/L43_SOLUBILITY_STEERING.md) for
-  the pre-registered protocol and current status.
+  the full pre-registered protocol and the residue-exclusion diagnostic.
 
 ## Why this repo exists
 
@@ -65,12 +73,14 @@ plm_steering/
   l42_run_repro.py             ESM2-650M steering + generation + verdict (thermostability)
   l43_solubility_steering.py  pure-math: GRAVY hydropathy solubility proxy
   l43_run_repro.py             ESM2-650M steering + generation + verdict (solubility)
+  l43_repro_results.json       full L43 run output (real, GRAVY-based, AMBIGUOUS result)
+  l42_repro_results.json       full L42 run output (real, IVYWREL-based, PASS result)
   phage_data.py                shared FASTA parsing / train-eval split utility
 docs/
   L41_PROTOCOL.md              full L41 gate-by-gate protocol + results
   L41_PAPER_ANALYSIS.md        direct reading of the ESM-C source paper vs. what L41 tested
   L42_STEERING_REPRO.md        full L42 protocol, the false-positive catch, final results
-  L43_SOLUBILITY_STEERING.md   pre-registered L43 protocol + current (blocked) status
+  L43_SOLUBILITY_STEERING.md   full L43 protocol, run on Apple Silicon MPS, AMBIGUOUS result
 tests/                         unit tests for every pure-math module (52 tests, no GPU needed)
 fetch_data.sh                  downloads the real meltome/solubility datasets used by L42/L43
 ```
@@ -81,9 +91,22 @@ fetch_data.sh                  downloads the real meltome/solubility datasets us
 pip install -r requirements.txt
 pytest tests/ -q                 # 52 tests, pure-math only, no GPU/model download needed
 ./fetch_data.sh                  # pulls real meltome + solubility CSVs (~35MB total)
-python -m plm_steering.l42_run_repro   # needs a CUDA GPU; ESM2-650M auto-downloads via transformers
+python -m plm_steering.l42_run_repro   # ESM2-650M steering; picks CUDA > MPS > CPU automatically
 python -m plm_steering.l43_run_repro   # same, solubility target
 ```
+
+Both run scripts auto-select `cuda`, falling back to Apple Silicon `mps`,
+falling back to plain `cpu`. The committed results in this repo were
+produced on an A10G (L42's original run) and on an M3 Pro via MPS (L42's
+rerun + L43) — the MPS rerun of L42 reproduced the A10G numbers exactly,
+confirming MPS is a valid substitute for this workload.
+
+**Important: do not trust the `"decision"` field inside either
+`*_repro_results.json` at face value.** That field only checks "did any
+alpha clear statistical significance" — it does NOT run the residue-
+exclusion robustness check that caught L43's false positive (see
+`docs/L43_SOLUBILITY_STEERING.md`). Always read the doc's own stated
+verdict, not the JSON's `decision` key, for the actual conclusion.
 
 L41's scripts additionally require `esm` (EvolutionaryScale's ESM-C client)
 and the kinase-positive/negative FASTA files referenced in

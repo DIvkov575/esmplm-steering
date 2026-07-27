@@ -17,12 +17,12 @@ import pandas as pd
 import torch
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 
-from plm_steering.l42_steering_repro import (
+from src.l38.l42_steering_repro import (
     difference_of_means_vector,
     is_degenerate_sequence,
     paired_bootstrap_mean_diff,
 )
-from plm_steering.l43_solubility_steering import solubility_proxy
+from src.l38.l43_solubility_steering import solubility_proxy
 
 MODEL_NAME = "facebook/esm2_t33_650M_UR50D"
 TRAIN_PATH = Path(__file__).resolve().parent / "data_cache" / "solubility" / "train.csv"
@@ -129,7 +129,7 @@ def score_solubility_proxy(sequences):
 
 
 def main():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"device: {device}", flush=True)
 
     df = pd.read_csv(TRAIN_PATH)
