@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.DS_Store
+
+# downloaded data -- large or regeneratable via fetch_data.sh, not source
+plm_steering/data_cache/
