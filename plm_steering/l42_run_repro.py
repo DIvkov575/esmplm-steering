@@ -15,7 +15,7 @@ import pandas as pd
 import torch
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 
-from src.l38.l42_steering_repro import (
+from plm_steering.l42_steering_repro import (
     difference_of_means_vector,
     is_degenerate_sequence,
     ivywrel_fraction,

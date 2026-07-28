@@ -17,12 +17,12 @@ import pandas as pd
 import torch
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 
-from src.l38.l42_steering_repro import (
+from plm_steering.l42_steering_repro import (
     difference_of_means_vector,
     is_degenerate_sequence,
     paired_bootstrap_mean_diff,
 )
-from src.l38.l43_solubility_steering import solubility_proxy
+from plm_steering.l43_solubility_steering import solubility_proxy
 
 MODEL_NAME = "facebook/esm2_t33_650M_UR50D"
 TRAIN_PATH = Path(__file__).resolve().parent / "data_cache" / "solubility" / "train.csv"
