@@ -44,6 +44,27 @@ and correctly did not report it as a win.
   identified rather than reported as a pass. See
   [`docs/L43_SOLUBILITY_STEERING.md`](docs/L43_SOLUBILITY_STEERING.md) for
   the full pre-registered protocol and the residue-exclusion diagnostic.
+- **L44 — is the over-steering collapse residue predictable in advance
+  from the steering vector itself (logit-lens style)? Falsified.** Neither
+  L42's leucine collapse nor L43's alanine/glycine collapse shows up as the
+  dominant single-layer projection of its steering vector, even after
+  fixing two real bugs in the check (wrong projection path; outlier
+  embedding norms on non-standard residue tokens fooling raw dot product).
+  Real negative result: collapse looks like a decoding-dynamics effect
+  (compounding across layers during iterative generation), not something
+  visible in a static per-layer projection. See
+  [`docs/L44_LOGIT_LENS_DIAGNOSTIC.md`](docs/L44_LOGIT_LENS_DIAGNOSTIC.md).
+- **L45 — which layers are actually doing the causal work in L42's
+  validated steering vector? Distributed but depth-weighted.** Steered
+  each of ESM2-650M's 33 layers individually (not all-at-once, as L42
+  does) at the same eval sequences/alpha/scorer. 30 of 33 layers show a
+  positive real-vs-random effect direction (binomial sign test
+  p=0.000001 against a 50/50 null) — not concentrated in 2-3 special
+  layers, but effect size triples from early to late layers, with layer
+  31 standing out at ~7x the mean of the others. Checked directly against
+  a vector-norm-renormalization confound (relative perturbation strength
+  is flat across layers, NOT correlated with effect size) before trusting
+  the depth trend. See [`docs/L45_LAYER_SWEEP.md`](docs/L45_LAYER_SWEEP.md).
 
 ## Why this repo exists
 
@@ -51,12 +72,14 @@ Every result here was gated by running the actual pipeline on real data,
 not by planning or literature review alone — but literature review before
 and after each run is what caught the two real bugs (SAE normalization in
 L41; decoding collapse in L42) that would otherwise have produced
-confidently-wrong conclusions. The pattern that emerges across all three:
+confidently-wrong conclusions. The clearest pattern across L41-L43:
 **continuous, compositionally-grounded target properties on a mid-size
 model, steered with a difference-of-means vector, are the one recipe that
 reliably works** — discrete functional classes and raw SAE decoder
-directions are not, independent of how carefully the rest of the pipeline
-is built.
+directions are not, and this does NOT generalize to every continuous
+property either (L43). L44-L45 dig one level deeper into WHY and WHERE the
+working case (L42) actually works mechanistically, rather than treating it
+as a black box that either does or doesn't fire.
 
 ## Repo layout
 
@@ -75,13 +98,20 @@ plm_steering/
   l43_run_repro.py             ESM2-650M steering + generation + verdict (solubility)
   l43_repro_results.json       full L43 run output (real, GRAVY-based, AMBIGUOUS result)
   l42_repro_results.json       full L42 run output (real, IVYWREL-based, PASS result)
+  l44_logit_lens_diagnostic.py cosine-similarity projection of a steering vector onto
+                                the model's own embedding matrix, restricted to standard AAs
+  l44_logit_lens_out.json      full L44 output (falsified: collapse residue not predictable)
+  l45_layer_sweep.py            single-layer causal-sufficiency sweep, reuses L42's vectors/data
+  l45_layer_sweep_out.json      full L45 output (30/33 layers positive, depth-weighted effect)
   phage_data.py                shared FASTA parsing / train-eval split utility
 docs/
   L41_PROTOCOL.md              full L41 gate-by-gate protocol + results
   L41_PAPER_ANALYSIS.md        direct reading of the ESM-C source paper vs. what L41 tested
   L42_STEERING_REPRO.md        full L42 protocol, the false-positive catch, final results
   L43_SOLUBILITY_STEERING.md   full L43 protocol, run on Apple Silicon MPS, AMBIGUOUS result
-tests/                         unit tests for every pure-math module (52 tests, no GPU needed)
+  L44_LOGIT_LENS_DIAGNOSTIC.md full L44 method (incl. 2 bugs found/fixed) + falsification
+  L45_LAYER_SWEEP.md            full L45 method, results, and the norm-confound check
+tests/                         unit tests for every pure-math module (56 tests, no GPU needed)
 fetch_data.sh                  downloads the real meltome/solubility datasets used by L42/L43
 ```
 
