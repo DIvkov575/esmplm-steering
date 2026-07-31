@@ -103,6 +103,19 @@ the literature finally tested causally (and it didn't hold up).
   repo's recurring lesson: correlation with a real biological signal
   does not imply causal necessity. See
   [`docs/L48_VIG_CAUSAL_TEST.md`](docs/L48_VIG_CAUSAL_TEST.md).
+- **L49 — unsupervised causal candidate generation: ablate all 480 heads,
+  rank by actual effect, zero correlation involved. The rankings invert.**
+  Answers the open question after L48 (was Vig's pick just unlucky?) by
+  skipping correlation-based candidate selection entirely — ablate every
+  head in ProtBert-BFD, score each directly by causal effect on the same
+  task. Vig's correlational #1 pick (12.9x contact enrichment) ranks
+  **313th of 480** by real causal effect; L48's "least important"
+  correlational control ranks **80th of 480** — genuinely more causally
+  important than the head correlation says matters most. Also found real
+  redundancy (166/480 heads show exactly zero ablation effect). Third
+  independent instance of this repo's core lesson, and the most thorough
+  one — a full 480-head sweep, not one hand-picked test. See
+  [`docs/L49_UNSUPERVISED_CAUSAL_SWEEP.md`](docs/L49_UNSUPERVISED_CAUSAL_SWEEP.md).
 
 ## Why this repo exists
 
@@ -114,12 +127,14 @@ otherwise have produced confidently-wrong conclusions, and what surfaced
 the specific, real, unclaimed gaps this repo goes after (L46's checkpoint
 reuse, L48's causal redo of a 2021 finding).
 
-Two patterns run through all eight experiments:
+Two patterns run through all nine experiments:
 1. **Correlation with a real biological signal does not imply causal
    necessity or steerability.** L41 (SAE feature ↔ kinase activity), L48
-   (attention head ↔ contact map) both found real, strong correlations
-   that did NOT translate into causal control/necessity when actually
-   tested — on two different techniques, two different model families.
+   (attention head ↔ contact map, one head) and L49 (all 480 heads,
+   ranked purely causally — Vig's correlational #1 pick ranks 313th of
+   480 by actual effect) all found real, strong correlations that did NOT
+   translate into causal control/necessity when actually tested — on two
+   different techniques, two different model families.
 2. **Continuous, compositionally-grounded properties steered via
    difference-of-means work; this does not generalize freely** — real for
    thermostability (L42), an artifact for solubility (L43) — **and the
@@ -161,8 +176,10 @@ plm_steering/
   l48_run_causal_ablation.py    Stage 2: real causal ablation test (paired bootstrap)
   l48_replication_out.json       full head-enrichment matrix, all 30 layers x 16 heads
   l48_causal_ablation_out.json   full causal-ablation results, per-structure + pooled
+  l49_unsupervised_causal_sweep.py  ablate ALL 480 heads, rank by real causal effect
+  l49_causal_sweep_out.json      full 480-head ranking + Vig-pick vs. control cross-check
   phage_data.py                shared FASTA parsing / train-eval split utility
-  data_cache/pdb_structures/    8 real PDB structures used by L48 (committed, 808K total)
+  data_cache/pdb_structures/    8 real PDB structures used by L48/L49 (committed, 808K total)
 docs/
   L41_PROTOCOL.md              full L41 gate-by-gate protocol + results
   L41_PAPER_ANALYSIS.md        direct reading of the ESM-C source paper vs. what L41 tested
@@ -173,8 +190,9 @@ docs/
   L46_SAE_FEATURE_DISCOVERY.md  full L46 method, checkpoint verification, discovery results
   L47_ACTIVATION_PATCHING.md    full L47 plan, Phase 0 feasibility, Task B validation
   L48_VIG_CAUSAL_TEST.md        full L48 Stage 1 replication + Stage 2 causal test
+  L49_UNSUPERVISED_CAUSAL_SWEEP.md  full L49 method, results, and the rank cross-check
 tests/                         unit tests for every pure-math module (73 tests, no GPU needed)
-fetch_data.sh                  downloads real meltome/solubility/PDB data used by L42/L43/L48
+fetch_data.sh                  downloads real meltome/solubility/PDB data used by L42/L43/L48/L49
 ```
 
 ## Running it
@@ -188,6 +206,7 @@ python -m plm_steering.l43_run_repro   # same, solubility target
 python -m plm_steering.l46_run_discovery         # unsupervised SAE discovery, no GPU-free download needed
 python -m plm_steering.l47_task_b_patching_validation  # patching validation vs. L42
 python -m plm_steering.l48_run_replication       # Vig et al. correlation, real PDB structures
+python -m plm_steering.l49_unsupervised_causal_sweep  # ablate all 480 heads, ~30min on Apple Silicon
 python -m plm_steering.l48_run_causal_ablation   # the actual causal test
 ```
 
