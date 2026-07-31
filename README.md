@@ -1,10 +1,13 @@
-# PLM Activation Steering: What Works, What Doesn't, and Why
+# Mechanistic Interpretability & Causal Steering on Protein LMs
 
-Three linked experiments on causally steering protein language models via
-inference-time activation addition (no retraining) — one honest failure,
-one reproduction that initially looked like a false positive and wasn't,
-and one generalization check that found a second, different false positive
-and correctly did not report it as a win.
+Eight linked experiments spanning activation steering, unsupervised
+feature discovery, and causal ablation on protein language models — one
+honest failure, one reproduction that initially looked like a false
+positive and wasn't, a caught generalization failure, a falsified
+mechanistic hypothesis, a real depth-dependence finding confirmed by two
+independent causal methods, unsupervised feature discovery with zero
+target property specified, and a 5-year-old correlational finding from
+the literature finally tested causally (and it didn't hold up).
 
 **Headline findings:**
 
@@ -65,21 +68,64 @@ and correctly did not report it as a win.
   a vector-norm-renormalization confound (relative perturbation strength
   is flat across layers, NOT correlated with effect size) before trusting
   the depth trend. See [`docs/L45_LAYER_SWEEP.md`](docs/L45_LAYER_SWEEP.md).
+- **L46 — unsupervised feature discovery: no target property specified at
+  all, until characterization afterward.** Everything above requires
+  picking a property before running anything. This uses InterPLM's
+  published pretrained sparse autoencoders (real HuggingFace checkpoints,
+  not vendored — reimplemented the ~15-line architecture from the actual
+  checkpoint's tensor shapes) to decompose ESM2-650M activations into
+  10,240 individually-interpretable directions with zero label involved.
+  Ranked by a label-free selectivity score; only checked top features
+  against real Tm labels AFTER discovery (2 weak, not-Bonferroni-
+  significant hits — a lead, not a finding). See
+  [`docs/L46_SAE_FEATURE_DISCOVERY.md`](docs/L46_SAE_FEATURE_DISCOVERY.md).
+- **L47 — activation PATCHING (substitution), not steering (addition):
+  Task B validates the method, converges with L45's independent finding.**
+  Feasibility confirmed directly (head-level slicing recoverable from
+  ESM2's merged attention output). Found and fixed a real destructive-
+  patching bug first (broadcasting to every token position collapsed
+  100% of generations at every layer). Fixed version: 27/31 layers show a
+  positive effect (sign test p=0.000034), effect size ~13x larger in
+  layers 22-30 — a genuinely different causal method (substitution, not
+  addition) converging with L45's steering-based depth-weighting finding.
+  See [`docs/L47_ACTIVATION_PATCHING.md`](docs/L47_ACTIVATION_PATCHING.md).
+- **L48 — Task A: redo a 5-year-old correlational finding as a real causal
+  test.** Vig et al. 2021 found attention heads in protein LMs that
+  strongly align with real 3D contacts, but stated explicitly this was
+  "purely associative" — never tested causally, and (confirmed via
+  dedicated literature search) nobody has since. Replicated the
+  correlation cleanly on 8 real PDB structures (layer 5 head 13: 12.9x
+  enrichment over background). Then ablated that head and measured real
+  masked-residue prediction accuracy at contact-bearing positions: **no
+  significant causal effect**, statistically indistinguishable from
+  ablating a genuine low-enrichment control head. A second, independent
+  data point (different model family, different technique) for this
+  repo's recurring lesson: correlation with a real biological signal
+  does not imply causal necessity. See
+  [`docs/L48_VIG_CAUSAL_TEST.md`](docs/L48_VIG_CAUSAL_TEST.md).
 
 ## Why this repo exists
 
 Every result here was gated by running the actual pipeline on real data,
 not by planning or literature review alone — but literature review before
-and after each run is what caught the two real bugs (SAE normalization in
-L41; decoding collapse in L42) that would otherwise have produced
-confidently-wrong conclusions. The clearest pattern across L41-L43:
-**continuous, compositionally-grounded target properties on a mid-size
-model, steered with a difference-of-means vector, are the one recipe that
-reliably works** — discrete functional classes and raw SAE decoder
-directions are not, and this does NOT generalize to every continuous
-property either (L43). L44-L45 dig one level deeper into WHY and WHERE the
-working case (L42) actually works mechanistically, rather than treating it
-as a black box that either does or doesn't fire.
+and after each run is what caught the real bugs (SAE normalization in L41;
+decoding collapse in L42; a destructive patching design in L47) that would
+otherwise have produced confidently-wrong conclusions, and what surfaced
+the specific, real, unclaimed gaps this repo goes after (L46's checkpoint
+reuse, L48's causal redo of a 2021 finding).
+
+Two patterns run through all eight experiments:
+1. **Correlation with a real biological signal does not imply causal
+   necessity or steerability.** L41 (SAE feature ↔ kinase activity), L48
+   (attention head ↔ contact map) both found real, strong correlations
+   that did NOT translate into causal control/necessity when actually
+   tested — on two different techniques, two different model families.
+2. **Continuous, compositionally-grounded properties steered via
+   difference-of-means work; this does not generalize freely** — real for
+   thermostability (L42), an artifact for solubility (L43) — **and the
+   underlying mechanism is depth-weighted, not localized**, confirmed by
+   two independent causal methods (L45's additive steering, L47's
+   substitutive patching) converging on the same conclusion.
 
 ## Repo layout
 
@@ -103,7 +149,20 @@ plm_steering/
   l44_logit_lens_out.json      full L44 output (falsified: collapse residue not predictable)
   l45_layer_sweep.py            single-layer causal-sufficiency sweep, reuses L42's vectors/data
   l45_layer_sweep_out.json      full L45 output (30/33 layers positive, depth-weighted effect)
+  l46_sae_feature_discovery.py  minimal ReLUSAE reimplementation + InterPLM checkpoint loader
+  l46_run_discovery.py           unsupervised discovery on 100 real sequences, layer 24
+  l46_discovery_out.json         top-15 selective features + post-hoc Tm-correlation check
+  l47_activation_patching.py    generic patching harness: PatchTarget, cache/patch hooks,
+                                 head-level slicing (verified against ESM2's merged attention)
+  l47_task_b_patching_validation.py  masked-position patching, validated against L42
+  l47_task_b_out.json            full Task B output (27/31 layers positive, sign test p=0.000034)
+  l48_vig_contact_heads.py      pure-math: PDB contact-map extraction, head-enrichment scoring
+  l48_run_replication.py        Stage 1: replicate Vig et al.'s correlation on 8 real structures
+  l48_run_causal_ablation.py    Stage 2: real causal ablation test (paired bootstrap)
+  l48_replication_out.json       full head-enrichment matrix, all 30 layers x 16 heads
+  l48_causal_ablation_out.json   full causal-ablation results, per-structure + pooled
   phage_data.py                shared FASTA parsing / train-eval split utility
+  data_cache/pdb_structures/    8 real PDB structures used by L48 (committed, 808K total)
 docs/
   L41_PROTOCOL.md              full L41 gate-by-gate protocol + results
   L41_PAPER_ANALYSIS.md        direct reading of the ESM-C source paper vs. what L41 tested
@@ -111,18 +170,25 @@ docs/
   L43_SOLUBILITY_STEERING.md   full L43 protocol, run on Apple Silicon MPS, AMBIGUOUS result
   L44_LOGIT_LENS_DIAGNOSTIC.md full L44 method (incl. 2 bugs found/fixed) + falsification
   L45_LAYER_SWEEP.md            full L45 method, results, and the norm-confound check
-tests/                         unit tests for every pure-math module (56 tests, no GPU needed)
-fetch_data.sh                  downloads the real meltome/solubility datasets used by L42/L43
+  L46_SAE_FEATURE_DISCOVERY.md  full L46 method, checkpoint verification, discovery results
+  L47_ACTIVATION_PATCHING.md    full L47 plan, Phase 0 feasibility, Task B validation
+  L48_VIG_CAUSAL_TEST.md        full L48 Stage 1 replication + Stage 2 causal test
+tests/                         unit tests for every pure-math module (73 tests, no GPU needed)
+fetch_data.sh                  downloads real meltome/solubility/PDB data used by L42/L43/L48
 ```
 
 ## Running it
 
 ```bash
 pip install -r requirements.txt
-pytest tests/ -q                 # 52 tests, pure-math only, no GPU/model download needed
-./fetch_data.sh                  # pulls real meltome + solubility CSVs (~35MB total)
+pytest tests/ -q                 # 73 tests, pure-math only, no GPU/model download needed
+./fetch_data.sh                  # pulls real meltome + solubility CSVs + PDB structures
 python -m plm_steering.l42_run_repro   # ESM2-650M steering; picks CUDA > MPS > CPU automatically
 python -m plm_steering.l43_run_repro   # same, solubility target
+python -m plm_steering.l46_run_discovery         # unsupervised SAE discovery, no GPU-free download needed
+python -m plm_steering.l47_task_b_patching_validation  # patching validation vs. L42
+python -m plm_steering.l48_run_replication       # Vig et al. correlation, real PDB structures
+python -m plm_steering.l48_run_causal_ablation   # the actual causal test
 ```
 
 Both run scripts auto-select `cuda`, falling back to Apple Silicon `mps`,

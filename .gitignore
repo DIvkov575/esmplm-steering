@@ -5,5 +5,13 @@ __pycache__/
 venv/
 .DS_Store
 
-# downloaded data -- large or regeneratable via fetch_data.sh, not source
-plm_steering/data_cache/
+# downloaded data -- large or regeneratable via fetch_data.sh, not source.
+# git requires un-ignoring each parent dir individually for a nested
+# negation to take effect (a negation inside an ignored dir is otherwise
+# never even evaluated) -- verified this the hard way via `git status
+# --ignored` before trusting the exception below.
+plm_steering/data_cache/*
+!plm_steering/data_cache/pdb_structures/
+# EXCEPT the L48 PDB structures: small (808K total), and they're the exact
+# evidence base for the causal ablation test's results, not just
+# regeneratable training data -- keep them committed.
