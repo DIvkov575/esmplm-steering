@@ -1,13 +1,20 @@
 # Mechanistic Interpretability & Causal Steering on Protein LMs
 
-Eight linked experiments spanning activation steering, unsupervised
-feature discovery, and causal ablation on protein language models — one
-honest failure, one reproduction that initially looked like a false
-positive and wasn't, a caught generalization failure, a falsified
-mechanistic hypothesis, a real depth-dependence finding confirmed by two
-independent causal methods, unsupervised feature discovery with zero
-target property specified, and a 5-year-old correlational finding from
-the literature finally tested causally (and it didn't hold up).
+Sixteen linked experiments spanning activation steering, unsupervised
+feature discovery, and causal ablation on protein language models. The
+throughline that survives all sixteen: **correlation with a real
+biological signal does not predict causal effect** — shown first at the
+level of individual model components (an attention head's correlation
+with real contacts vs. its actual ablation effect, L48/L49), then at the
+level of entire target properties (a scoring proxy's correlation with
+real experimental labels vs. whether steering toward it actually works,
+L53 vs. L54). The two clean new-property capability gains found here
+(L54 catalytic activity, L55 intrinsic disorder) came from a systematic
+5-target sweep run under one pre-registered protocol (L50) that caught
+two of its own near-misses in real time — a spurious PASS from
+comparing arms at an unsafe alpha (L52), and a seed-sensitive artifact
+check that only 2 of 3 seeds actually clear (L55) — before either could
+be reported as a clean result.
 
 **Headline findings:**
 
@@ -116,6 +123,86 @@ the literature finally tested causally (and it didn't hold up).
   independent instance of this repo's core lesson, and the most thorough
   one — a full 480-head sweep, not one hand-picked test. See
   [`docs/L49_UNSUPERVISED_CAUSAL_SWEEP.md`](docs/L49_UNSUPERVISED_CAUSAL_SWEEP.md).
+- **L50 — a pre-registered 6-criterion protocol for calling a capability
+  gain real, locked before any of L51-L57 ran.** Every prior new-target
+  attempt (L41 kinase, L43 solubility) either failed cleanly or fooled a
+  naive check first — this writes down in advance what would count as a
+  real PASS (beats a matched-norm random control with a real CI;
+  dose-response across >=3 alphas; survives residue-exclusion; proxy
+  validated against real labels BEFORE the run; beats the best known
+  technique where one exists; n>=150 for a new property) so the next 7
+  results are judged against a rule fixed before they were seen, not
+  after. See [`docs/L50_CAPABILITY_GAIN_PROTOCOL.md`](docs/L50_CAPABILITY_GAIN_PROTOCOL.md).
+- **L51 — aggregation resistance: the script's own "PASS" is wrong; the
+  real verdict is KILL.** Net-charge proxy validated at r=+0.20. Only
+  alpha=1.0 clears significance, and that's exactly the alpha where 1/3
+  of the eval set has already collapsed into degenerate output — no
+  dose-response across the safe range, the same "one lucky unsafe alpha"
+  shape that later produced (and got caught fixing) L52's bug. See
+  [`docs/L51_AGGREGATION_STEERING.md`](docs/L51_AGGREGATION_STEERING.md).
+- **L52 — does the 5 layers L45 found causally necessary for
+  thermostability steering preserve the full-33-layer effect on their
+  own? AMBIGUOUS, and a self-caught bug on the way to that answer.** A
+  first draft's alpha-selection logic let `best_alpha` range into the
+  harness's known-unsafe alpha>=1.0 regime and produced a spurious PASS,
+  purely because the two arms being compared collapsed into degenerate
+  output at different rates, not from any real advantage — caught,
+  fixed, and rerun end to end rather than patched post hoc. The corrected
+  result: the 5-layer subset genuinely steers (passes 5 of 6 criteria)
+  but retains only ~43-59% of the full 33-layer effect size at every
+  alpha where both are trustworthy — real, not equivalent. See
+  [`docs/L52_LAYER_SUBSET_STEERING.md`](docs/L52_LAYER_SUBSET_STEERING.md).
+- **L53 — binding affinity: the single sharpest data point in this repo
+  for "proxy validity does not predict causal steerability."** The most
+  rigorously validated proxy of any target ever attempted here (r=0.80-0.81
+  held-out, confirmed with a weight-shuffle null control, held-out-position
+  generalization, and mutational-load extrapolation — a memorization
+  candidate that scored even higher, r=0.85, was explicitly rejected for
+  not generalizing). The steering effect is a flat, unambiguous null at
+  every alpha. A follow-up compositional-distance check found this
+  target's vector-building low/high groups (single-backbone DMS point
+  mutants) differ 10x less in raw amino-acid composition than the
+  cross-protein datasets L54/L55/L57 use — a plausible mechanistic reason,
+  not just an anticlimax. See [`docs/L53_BINDING_STEERING.md`](docs/L53_BINDING_STEERING.md).
+- **L54 — catalytic activity (kcat): the first genuinely new-property
+  capability gain in this whole arc, replicated on 3/3 independent
+  seeds.** Glycine-minus-arginine compositional proxy (r=+0.22, the
+  WEAKEST of the four runnable targets in this batch) produces a clean,
+  monotonic, residue-exclusion-robust steering effect — significant at
+  every safe alpha, on every one of 3 seeds tried. Directly falsifies
+  "just use the best-validated proxy": L53's proxy is 4x stronger and
+  steers nothing. See [`docs/L54_CATALYTIC_STEERING.md`](docs/L54_CATALYTIC_STEERING.md).
+- **L55 — intrinsic disorder: a real, directionally-robust effect whose
+  artifact-robustness check is itself seed-sensitive (2 of 3).** TOP-IDP
+  proxy (r=+0.449, strongest of any target attempted) produces a
+  significant, dose-responsive effect on all 3 independent seeds — but
+  the residue-exclusion check that rules out pure compositional collapse
+  passes on 2 of 3 (36-42% of magnitude retained) and fails on the third
+  (10% retained, CI crosses zero). A concrete demonstration that
+  different criteria in the same protocol can have different
+  seed-sensitivity, not something a single run would ever reveal. See
+  [`docs/L55_DISORDER_STEERING.md`](docs/L55_DISORDER_STEERING.md).
+- **L56 — immunogenicity: killed at the proxy gate, by design, before any
+  model run.** Four evaluation tiers (peptide binding affinity -> mass-spec
+  presentation -> real T-cell response -> full-length antigens) show
+  proxies that look strong on the binding-affinity surrogate (r=+0.37)
+  collapse to near-chance on the REAL endpoint (T-cell response, r=+0.10)
+  and flip sign on full-length antigens once a source-organism confound
+  (58% of the apparent signal) is held out of cross-validation. No
+  `l56_*_steering.py` exists — the intended outcome, not missing work.
+  See [`docs/L56_IMMUNOGENICITY_KILLED.md`](docs/L56_IMMUNOGENICITY_KILLED.md).
+- **L57 — expression yield: AMBIGUOUS, explained (not just observed) as a
+  geometric echo of L55's real disorder direction.** Absolute-charge-average
+  proxy (r=+0.31-0.34, a genuinely distinct dataset from L43's earlier
+  solubility target, verified uncorrelated on their 441 overlapping
+  sequences) produces a significant, dose-responsive effect that
+  completely evaporates under residue-exclusion. Rather than leaving that
+  as an unexplained artifact, a steering-vector cosine-similarity check
+  against every other target found +0.30 overall similarity to L55's
+  vector (rising to +0.40-0.50 at the deepest layers) — this result is
+  best read as disorder's already-real effect leaking through a weaker,
+  more collapse-prone proxy, not independent evidence of a 6th steerable
+  property. See [`docs/L57_EXPRESSION_STEERING.md`](docs/L57_EXPRESSION_STEERING.md).
 
 ## Why this repo exists
 
@@ -127,20 +214,32 @@ otherwise have produced confidently-wrong conclusions, and what surfaced
 the specific, real, unclaimed gaps this repo goes after (L46's checkpoint
 reuse, L48's causal redo of a 2021 finding).
 
-Two patterns run through all nine experiments:
+Three patterns run through all sixteen experiments:
 1. **Correlation with a real biological signal does not imply causal
-   necessity or steerability.** L41 (SAE feature ↔ kinase activity), L48
-   (attention head ↔ contact map, one head) and L49 (all 480 heads,
-   ranked purely causally — Vig's correlational #1 pick ranks 313th of
-   480 by actual effect) all found real, strong correlations that did NOT
-   translate into causal control/necessity when actually tested — on two
-   different techniques, two different model families.
+   necessity, at the level of individual model components.** L41 (SAE
+   feature ↔ kinase activity), L48 (attention head ↔ contact map, one
+   head) and L49 (all 480 heads, ranked purely causally — Vig's
+   correlational #1 pick ranks 313th of 480 by actual effect) all found
+   real, strong correlations that did NOT translate into causal
+   control/necessity when actually tested.
 2. **Continuous, compositionally-grounded properties steered via
    difference-of-means work; this does not generalize freely** — real for
-   thermostability (L42), an artifact for solubility (L43) — **and the
-   underlying mechanism is depth-weighted, not localized**, confirmed by
-   two independent causal methods (L45's additive steering, L47's
-   substitutive patching) converging on the same conclusion.
+   thermostability (L42) and, in the L50-L57 batch, catalytic activity
+   (L54) and (with a caveat) intrinsic disorder (L55); an artifact for
+   solubility (L43), aggregation (L51), and expression yield (L57); a
+   clean null for binding affinity (L53); killed before any run for
+   immunogenicity (L56) — **and the underlying mechanism is
+   depth-weighted, not localized**, confirmed by two independent causal
+   methods (L45's additive steering, L47's substitutive patching)
+   converging on the same conclusion.
+3. **Correlation strength does not predict causal steerability, at the
+   level of an entire target property — not even weakly.** L53's proxy
+   (r=0.80, the strongest validated in this repo) steers nothing; L54's
+   proxy (r=0.22, the weakest of the four runnable targets in that batch)
+   produces a clean, 3-seed-replicated effect. This is the same lesson as
+   (1), one level up: a component-level or property-level correlation is
+   evidence about the model's REPRESENTATIONS, not about what happens
+   when you actually intervene.
 
 ## Repo layout
 
@@ -178,8 +277,26 @@ plm_steering/
   l48_causal_ablation_out.json   full causal-ablation results, per-structure + pooled
   l49_unsupervised_causal_sweep.py  ablate ALL 480 heads, rank by real causal effect
   l49_causal_sweep_out.json      full 480-head ranking + Vig-pick vs. control cross-check
+  l51_aggregation_steering.py   pure-math: net-charge aggregation-resistance proxy
+  l51_run_repro.py                ESM2-650M steering run (aggregation) -- KILL, script's own "PASS" is wrong
+  l52_layer_subset_causal_steering.py  layer-subset (18/23/25/30/31) vs all-33-layer head-to-head
+  l53_binding_affinity_steering.py  pure-math: mutational-sensitivity-weighted wildtype preservation
+  l53_run_repro.py                 ESM2-650M steering run (binding) -- KILL despite r=0.80 proxy
+  l54_catalytic_activity_steering.py  pure-math: glycine-minus-arginine proxy
+  l54_run_repro.py                  ESM2-650M steering run (catalytic activity) -- PASS, 3/3 seeds
+  l55_disorder_steering.py         pure-math: TOP-IDP disorder-propensity proxy
+  l55_run_repro.py                   ESM2-650M steering run (disorder) -- PASS 2/3 seeds on robustness
+  l56_immunogenicity_proxy_validation.py  4-tier proxy validation -- KILL before any model run
+  l57_expression_yield_steering.py  pure-math: absolute-charge-average proxy
+  l57_run_repro.py                   ESM2-650M steering run (expression yield) -- AMBIGUOUS
+  l57_validate_proxy.py              eSol fetch + proxy pre-validation, standalone from the run script
   phage_data.py                shared FASTA parsing / train-eval split utility
   data_cache/pdb_structures/    8 real PDB structures used by L48/L49 (committed, 808K total)
+  data_cache/{aggregation,binding,catalytic,disorder,expression}/  real datasets for L51/L53-L55/L57
+                                (committed, ~19M total -- see each dataset's source in its doc)
+  data_cache/immunogenicity/    L56's real IEDB/DisProt-scale data, ~15M committed (the one large
+                                file, iedb_tcell_mhcii.json, is gzip-compressed 53M->3M; loaded
+                                transparently by load_tcell_records())
 docs/
   L41_PROTOCOL.md              full L41 gate-by-gate protocol + results
   L41_PAPER_ANALYSIS.md        direct reading of the ESM-C source paper vs. what L41 tested
@@ -191,7 +308,15 @@ docs/
   L47_ACTIVATION_PATCHING.md    full L47 plan, Phase 0 feasibility, Task B validation
   L48_VIG_CAUSAL_TEST.md        full L48 Stage 1 replication + Stage 2 causal test
   L49_UNSUPERVISED_CAUSAL_SWEEP.md  full L49 method, results, and the rank cross-check
-tests/                         unit tests for every pure-math module (73 tests, no GPU needed)
+  L50_CAPABILITY_GAIN_PROTOCOL.md   the pre-registered 6-criterion protocol L51-L57 are judged against
+  L51_AGGREGATION_STEERING.md       full L51 method + why the script's own "PASS" is wrong
+  L52_LAYER_SUBSET_STEERING.md      full L52 method, the caught alpha-selection bug, AMBIGUOUS result
+  L53_BINDING_STEERING.md           full L53 method, proxy validation, and the compositional-distance hypothesis
+  L54_CATALYTIC_STEERING.md         full L54 method, results, and the 3-seed replication table
+  L55_DISORDER_STEERING.md          full L55 method, results, and the seed-sensitive robustness table
+  L56_IMMUNOGENICITY_KILLED.md      full L56 4-tier proxy validation and the organism-confound catch
+  L57_EXPRESSION_STEERING.md        full L57 method and the vector-geometry explanation via L55
+tests/                         unit tests for every pure-math module (145 tests, no GPU needed)
 fetch_data.sh                  downloads real meltome/solubility/PDB data used by L42/L43/L48/L49
 ```
 
@@ -199,7 +324,7 @@ fetch_data.sh                  downloads real meltome/solubility/PDB data used b
 
 ```bash
 pip install -r requirements.txt
-pytest tests/ -q                 # 73 tests, pure-math only, no GPU/model download needed
+pytest tests/ -q                 # 145 tests, pure-math only, no GPU/model download needed
 ./fetch_data.sh                  # pulls real meltome + solubility CSVs + PDB structures
 python -m plm_steering.l42_run_repro   # ESM2-650M steering; picks CUDA > MPS > CPU automatically
 python -m plm_steering.l43_run_repro   # same, solubility target
@@ -208,6 +333,16 @@ python -m plm_steering.l47_task_b_patching_validation  # patching validation vs.
 python -m plm_steering.l48_run_replication       # Vig et al. correlation, real PDB structures
 python -m plm_steering.l49_unsupervised_causal_sweep  # ablate all 480 heads, ~30min on Apple Silicon
 python -m plm_steering.l48_run_causal_ablation   # the actual causal test
+
+# L50-L57 (requires ./fetch_data.sh first for L52's meltome dependency; all
+# other L51-L57 data is committed directly, no fetch needed)
+python -m plm_steering.l51_run_repro   # aggregation resistance -- KILL (script's decision field is wrong, see doc)
+python -m plm_steering.l52_layer_subset_causal_steering  # layer-subset vs all-33-layer, thermostability
+python -m plm_steering.l53_run_repro   # binding affinity -- KILL despite r=0.80 proxy
+python -m plm_steering.l54_run_repro   # catalytic activity -- PASS
+python -m plm_steering.l55_run_repro   # intrinsic disorder -- PASS (2/3 seeds on residue-robustness)
+python -m plm_steering.l56_immunogenicity_proxy_validation  # proxy-only, no steering run -- KILL, by design
+python -m plm_steering.l57_run_repro   # expression yield -- AMBIGUOUS
 ```
 
 Both run scripts auto-select `cuda`, falling back to Apple Silicon `mps`,
@@ -216,12 +351,17 @@ produced on an A10G (L42's original run) and on an M3 Pro via MPS (L42's
 rerun + L43) — the MPS rerun of L42 reproduced the A10G numbers exactly,
 confirming MPS is a valid substitute for this workload.
 
-**Important: do not trust the `"decision"` field inside either
-`*_repro_results.json` at face value.** That field only checks "did any
-alpha clear statistical significance" — it does NOT run the residue-
-exclusion robustness check that caught L43's false positive (see
-`docs/L43_SOLUBILITY_STEERING.md`). Always read the doc's own stated
-verdict, not the JSON's `decision` key, for the actual conclusion.
+**Important: do not trust the `"decision"` field inside any
+`*_repro_out/results.json` at face value.** L43's and L51's naive
+`"decision"` fields only check "did any alpha clear statistical
+significance," which does NOT run the residue-exclusion robustness check
+that would have caught both false positives (L43's alpha=2.0, L51's
+alpha=1.0 — both outside the harness's known-safe range). L52-L57's
+scripts compute a more complete `verdict.criteria` block that DOES check
+residue-exclusion, but even that only reports what it was told to check —
+it can still miss a seed-sensitivity issue like L55's (see that doc).
+Always read the doc's own stated verdict, not any JSON `decision`/`verdict`
+key in isolation, for the actual conclusion.
 
 L41's scripts additionally require `esm` (EvolutionaryScale's ESM-C client)
 and the kinase-positive/negative FASTA files referenced in
@@ -231,7 +371,13 @@ UniProt query used to regenerate them).
 ## What this is NOT
 
 Not a claim that activation steering is a solved technique for protein
-design, and not a paper-ready result on its own — L42's reproduction
-validates the harness, it doesn't establish a new scientific finding about
-thermostability. Read each doc's own "what this is / is not" section before
-citing a number from it.
+design. Not a claim about biological causality — every "causal" result
+here is causal about the MODEL's activation space (a real intervention on
+the forward pass, with matched-norm random-direction controls and
+residue-exclusion checks), not verified against a real wet-lab assay that
+a generated, steered sequence actually has the intended property. Not a
+claim that any single result here should be trusted from one run alone —
+L52 and L55 are direct, documented demonstrations of why (a caught
+alpha-selection bug and a seed-sensitive criterion, respectively). Read
+each doc's own "what this is / is not" section before citing a number
+from it.

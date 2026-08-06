@@ -15,3 +15,17 @@ plm_steering/data_cache/*
 # EXCEPT the L48 PDB structures: small (808K total), and they're the exact
 # evidence base for the causal ablation test's results, not just
 # regeneratable training data -- keep them committed.
+!plm_steering/data_cache/aggregation/
+!plm_steering/data_cache/binding/
+!plm_steering/data_cache/catalytic/
+!plm_steering/data_cache/disorder/
+!plm_steering/data_cache/expression/
+!plm_steering/data_cache/immunogenicity/
+# EXCEPT L51/L53/L54/L55/L57's real datasets: small enough to commit
+# (~19M for the first four; L56's immunogenicity data is the exception at
+# ~15M, only because its one large file, iedb_tcell_mhcii.json, is
+# committed gzip-compressed at 3M instead of the raw 53M -- see
+# load_tcell_records() in l56_immunogenicity_proxy_validation.py) and, like
+# the PDB structures above, this is the actual evidence behind each doc's
+# results, not bulk training data that fetch_data.sh could regenerate on
+# demand the way L42/L43's meltome/solubility CSVs are.

@@ -10,3 +10,4 @@ biopython>=1.81
 sentencepiece>=0.2
 huggingface_hub>=0.20
 scipy>=1.10
+pyarrow>=14.0
