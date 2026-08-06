@@ -11,6 +11,7 @@ from plm_steering.l56_immunogenicity_proxy_validation import (
     motif_strong_window_density,
     p1_anchor_density,
     partial_correlation,
+    report_binary_tier,
 )
 
 
@@ -106,3 +107,26 @@ def test_partial_correlation_recovers_real_relationship_independent_of_control()
     y = 3.0 * x + rng.normal(scale=0.1, size=200)  # y driven by x, not control
     r = partial_correlation(x, y, control)
     assert r > 0.9
+
+
+def test_report_binary_tier_finds_perfect_separator_when_one_exists():
+    # Sequences that are ALL-F (aromatic_density=1.0) vs ALL-D (0.0) --
+    # aromatic_density should hit AUC=1.0 on both train and test.
+    positives = ["F" * 20 for _ in range(40)]
+    negatives = ["D" * 20 for _ in range(40)]
+    sequences = positives + negatives
+    labels = [1.0] * len(positives) + [0.0] * len(negatives)
+    results = report_binary_tier("perfectly separable synthetic case", sequences, labels)
+    assert results["aromatic_density"]["auc_full"] == pytest.approx(1.0)
+    assert results["aromatic_density"]["auc_test"] == pytest.approx(1.0)
+
+
+def test_report_binary_tier_near_chance_when_labels_are_random():
+    rng = np.random.RandomState(0)
+    alphabet = "ACDEFGHIKLMNPQRSTVWY"
+    sequences = ["".join(rng.choice(list(alphabet), size=30)) for _ in range(200)]
+    labels = rng.randint(0, 2, size=200).astype(float).tolist()
+    results = report_binary_tier("random-label synthetic case", sequences, labels)
+    # no proxy should reliably separate labels assigned independently of sequence
+    for name, r in results.items():
+        assert 0.3 < r["auc_test"] < 0.7, f"{name} auc_test={r['auc_test']} unexpectedly far from chance"

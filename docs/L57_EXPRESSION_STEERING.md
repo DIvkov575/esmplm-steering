@@ -52,27 +52,30 @@ effect.
 
 ## Why: vector-geometry check against L55 (disorder)
 
-Rather than leaving this as an unexplained artifact, computed cosine
-similarity between this target's steering vector and every other target's,
-per-layer and on the full 33-layer concatenation:
+Rather than leaving this as an unexplained artifact, rebuilt L54, L55, and
+L57's SEED=0 steering vectors from scratch (`plm_steering/l58_vector_geometry_crosscheck.py`,
+runnable, saves both the per-layer vectors and this table to
+`plm_steering/l58_vector_geometry_out/`) and computed cosine similarity
+between every pair, per-layer and on the full 33-layer concatenation:
 
 | comparison | full-vector cosine | deep layers (30-32) |
 |---|---|---|
-| L57 (expression) vs. L54 (catalytic) | -0.047 | ~0 (orthogonal) |
-| L57 (expression) vs. L55 (disorder) | **+0.302** | **+0.40 to +0.50** |
-| L54 (catalytic) vs. L55 (disorder) | -0.206 | -0.31 to -0.42 (mildly opposed) |
+| L57 (expression) vs. L54 (catalytic) | -0.127 | -0.26 to -0.38 (mildly opposed) |
+| L57 (expression) vs. L55 (disorder) | **+0.376** | **+0.56 to +0.67** |
+| L54 (catalytic) vs. L55 (disorder) | -0.315 | -0.51 to -0.70 (opposed) |
 
 L57's direction is **not independent of L55's** — real, substantial overlap
-concentrated in the deepest layers. This makes biological sense: eSol's
-soluble-expression-yield label and DisProt's intrinsic-disorder fraction
-are independently known to be related in the literature (disordered
-regions commonly reduce solubility/expression), so a shared component of
-direction is not a coincidence. L55's disorder effect is directionally
-robust across 3 seeds (`docs/L55_DISORDER_STEERING.md`) even though its own
-residue-exclusion check is seed-sensitive (2 of 3 seeds pass); L57's
-result is best read as a partial, noisier echo of that same real
-direction, filtered through a proxy (charge-based) that happens to
-composition-collapse more easily than TOP-IDP does.
+concentrated in the deepest layers, and stronger than a first informal look
+suggested. This makes biological sense: eSol's soluble-expression-yield
+label and DisProt's intrinsic-disorder fraction are independently known to
+be related in the literature (disordered regions commonly reduce
+solubility/expression), so a shared component of direction is not a
+coincidence. L55's disorder effect is directionally robust across 3 seeds
+(`docs/L55_DISORDER_STEERING.md`) even though its own residue-exclusion
+check is seed-sensitive (2 of 3 seeds pass); L57's result is best read as a
+partial, noisier echo of that same real direction, filtered through a
+proxy (charge-based) that happens to composition-collapse more easily than
+TOP-IDP does.
 
 ## Verdict: AMBIGUOUS — real signal, not independent evidence of a 6th steerable property
 
@@ -106,7 +109,9 @@ one target property in the same batch.
 
 Single script run, `plm_steering/l57_run_repro.py`, 5 alphas x 2 directions
 x 150 eval sequences, Apple Silicon MPS, ~5 minutes. The vector-geometry
-cross-check (rebuilding L54/L55/L57's steering vectors and computing
-pairwise cosine similarity) cost one additional ~5-minute embedding pass,
-not a full steering sweep. Raw scores/sequences saved to
-`plm_steering/l57_repro_out/results.json`.
+cross-check (`plm_steering/l58_vector_geometry_crosscheck.py`, rebuilding
+L54/L55/L57's steering vectors and computing pairwise cosine similarity)
+cost one additional ~2-minute embedding pass, not a full steering sweep.
+Raw scores/sequences saved to `plm_steering/l57_repro_out/results.json`;
+the rebuilt vectors and cosine-similarity table saved to
+`plm_steering/l58_vector_geometry_out/`.

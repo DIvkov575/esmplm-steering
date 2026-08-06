@@ -103,10 +103,12 @@
     },
     "robustness_check": null,
     "proxy_validation": {
-      "note": "pre-validated before this run; see l53_binding_affinity_steering.py docstring",
-      "pearson_r_full": 0.795,
-      "pearson_r_heldout_test": 0.797,
-      "weight_shuffle_control_r": -0.001
+      "test": {
+        "pearson_r": 0.796950057826737,
+        "p": 0.0,
+        "n": 7462
+      },
+      "min_abs_r_required": 0.5
     }
   },
   "dataset": {
@@ -3463,5 +3465,13 @@
       "MTEYKIVVLGAGGVGKSALTIQLIQNQFVDEYDPTIEDSYRKQVVIDGETCVLDILDTAGQEEYSAMRDQYMRTGEGTLCVFAIDNTKSFEEIPEYREQIKRVKDDDDVPMVLVGNKCDLPERTVDTKQAQDLAKSYGIPFIETSAKTRTGVDDAFYTLVREIKAHKEKMSKGGKKKKKKSKTKCVIL",
       "MTEYKHVVVGSGGVGKSALTIQLIQNQFVEEYDPTIEDSYRKQVVLEGETCQLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINSTKSFEDIHHYREQILRVKDTENVPMVLVGNKCDLPNRTVDTQQAQDLARSYGIPFIETSAKTRQGVDEAFYTLVREIRKNKEKMSGDGKKKKKKSKKKCVIL"
     ]
+  },
+  "proxy_validation": {
+    "test": {
+      "pearson_r": 0.796950057826737,
+      "p": 0.0,
+      "n": 7462
+    },
+    "min_abs_r_required": 0.5
   }
 }

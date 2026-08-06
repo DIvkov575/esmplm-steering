@@ -4,7 +4,10 @@
 no `l56_run_repro.py` exist. That is the intended outcome, not missing work.
 
 Runnable check: `python3 -m plm_steering.l56_immunogenicity_proxy_validation`
-(asserts the KILL still reproduces; fails loudly if it stops holding).
+(asserts the KILL still reproduces; fails loudly if it stops holding). Tier 2
+and the allergen cross-check's underlying data are fetched once via
+`python3 -m plm_steering.l56_fetch_tier2_and_allergen_data` (already run;
+committed under `data_cache/immunogenicity/`).
 
 ## What this was supposed to be
 
@@ -27,9 +30,14 @@ true endpoint than the last. The tiers matter — the result reverses between th
 | tier | label | n | best proxy | best r (test) |
 |---|---|---|---|---|
 | 1 | peptide MHC-II **binding affinity** (surrogate) | 15,362 | comp. linear | **+0.427** |
-| 2 | peptide **presentation** (mass-spec eluted ligand) | 6.2M | motif_core_mean | +0.037 (AUC 0.560) |
+| 2 | peptide **presentation** (mass-spec eluted ligand) | ~50k sample | comp. linear | **+0.208** (AUC 0.720) |
 | 3 | peptide **T-cell response** (real endpoint) | 29,258 | comp. linear | **+0.100** |
 | 4 | **full-length antigens** (pipeline's regime) | 1,024 | motifs go *negative* | −0.29 |
+
+(Tier 2's fixed literature motifs alone stay weak, AUC 0.500-0.580 -- see
+below; the composition-fit model's +0.208/AUC 0.720 is real, not a length
+artifact, and is consistent with Tier 1: MHC-II presentation and binding
+affinity share the same pocket-preference biophysics.)
 
 Tier 1 looks like a clean PASS — MHC-II's P1 pocket really does prefer bulky
 hydrophobics, strong binders are measurably F/L/A-enriched and G/D-depleted,
@@ -58,8 +66,19 @@ few well-studied organisms with very different mean positivity rates
 predicts organism, and organism predicts the label.
 
 Independent cross-check, different label type entirely: 800 UniProt curated
-allergens vs. 2,400 length-matched non-allergens — every proxy at chance
-(AUC 0.430–0.541).
+allergens vs. length-AND-lineage-matched non-allergens (n=2,423 -- matched by
+BOTH coarse taxonomic lineage and 25aa length bin, not length alone; a first
+attempt matching only by length pulled a near-100%-human comparison set and
+inflated the composition model's apparent AUC to 0.88 via a species/length
+confound, not an allergenicity signal — see
+`plm_steering/l56_fetch_tier2_and_allergen_data.py`). Fixed literature motifs
+stay near chance (AUC 0.500–0.599), but the fitted composition model reaches
+**AUC 0.846** (mean across 3 seeds: 0.861/0.854/0.823) — a real, stable
+compositional signature, consistent with Tiers 1–2. This does not change the
+KILL verdict: allergenicity (IgE/Th2-mediated) is mechanistically distinct
+from the T-cell-response endpoint (Tier 3) this steering target actually
+needs, and Tier 3/4 are what determine steerability here, not this
+cross-check.
 
 ## Why this failure was predictable in hindsight
 
@@ -82,12 +101,16 @@ Under `plm_steering/data_cache/immunogenicity/`:
 - `mhcii_ba.csv` — 125,985 IEDB-derived peptide–allele MHC-II binding
   measurements, 15,362 unique 13–21mers, 72 HLA-II alleles, continuous
   1−log50k(IC50). (HuggingFace `O047/MHC-II_BA_Data`)
-- `mhcii_el.csv` — 7.05M mass-spec eluted-ligand rows, binary presentation.
+- `mhcii_el.csv` — fixed-seed random sample (~74.7k unique peptides after
+  canonical/dedup filtering) of the full 7.05M-row mass-spec eluted-ligand
+  release, binary presentation; the full release (~680MB) is never written to
+  disk in full — see `l56_fetch_tier2_and_allergen_data.py`.
   (HuggingFace `O047/MHC-II_EL_Data`)
 - `iedb_tcell_mhcii.json` — 200,000 IEDB IQ-API `tcell_search` MHC-II assay
   records with per-assay Positive/Negative outcome (79,086 / 120,914).
-- `allergen.fasta` / `nonallergen.fasta` — 1,020 UniProt reviewed allergens
-  (KW-0020) + 62,169 non-allergens.
+- `allergen.fasta` / `nonallergen.fasta` — 800 UniProt reviewed allergens
+  (KW-0020, length 50-400aa) + 2,423 non-allergens matched by BOTH coarse
+  taxonomic lineage and 25aa length bin.
 - `antigen_posfrac_relaxed.csv` + `antigen_seqs.json` — 1,024 full-length
   antigens (50–400 aa) with an **effort-normalized** label: fraction of that
   antigen's distinct tested peptides that assayed Positive.

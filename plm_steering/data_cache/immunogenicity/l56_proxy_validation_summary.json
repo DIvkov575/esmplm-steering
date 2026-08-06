@@ -50,6 +50,43 @@
       "partial_r_length": 0.41038512795467913
     }
   },
+  "tier2_presentation": {
+    "motif_core_mean9mer": {
+      "auc_full": 0.5804678380468412,
+      "auc_test": 0.5665245770051854,
+      "r_full": 0.07282060094507284
+    },
+    "motif_core_best9mer": {
+      "auc_full": 0.560991614900793,
+      "auc_test": 0.5458205020013092,
+      "r_full": 0.06867866578456622
+    },
+    "motif_strong_window_density": {
+      "auc_full": 0.5689249573574516,
+      "auc_test": 0.5577014992408271,
+      "r_full": 0.0543113409288208
+    },
+    "p1_anchor_density": {
+      "auc_full": 0.49104572836462157,
+      "auc_test": 0.4862329443681609,
+      "r_full": -0.015700255605569945
+    },
+    "aromatic_density": {
+      "auc_full": 0.4944340707198421,
+      "auc_test": 0.4927394740249398,
+      "r_full": -0.018333334224690887
+    },
+    "kd_hydropathy": {
+      "auc_full": 0.4591998180832981,
+      "auc_test": 0.45174155422453566,
+      "r_full": -0.042538860133721004
+    },
+    "comp_linear_fit_on_train": {
+      "auc_full": 0.719719298636836,
+      "auc_test": 0.7197123398155069,
+      "r_full": 0.20788432997305734
+    }
+  },
   "tier3_tcell_response": {
     "motif_core_mean9mer": {
       "r_full": 0.059492231862489385,
@@ -157,5 +194,42 @@
     "r_random_fold": 0.37912861081700555,
     "r_organism_grouped": -0.3225885143129409,
     "mean_within_organism_r": 0.05615293134265087
+  },
+  "allergen_crosscheck": {
+    "motif_core_mean9mer": {
+      "auc_full": 0.5549840074288073,
+      "auc_test": 0.5705048310899034,
+      "r_full": 0.05146580788420152
+    },
+    "motif_core_best9mer": {
+      "auc_full": 0.4993394036318613,
+      "auc_test": 0.5018665574626688,
+      "r_full": -0.0065054694817757355
+    },
+    "motif_strong_window_density": {
+      "auc_full": 0.5732526826248452,
+      "auc_test": 0.5867518932649621,
+      "r_full": 0.06432466705633025
+    },
+    "p1_anchor_density": {
+      "auc_full": 0.5051031778786628,
+      "auc_test": 0.5130154547396909,
+      "r_full": -0.0023332395694690266
+    },
+    "aromatic_density": {
+      "auc_full": 0.566884028064383,
+      "auc_test": 0.6033491204330176,
+      "r_full": 0.07641143892402466
+    },
+    "kd_hydropathy": {
+      "auc_full": 0.6093515270326042,
+      "auc_test": 0.6019514279609715,
+      "r_full": 0.11735558051052788
+    },
+    "comp_linear_fit_on_train": {
+      "auc_full": 0.8565275484936028,
+      "auc_test": 0.86144149277117,
+      "r_full": 0.5252784136446706
+    }
   }
 }

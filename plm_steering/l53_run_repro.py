@@ -10,7 +10,10 @@ Judged against docs/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
   3 -- residue-exclusion robustness at best_alpha.
   4 -- proxy pre-validated against real DMS labels BEFORE this script existed
        (r=+0.795 full / +0.797 held-out test, plus weight-shuffle and
-       mutational-load controls -- see the proxy module's docstring).
+       mutational-load controls -- see the proxy module's docstring and
+       l53_validate_proxy.py) -- AND RE-VALIDATED IN THIS RUN against the
+       actual held-out eval pool's labels, gated by an assert before the
+       model is loaded, mirroring L54/L57's in-script proxy gate.
   5 -- does not apply: binding affinity is a NEW property with no existing
        technique in this project to beat, same situation as L51's aggregation.
   6 -- N_EVAL_SEQS=150, per the protocol's n>=150 rule for a new-property claim.
@@ -32,6 +35,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
+from scipy.stats import pearsonr
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 
 from plm_steering.l42_steering_repro import (
@@ -45,6 +49,8 @@ from plm_steering.l53_binding_affinity_steering import (
     binding_affinity_proxy_excluding,
     mutational_sensitivity_weights,
 )
+
+MIN_PROXY_ABS_R = 0.5  # far below the measured ~0.80; matches l53_validate_proxy.py's bar
 
 MODEL_NAME = "facebook/esm2_t33_650M_UR50D"
 DATA_PATH = (
@@ -167,6 +173,24 @@ def main():
     def score_binding(sequences):
         return np.array([binding_affinity_proxy(s, reference_seq, weights) for s in sequences])
 
+    # === Criterion 4, enforced before any GPU work ===
+    # Re-validate the proxy against REAL labels on the held-out eval pool
+    # computed in THIS run, mirroring L54/L57's in-script gate rather than
+    # trusting the docstring's offline numbers unconditionally.
+    eval_proxy_scores = score_binding(eval_pool["mutated_seq"])
+    eval_real_labels = eval_pool["DMS_score"].astype(float).values
+    r_test, p_test = pearsonr(eval_proxy_scores, eval_real_labels)
+    proxy_validation = {
+        "test": {"pearson_r": float(r_test), "p": float(p_test), "n": len(eval_pool)},
+        "min_abs_r_required": MIN_PROXY_ABS_R,
+    }
+    print(f"proxy vs real DMS binding score (held-out eval pool): "
+          f"r={r_test:+.4f} (p={p_test:.2e})", flush=True)
+    assert abs(r_test) >= MIN_PROXY_ABS_R, (
+        f"criterion 4 FAILED: proxy correlates only r={r_test:+.4f} with real held-out labels "
+        f"(need |r| >= {MIN_PROXY_ABS_R}); refusing to run the steering sweep on an unvalidated proxy"
+    )
+
     # high/low groups by REAL experimental binding score, percentile split on
     # the real label -- never on the proxy (that would be circular).
     labels = vector_pool["DMS_score"].astype(float).values
@@ -241,7 +265,7 @@ def main():
         degenerate = np.array([is_degenerate_sequence(s) for s in generated])
         return generated, scores, degenerate
 
-    results = {"real_direction": {}, "random_control": {}}
+    results = {"proxy_validation": proxy_validation, "real_direction": {}, "random_control": {}}
     all_sequences = {"baseline": None, "real_direction": {}, "random_control": {}}
 
     print("\n=== baseline (alpha=0) ===", flush=True)
@@ -304,7 +328,7 @@ def main():
         dose_response_is_monotonic_then_collapsing(
             valid_alphas, [real_vs_random_by_alpha[a]["point_estimate"] for a in valid_alphas]
         )
-        if len(valid_alphas) >= 2
+        if len(valid_alphas) >= 3  # L50 criterion 2 requires >=3 sweep points
         else False
     )
 
@@ -350,7 +374,7 @@ def main():
     crit1 = best_alpha is not None
     crit2 = dose_response_ok
     crit3 = robustness_check is not None and robustness_check["diff_with_exclusion"]["significant_at_95pct"]
-    crit4 = True  # proxy pre-validated against real DMS labels, r=+0.795/+0.797
+    crit4 = bool(abs(r_test) >= MIN_PROXY_ABS_R)  # asserted above; recorded for the verdict record
     crit6 = len(eval_sequences) >= 150
     criteria = {
         "1_beats_controls": crit1,
@@ -375,12 +399,7 @@ def main():
         "best_alpha": best_alpha,
         "real_vs_random_by_alpha": real_vs_random_by_alpha,
         "robustness_check": robustness_check,
-        "proxy_validation": {
-            "note": "pre-validated before this run; see l53_binding_affinity_steering.py docstring",
-            "pearson_r_full": 0.795,
-            "pearson_r_heldout_test": 0.797,
-            "weight_shuffle_control_r": -0.001,
-        },
+        "proxy_validation": proxy_validation,
     }
 
     print("\n=== L53 VERDICT (binding affinity, degenerate-filtered, paired-bootstrapped, "

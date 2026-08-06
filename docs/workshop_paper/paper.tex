@@ -344,8 +344,8 @@ designed to catch.
 Rather than discarding this as unexplained noise, we compute the cosine
 similarity between this target's steering vector and every other
 target's, layer by layer. We find substantial, non-trivial overlap with
-the intrinsic-disorder target's vector (\S\ref{sec:disorder}): $+0.30$
-on the full 33-layer concatenation, rising to $+0.40$ to $+0.50$ at the
+the intrinsic-disorder target's vector (\S\ref{sec:disorder}): $+0.38$
+on the full 33-layer concatenation, rising to $+0.56$ to $+0.67$ at the
 three deepest layers. This is not coincidental -- disordered protein
 regions are independently documented in the literature to reduce
 solubility and expression yield -- and reframes the result: rather than
@@ -447,14 +447,30 @@ different finding than an AMBIGUOUS result that is not.
 findings hold at other scales. All proxies are compositional heuristics,
 not learned predictors, chosen for interpretability and speed rather
 than maximal predictive power -- a stronger, non-compositional proxy
-might behave differently. We tested seed-robustness for two targets
-(catalytic activity, intrinsic disorder) but not all five; the
-seed-sensitivity finding in \S\ref{sec:disorder} may or may not
-generalize to the other three. We did not run any structural or
-functional plausibility check (e.g.\ predicted-fold confidence) on
-generated sequences, so a PASS result does not rule out that steered
-sequences, while scoring well on the proxy, are otherwise implausible
-proteins.
+might behave differently. Each target's final proxy formula was
+selected as the best of several candidates (typically 7-9) scored on
+the same held-out split whose $r$ is then reported as the validation
+number, rather than via a separate train/select/test split -- a
+garden-of-forking-paths bias that optimistically inflates every
+reported proxy-$r$ in the same direction. This does not by itself
+explain the central finding (binding affinity's proxy remains the
+best-validated and its steering effect remains null under any
+plausible correction), but the absolute $r$ values should be read as
+upper bounds. We also ran a large number of significance tests across
+the study (5 targets $\times$ 5 alphas, with 3-seed reruns for two
+targets, plus L48/L49's 480-head sweep) without a multiple-comparisons
+correction; this is partially self-mitigated by requiring the same
+criterion to hold across multiple alphas and seeds simultaneously for
+a PASS, but individual borderline criteria (e.g.\ L55's
+residue-exclusion check, significant on 2 of 3 seeds) sit close enough
+to the noise floor that this is a real caveat, not a formality. We
+tested seed-robustness for two targets (catalytic activity, intrinsic
+disorder) but not all five; the seed-sensitivity finding in
+\S\ref{sec:disorder} may or may not generalize to the other three. We
+did not run any structural or functional plausibility check (e.g.\
+predicted-fold confidence) on generated sequences, so a PASS result
+does not rule out that steered sequences, while scoring well on the
+proxy, are otherwise implausible proteins.
 
 \section{Conclusion}
 

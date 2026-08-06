@@ -299,7 +299,7 @@ def main():
     valid_alphas = [a for a in SAFE_ALPHAS if subset5_vs_random[a]["point_estimate"] is not None]
     dose_response_ok = dose_response_is_monotonic_then_collapsing(
         valid_alphas, [subset5_vs_random[a]["point_estimate"] for a in valid_alphas]
-    ) if len(valid_alphas) >= 2 else False
+    ) if len(valid_alphas) >= 3 else False  # L50 criterion 2 requires >=3 sweep points
 
     # Criterion 3/5: best_alpha restricted to SAFE_ALPHAS for the same reason
     best_alpha = max(

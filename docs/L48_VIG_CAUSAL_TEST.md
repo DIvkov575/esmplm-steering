@@ -29,7 +29,7 @@ attention on real contacts, a **12.9x enrichment** over the pooled
 background rate (2.8%). A cluster of heads in layer 29 (the second-to-last
 layer) also shows strong enrichment (8.8-10.4x), echoing Vig et al.'s own
 finding that high-level structural concepts concentrate in deeper layers.
-Full per-head matrix: `src/l38/l48_replication_out.json`.
+Full per-head matrix: `plm_steering/l48_replication_out.json`.
 
 ## Stage 2: the actual causal test
 

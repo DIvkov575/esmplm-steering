@@ -68,7 +68,7 @@
       "1_beats_random_control": true,
       "2_dose_response": true,
       "3_residue_robust": true,
-      "4_proxy_pre_validated": "True",
+      "4_proxy_pre_validated": true,
       "5_beats_existing_technique": null,
       "6_adequately_powered": true
     },

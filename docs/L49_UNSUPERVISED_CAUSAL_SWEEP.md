@@ -31,7 +31,7 @@ L48's full 770, since testing all 480 heads on the full set would take
 
 ## Results
 
-**Full ranking:** `src/l38/l49_causal_sweep_out.json` (all 480 heads).
+**Full ranking:** `plm_steering/l49_causal_sweep_out.json` (all 480 heads).
 166 of 480 heads (35%) show EXACTLY zero effect on this position sample —
 real evidence of redundancy in the network (many heads carrying
 overlapping information, so losing any one doesn't move the needle).
@@ -42,14 +42,35 @@ tiny (mean effect +0.0014, i.e. essentially negligible day-to-day; the
 skew is a real but small effect, not something to build a strong claim on
 by itself).
 
+**Resolution caveat.** With only `n_sampled_positions=104`, `mean_effect`
+is quantized to multiples of 1/104 ≈ 0.0096 — only 8 distinct values occur
+across all 480 heads. "Exactly zero" is therefore partly a measurement-floor
+artifact (a head whose ablation flips as many predictions right as wrong on
+this small sample reports bit-exact 0.0), not purely evidence that those
+166 heads are individually inert. The zero-effect heads are spread across
+nearly every layer rather than clustered, which is inconsistent with a
+hook-registration bug (confirmed separately: `HeadAblationHook` measurably
+changes logits at every layer/head combination spot-checked). The
+qualitative redundancy claim likely still holds at a finer sample size, but
+the precise 35% figure should be read as "at this sweep's coarse
+resolution," not as a resolution-independent measurement.
+
 **The direct cross-check against Vig et al.'s correlational ranking is the
 headline finding.** Looked up where L48's two tested heads land in this
 fully independent, causally-generated ranking:
 
 | head | correlational rank (Stage 1, by contact enrichment) | causal rank (this sweep, by real effect) | mean_effect |
 |---|---|---|---|
-| layer 5, head 13 (Vig's top pick) | **1st** of 480 (12.9x enrichment) | **313th** of 480 | +0.0096 (ablation slightly HELPS) |
+| layer 5, head 13 (Vig's top pick) | **1st** of 480 (12.9x enrichment) | **313th** of 480 (tied block: 286th-417th) | +0.0096 (ablation slightly HELPS) |
 | layer 17, head 1 (L48's low-enrichment control) | **480th** of 480 (0.055x, lowest) | **80th** of 480 | -0.0096 (ablation HURTS — more causally important than Vig's pick) |
+
+Vig's head shares its exact `mean_effect` value with 131 other heads (132 of
+480 total, a consequence of the 104-position quantization noted above), so
+"313th" is this sweep's arbitrary tie-break position within a block spanning
+ranks 286-417, not a precise ordinal. The qualitative result is unaffected
+by this: even the top of that tie block (286th) is comfortably below-median,
+so the head Vig et al.'s method would point to as most important is,
+at best, below-median in actual causal effect on this task.
 
 **The correlational and causal rankings are not just weakly related for
 this head — they're inverted.** The head Vig et al.'s method would point

@@ -28,12 +28,14 @@ The code, data, and results backing every number in the papers:
 - **L51–L57** — the 5-target sweep (binding affinity KILL, catalytic activity
   PASS, intrinsic disorder PASS*, immunogenicity KILL pre-run, expression
   yield AMBIGUOUS)
+- **L58** — cross-target steering-vector geometry cross-check (explains L57's
+  AMBIGUOUS result as a geometric echo of L55's validated disorder direction)
 
 ## Running
 
 ```bash
 pip install -r requirements.txt
-pytest tests/ -q    # 102 tests, pure-math only, no GPU needed
+pytest tests/ -q    # 113 tests, pure-math only, no GPU needed
 ```
 
 Run scripts require ESM2-650M (auto-selects CUDA > MPS > CPU):
@@ -43,6 +45,12 @@ python -m plm_steering.l55_run_repro   # intrinsic disorder (PASS*)
 python -m plm_steering.l53_run_repro   # binding affinity (KILL)
 python -m plm_steering.l57_run_repro   # expression yield (AMBIGUOUS)
 python -m plm_steering.l56_immunogenicity_proxy_validation  # proxy-only (KILL)
+python -m plm_steering.l58_vector_geometry_crosscheck  # cross-target cosine similarity
+```
+
+One-time data fetches (already run; outputs committed):
+```bash
+python -m plm_steering.l56_fetch_tier2_and_allergen_data  # Tier-2 + allergen-check data
 ```
 
 ## Source draft and figures

@@ -238,8 +238,8 @@ that passes but a faithfulness check that fails.
 Rather than discarding the expression-yield result as unexplained noise,
 we compute cosine similarity between its steering vector and every other
 target's, layer by layer. We find substantial overlap with the
-intrinsic-disorder target's vector: $+0.30$ on the full 33-layer
-concatenation, rising to $+0.40$--$0.50$ at the three deepest layers. This
+intrinsic-disorder target's vector: $+0.38$ on the full 33-layer
+concatenation, rising to $+0.56$--$0.67$ at the three deepest layers. This
 is consistent with the independently documented biology -- disordered
 protein regions are known to reduce solubility and expression yield --
 and grounds the result causally: expression yield's apparent effect is
@@ -318,10 +318,20 @@ specific model or foundation models more broadly. All proxies are
 compositional heuristics rather than learned attribution methods, chosen
 for interpretability and speed; a stronger, more sophisticated
 explanation method might show a different relationship to causal effect.
-We checked seed-robustness for two of five targets; we did not run any
-structural or functional plausibility check on generated sequences, so a
-PASS does not rule out that causally-steered sequences, while scoring
-well on the proxy, are otherwise physically or biologically implausible.
+Each target's final proxy was selected as the best of several candidates
+scored on the same held-out split its validation $r$ is reported on
+(rather than a separate select/test split), inflating every reported
+proxy-$r$ in the same direction -- the absolute values should be read
+as upper bounds, though this does not obviously overturn the ordinal
+mismatch the paper's central claim rests on. We ran many significance
+tests overall without a multiple-comparisons correction, partially
+mitigated by requiring multi-alpha/multi-seed agreement for any PASS,
+but individual borderline criteria are close enough to the noise floor
+that this remains a real caveat. We checked seed-robustness for two of
+five targets; we did not run any structural or functional plausibility
+check on generated sequences, so a PASS does not rule out that
+causally-steered sequences, while scoring well on the proxy, are
+otherwise physically or biologically implausible.
 
 \section{Conclusion}
 

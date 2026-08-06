@@ -323,7 +323,7 @@ def main():
         dose_response_is_monotonic_then_collapsing(
             list(valid_alphas), [real_vs_random_by_alpha[a]["point_estimate"] for a in valid_alphas]
         )
-        if len(valid_alphas) >= 2 else False
+        if len(valid_alphas) >= 3 else False  # L50 criterion 2 requires >=3 sweep points
     )
 
     # Criterion 3, on the strongest SAFE alpha with a significant effect
@@ -380,7 +380,7 @@ def main():
     crit1 = best_alpha is not None
     crit2 = dose_response_ok
     crit3 = robustness_check is not None and robustness_check["diff_with_exclusion"]["significant_at_95pct"]
-    crit4 = abs(r_test) >= MIN_PROXY_ABS_R  # asserted above; recorded for the verdict record
+    crit4 = bool(abs(r_test) >= MIN_PROXY_ABS_R)  # asserted above; recorded for the verdict record
     crit5 = None  # not operative: no prior technique exists for this property
     crit6 = len(eval_sequences) >= 150
 

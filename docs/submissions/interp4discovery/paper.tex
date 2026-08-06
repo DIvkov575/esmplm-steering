@@ -167,8 +167,8 @@ cross-validation). Killed before any steering run.
 \textbf{Expression yield} (eSol, net-charge-deviation proxy, $r=0.31$--$0.34$):
 significant, dose-responsive, but collapses under residue-exclusion.
 Rather than discarding this, we compute steering-vector cosine similarity
-against every other target: $+0.30$ overall with intrinsic disorder's
-vector, rising to $+0.40$--$0.50$ at the three deepest layers -- consistent
+against every other target: $+0.38$ overall with intrinsic disorder's
+vector, rising to $+0.56$--$0.67$ at the three deepest layers -- consistent
 with disordered regions independently reducing solubility/expression in
 the literature. This is best read as a partial echo of disorder's
 already-validated effect through a more collapse-prone proxy, not a
@@ -221,8 +221,13 @@ biological property.'' The vector-geometry check that explained the
 expression-yield result is cheap (one extra embedding pass) and worth
 running by default whenever multiple targets are tested together. All
 experiments use one model (ESM2-650M) at one scale; all proxies are
-compositional heuristics; seed-robustness was checked for two of five
-targets; no structural/functional plausibility check was run on generated
+compositional heuristics; each target's proxy was selected as the best
+of several candidates on the same held-out split its reported $r$ comes
+from, inflating every reported $r$ (values should be read as upper
+bounds); we ran many significance tests without a multiple-comparisons
+correction, partly mitigated by requiring multi-alpha/seed agreement
+for a PASS; seed-robustness was checked for two of five targets; no
+structural/functional plausibility check was run on generated
 sequences.
 
 \section{Conclusion}

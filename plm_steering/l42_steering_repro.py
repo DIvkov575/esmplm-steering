@@ -218,11 +218,12 @@ def dose_response_is_monotonic_then_collapsing(alphas: List[float], effects: Lis
     """Check for the qualitative dose-response shape Huang et al. report:
     effect increases with alpha up to some point, then may collapse
     (over-steering) at extreme alpha -- i.e. NOT flat/noisy across all
-    alphas. Returns True if there's a clear non-flat pattern: at least one
-    interior alpha's effect exceeds both its neighbors' by more than
-    collapse_tolerance is NOT required (that would demand a collapse); the
-    weaker, correct check is monotonic non-decrease up to the max, since
-    collapse is only expected beyond the tested range.
+    alphas. Returns True only if the effect is non-decreasing at EVERY
+    consecutive step (each step down by more than collapse_tolerance fails
+    the check), since collapse is only expected beyond the tested range.
+    Checking only the first vs. last point would pass a non-monotonic dip
+    in the middle -- e.g. [0.02, -100, 5] -- as a "clean dose-response",
+    which is not the shape this function is meant to detect.
     """
     if len(alphas) != len(effects):
         raise ValueError("alphas and effects must have the same length")
@@ -231,6 +232,5 @@ def dose_response_is_monotonic_then_collapsing(alphas: List[float], effects: Lis
 
     order = np.argsort(alphas)
     sorted_effects = np.array(effects)[order]
-    # "clear pattern" = strictly increasing overall (last > first by more than
-    # a small tolerance), not just noise scattered around zero.
-    return bool(sorted_effects[-1] - sorted_effects[0] > collapse_tolerance)
+    steps = np.diff(sorted_effects)
+    return bool(np.all(steps > -collapse_tolerance) and sorted_effects[-1] - sorted_effects[0] > collapse_tolerance)

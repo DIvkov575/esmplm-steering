@@ -67,7 +67,7 @@ biophysical correlate, not a formula fit to this project's numbers.
 | aromatic fraction (FWY) | -0.133 |
 | charged fraction (DEKR) | -0.109 |
 | GRAVY | +0.092 |
-| Arg/(Arg+Lys) ratio | +0.075 |
+| Arg/(Arg+Lys) ratio | -0.097 |
 | net charge (L51's proxy) | -0.009 (null) |
 | sequence length | -0.022 (null) |
 | composites adding A, IVYWREL, or Arg/(Arg+Lys) normalization | all below the two-term form |
@@ -137,6 +137,9 @@ own two terms, the strictest possible version of this check. Excluding
 both: effect drops from +0.0152 to +0.0052 (a real 3x shrinkage) but
 **stays significant** (CI [0.0037, 0.0067]) — the effect survives with
 ~34% of its magnitude intact even after removing its own defining residue.
+(This 34%-retained/shrinks pattern is specific to SEED=0's split — see the
+seed table below, where seeds 1 and 2 show the effect *growing*, not
+shrinking, after the same exclusion.)
 
 ## Seed-robustness check: PASS replicates on 3/3 independent seeds
 
@@ -145,19 +148,27 @@ the random-control direction draw. Reran twice more with `SEED=1` and
 `SEED=2` (same script, only the seed changed) to check this isn't a
 lucky split:
 
-| seed | real-vs-random diff @ alpha=0.1/0.25/0.5 | decision | residue-robust? |
-|---|---|---|---|
-| 0 | +0.0013 / +0.0052 / +0.0152 | PASS | yes (34% retained, still sig.) |
-| 1 | +0.0009 / +0.0035 / +0.0118 | PASS | yes |
-| 2 | +0.0017 / +0.0035 / +0.0124 | PASS | yes |
+| seed | real-vs-random diff @ alpha=0.1/0.25/0.5 | decision | residue-robust? | excluded residues | retained |
+|---|---|---|---|---|---|
+| 0 | +0.0013 / +0.0052 / +0.0152 | PASS | yes, still sig. | A, G | 34% (shrinks) |
+| 1 | +0.0009 / +0.0035 / +0.0118 | PASS | yes, still sig. | A, L | 127% (grows) |
+| 2 | +0.0017 / +0.0035 / +0.0124 | PASS | yes, still sig. | A, L | 129% (grows) |
 
 Same monotonic shape, same order of magnitude, all 3 seeds independently
 clear every criterion. **This is the one target in the 5-target batch with
 fully unanimous seed-robustness** (contrast with L55's disorder result,
-2 of 3 seeds — see `docs/L55_DISORDER_STEERING.md`). Proxy-vs-real-label
-correlation also held across seeds' different train/test splits: test
-r=+0.214 (seed 0), +0.164 (seed 1), +0.287 (seed 2) — all comfortably above
-the 0.15 gate.
+2 of 3 seeds — see `docs/L55_DISORDER_STEERING.md`). But the *magnitude*
+retained after residue-exclusion is itself seed-sensitive in the opposite
+direction of what SEED=0 alone would suggest: seed 0's dominant substituted
+residues (A, G) shrink the effect to 34%, while seeds 1 and 2's (A, L)
+actually *grow* it to 127-129% of the unexcluded effect. All three remain
+significant, so criterion 3 genuinely passes 3/3 — but "excluding the
+collapse residues costs about two-thirds of the effect" is a SEED=0-specific
+finding, not a general property of this target, and the L55 doc's caution
+about not over-generalizing from one seed's exclusion magnitude applies
+here too. Proxy-vs-real-label correlation also held across seeds' different
+train/test splits: test r=+0.214 (seed 0), +0.164 (seed 1), +0.287 (seed 2)
+— all comfortably above the 0.15 gate.
 
 ## Verdict: PASS (5 of 6 criteria; criterion 5 not operative)
 
@@ -165,7 +176,7 @@ the 0.15 gate.
 |---|---|
 | 1. beats random control, real CI | **PASS**, 3/3 seeds |
 | 2. dose-response | **PASS**, monotonic across all 3 safe alphas, 3/3 seeds |
-| 3. residue-exclusion robust | **PASS**, ~34% magnitude retained, 3/3 seeds |
+| 3. residue-exclusion robust | **PASS**, 3/3 seeds (34-129% magnitude retained -- seed-dependent, see seed table) |
 | 4. proxy pre-validated | **PASS**, re-validated in-script by assert before the model loads |
 | 5. beats prior technique | N/A — no existing technique for this property |
 | 6. adequately powered | **PASS**, n=150 |

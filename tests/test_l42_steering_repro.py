@@ -102,6 +102,15 @@ def test_dose_response_false_for_single_point():
     assert dose_response_is_monotonic_then_collapsing([0.0], [1.0]) is False
 
 
+def test_dose_response_rejects_non_monotonic_dip_even_if_last_beats_first():
+    # A middle-alpha collapse followed by recovery is NOT a clean
+    # dose-response, even though the last point exceeds the first -- a
+    # first-vs-last-only check would wrongly pass this.
+    alphas = [0.1, 0.25, 0.5]
+    effects = [0.02, -100.0, 5.0]
+    assert dose_response_is_monotonic_then_collapsing(alphas, effects) is False
+
+
 def test_is_degenerate_sequence_flags_poly_leucine_collapse():
     # Real observed collapse artifact from the L42 run (docs/L42_STEERING_REPRO.md):
     # sustained runs of a single residue well past what real proteins show.

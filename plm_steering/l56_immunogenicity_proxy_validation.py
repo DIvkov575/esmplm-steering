@@ -19,15 +19,25 @@ Datasets (all real, all cached under data_cache/immunogenicity/):
                      measurements, 15,362 unique 13-21mers, 72 HLA-II alleles,
                      continuous score = 1-log50k(IC50), higher = tighter binder.
                      (HuggingFace O047/MHC-II_BA_Data)
-  mhcii_el.csv       7.05M mass-spec eluted-ligand rows (binary: peptide was
-                     naturally presented on MHC-II or not).
+  mhcii_el.csv       Fixed-seed random sample (~50k rows before dedup) of the
+                     7.05M-row mass-spec eluted-ligand release (binary: peptide
+                     was naturally presented on MHC-II or not); the full
+                     release is ~680MB and was never written to disk in full
+                     -- see l56_fetch_tier2_and_allergen_data.py.
                      (HuggingFace O047/MHC-II_EL_Data)
   iedb_tcell_mhcii.json  200,000 IEDB IQ-API `tcell_search` MHC-II assay
                      records with per-assay Positive/Negative outcome -- the
                      ACTUAL immunogenicity endpoint (did a T cell respond),
                      not a binding surrogate. 79,086 Positive / 120,914 Negative.
-  allergen.fasta / nonallergen.fasta  1,020 UniProt reviewed allergens
-                     (KW-0020) + 62,169 length-matchable non-allergens.
+  allergen.fasta / nonallergen.fasta  800 UniProt reviewed allergens (KW-0020,
+                     length 50-400aa) + non-allergens matched BOTH by coarse
+                     taxonomic lineage (plant/arthropod/chordate/fungi/other-
+                     animal) and 25aa length bin -- see
+                     l56_fetch_tier2_and_allergen_data.py, and its docstring
+                     for why matching only by length left the non-allergen set
+                     confounded by species composition (near-100% human by
+                     UniProt's default ranking) and, separately, by length
+                     within each lineage bucket.
   antigen_posfrac_relaxed.csv + antigen_seqs.json  1,024 full-length source
                      antigens (50-400 aa) with an EFFORT-NORMALIZED label:
                      fraction of that antigen's distinct tested peptides that
@@ -46,7 +56,11 @@ Why the four evaluation tiers below, and what each showed:
   PASS, which is exactly the trap.
 
   TIER 2 -- peptide PRESENTATION (mass-spec eluted ligand, realistic decoy
-  negatives). Collapses to near-chance: best AUC 0.560, r=+0.037.
+  negatives). Fixed literature motifs stay weak (best AUC 0.580, r=+0.073) but
+  a fitted composition model reaches AUC=0.720 -- real signal, consistent with
+  Tier 1: MHC-II presentation and binding affinity are mechanistically the
+  same pocket-preference biophysics, so a compositional proxy tracking one
+  tracks the other.
 
   TIER 3 -- peptide T-CELL RESPONSE (the real endpoint, response rate over
   >=2 independent assays, n=29,258 peptides). Best proxy r=+0.100 (fitted
@@ -60,8 +74,27 @@ Why the four evaluation tiers below, and what each showed:
   opposite sign from Tier 1. The fitted model's apparent r=+0.379 is the
   organism confound documented above.
 
-Independent cross-check: on 800 UniProt curated allergens vs 2,400
-length-matched non-allergens, every proxy is at chance (AUC 0.430-0.541).
+The pattern across Tiers 1-4: whatever is upstream of T-cell response (MHC-II
+binding, MHC-II presentation) IS compositionally tractable -- the actual
+bottleneck is specifically the T-cell-repertoire/self-tolerance step (Tier 3),
+which is not a property of the peptide sequence alone at all, and Tier 4's
+full-length regime, where the only apparent signal is a confound.
+
+Independent cross-check: on 800 UniProt curated allergens vs. length-AND-
+lineage-matched non-allergens (n=2423), fixed literature motifs stay near
+chance (AUC 0.500-0.599) but a fitted composition model reaches AUC=0.846
+(mean across 3 seeds: 0.861/0.854/0.823) -- allergenicity, like MHC-II
+binding/presentation, carries a real compositional signature. This does not
+change the KILL verdict: allergenicity is a distinct property from
+T-cell-mediated immunogenicity (an allergen provokes IgE/Th2 responses via a
+different mechanism than the T-cell endpoint this steering target would
+actually need), and it is Tier 3/4 -- not this cross-check -- that determines
+whether the pipeline's target property is steerable. An earlier version of
+this cross-check matched non-allergens by length alone without lineage
+restriction, which pulled a near-100%-human comparison set and inflated the
+composition model's apparent AUC to 0.88 via a species confound rather than
+an allergenicity signal; matching jointly by lineage bucket and length bin
+(see l56_fetch_tier2_and_allergen_data.py) controls for that.
 
 Why this target is different in kind from L51 (aggregation, r=+0.20) and L55
 (disorder, r=+0.449), both of which validated: aggregation propensity and
@@ -88,6 +121,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr, spearmanr
+from sklearn.metrics import roc_auc_score
 
 DATA_DIR = Path(__file__).resolve().parent / "data_cache" / "immunogenicity"
 CANONICAL = frozenset("ACDEFGHIKLMNPQRSTVWY")
@@ -207,6 +241,38 @@ def is_usable(sequence, min_len, max_len):
     )
 
 
+def report_binary_tier(name, sequences, labels, note=""):
+    """AUC/binary-classification analogue of `report_tier`, for a 0/1 real
+    label (Tier 2's presented/not-presented, and the allergen/non-allergen
+    check) rather than a continuous score. Uses the same fixed proxies plus
+    a composition model fit on a train split only.
+    """
+    print(f"\n{'=' * 92}\nBINARY TIER: {name}   (n={len(sequences)}, "
+          f"{int(sum(labels))} positive){'  ' + note if note else ''}")
+    rng = np.random.RandomState(SEED)
+    order = rng.permutation(len(sequences))
+    n_train = int(0.7 * len(sequences))
+    tr, te = order[:n_train], order[n_train:]
+    seq_arr = np.asarray(sequences, dtype=object)
+    lab_arr = np.asarray(labels, dtype=float)
+
+    proxies = dict(FIXED_PROXIES)
+    weights = fit_composition_model(seq_arr[tr], lab_arr[tr])
+    proxies["comp_linear_fit_on_train"] = lambda s: apply_composition_model(s, weights)
+
+    print(f"{'proxy':<30}{'auc_full':>10}{'auc_test':>10}{'r_full':>9}")
+    print("-" * 92)
+    results = {}
+    for proxy_name, fn in proxies.items():
+        values = np.array([fn(s) for s in seq_arr])
+        auc_full = roc_auc_score(lab_arr, values)
+        auc_test = roc_auc_score(lab_arr[te], values[te])
+        r_full, _ = pearsonr(values, lab_arr)
+        print(f"{proxy_name:<30}{auc_full:>10.3f}{auc_test:>10.3f}{r_full:>9.3f}")
+        results[proxy_name] = {"auc_full": float(auc_full), "auc_test": float(auc_test), "r_full": float(r_full)}
+    return results
+
+
 def report_tier(name, sequences, labels, note=""):
     """Print every fixed proxy plus a train-fit composition model against one
     label set, with a train/test split so nothing is scored on its own fit."""
@@ -263,6 +329,47 @@ def load_full_length_antigens():
     antigens = antigens[antigens.sequence.notna()]
     antigens = antigens[antigens.sequence.apply(lambda s: is_usable(s, 50, 400))]
     return antigens.reset_index(drop=True)
+
+
+def load_eluted_ligand():
+    """TIER 2: mass-spec MHC-II eluted-ligand presentation (peptide was
+    naturally presented, or not). mhcii_el.csv is a fixed-seed random sample
+    of ~50k rows from the full 7.05M-row HuggingFace O047/MHC-II_EL_Data
+    release (see l56_fetch_tier2_and_allergen_data.py), deduped by peptide --
+    the full dataset is far too large (~680MB) to commit whole, unlike this
+    module's other, already-cached data sources."""
+    df = pd.read_csv(DATA_DIR / "mhcii_el.csv")
+    df = df[df.peptide.apply(lambda s: is_usable(s, 9, 50))]
+    return df.peptide.tolist(), df.score.values
+
+
+def load_allergen_check():
+    """Independent cross-check: real UniProt-curated allergens (keyword
+    KW-0020) vs. length-matched non-allergens. Not part of the four-tier
+    immunogenicity ladder above (allergenicity and T-cell-mediated
+    immunogenicity are related but distinct properties) -- included because
+    it is a second, independently-sourced test of whether ANY compositional
+    proxy tracks immune recognition, using real labeled sequences rather
+    than a proxy's own construction."""
+    def _read_fasta(path):
+        sequences = []
+        current = []
+        for line in open(path):
+            if line.startswith(">"):
+                if current:
+                    sequences.append("".join(current))
+                current = []
+            else:
+                current.append(line.strip())
+        if current:
+            sequences.append("".join(current))
+        return sequences
+
+    allergen_seqs = _read_fasta(DATA_DIR / "allergen.fasta")
+    nonallergen_seqs = _read_fasta(DATA_DIR / "nonallergen.fasta")
+    sequences = allergen_seqs + nonallergen_seqs
+    labels = [1.0] * len(allergen_seqs) + [0.0] * len(nonallergen_seqs)
+    return sequences, labels
 
 
 def organism_labels(accession_iris):
@@ -339,6 +446,11 @@ def main():
         "peptide MHC-II binding affinity (SURROGATE endpoint)", seqs, labels,
         note="-- proxies DO work here; this tier alone is the trap")
 
+    seqs, labels = load_eluted_ligand()
+    summary["tier2_presentation"] = report_binary_tier(
+        "peptide MHC-II presentation, mass-spec eluted ligand (realistic decoys)",
+        seqs, labels, note="-- collapses to near-chance")
+
     seqs, labels = load_tcell_peptides()
     summary["tier3_tcell_response"] = report_tier(
         "peptide T-cell response rate (REAL endpoint)", seqs, labels,
@@ -351,6 +463,11 @@ def main():
         note="-- literature motifs flip NEGATIVE")
 
     summary["confound"] = report_organism_confound(antigens)
+
+    seqs, labels = load_allergen_check()
+    summary["allergen_crosscheck"] = report_binary_tier(
+        "UniProt allergens vs. length-matched non-allergens (independent cross-check)",
+        seqs, labels, note="-- independent of the four-tier ladder above")
 
     print(f"\n{'=' * 92}\nVERDICT: KILL -- no proxy validates on the real endpoint in the pipeline's")
     print("sequence regime. The apparent full-length signal is a source-organism confound")
