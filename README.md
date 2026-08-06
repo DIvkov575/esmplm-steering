@@ -16,6 +16,11 @@ comparing arms at an unsafe alpha (L52), and a seed-sensitive artifact
 check that only 2 of 3 seeds actually clear (L55) — before either could
 be reported as a clean result.
 
+A workshop paper draft synthesizing the L48/L49 component-level finding
+and the L50-L57 property-level sweep into one submission is at
+[`docs/workshop_paper/paper.tex`](docs/workshop_paper/paper.tex)
+([PDF](docs/workshop_paper/paper.pdf)).
+
 **Headline findings:**
 
 - **L41 — kinase-activity steering on ESM-C, using a raw SAE decoder
