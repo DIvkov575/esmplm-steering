@@ -190,18 +190,39 @@ Pearson correlation against real labels on a held-out split, computed
 before any steering run.}
 \label{tab:sweep}
 \small
-\begin{tabular}{@{}p{2.1cm}p{2.6cm}p{1.3cm}p{3.6cm}p{1.9cm}@{}}
+\begin{tabular}{@{}p{2.5cm}p{2.4cm}p{1.2cm}p{3.4cm}p{1.9cm}@{}}
 \toprule
 Target & Dataset & Proxy $r$ & Steering result & Verdict \\
 \midrule
 Binding affinity & ProteinGym DMS (RASK/DARPin) & 0.80 & flat null, all $\alpha$ & KILL \\
 Catalytic activity & DLKcat (cross-protein) & 0.22 & PASS, 3/3 seeds & \textbf{PASS} \\
-Intrinsic disorder & DisProt & 0.45 & PASS, 3/3 direction; 2/3 robustness & \textbf{PASS} (majority) \\
+Intrinsic disorder & DisProt & 0.45 & PASS, 3/3 direction; 2/3 robustness & \textbf{PASS*} \\
 Immunogenicity & IEDB (4-tier) & $\leq$0.10 & not run & KILL (pre-run) \\
 Expression yield & eSol & 0.31 & fails residue-exclusion & AMBIGUOUS \\
 \bottomrule
 \end{tabular}
+
+\smallskip
+\footnotesize *PASS on criteria 1, 2, 4, 6, and 2 of 3 seeds on criterion 3 (see \S\ref{sec:disorder}).
 \end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.72\linewidth]{figures/fig2_proxy_vs_effect.pdf}
+\caption{The four runnable targets from Table~\ref{tab:sweep}, plotted as
+proxy validity (Pearson $r$ against real labels) against steering effect
+size (Cohen's $d$ at $\alpha=0.5$, the real-vs-random-control difference
+normalized by baseline standard deviation). The best-validated proxy
+(binding affinity, $r=0.80$) produces the smallest effect (indistinguishable
+from zero); a proxy less than half as strong (catalytic activity, $r=0.22$)
+produces one of the two largest effects. There is no visible positive trend.}
+\label{fig:proxy-vs-effect}
+\end{figure}
+
+Figure~\ref{fig:proxy-vs-effect} makes this pattern visible directly: proxy
+validity and causal effect size show no positive relationship across the
+four runnable targets, and the two extremes are the opposite of what a
+naive "trust the best-validated proxy" heuristic would predict.
 
 \subsection{Binding Affinity: The Sharpest Null}
 
@@ -272,6 +293,17 @@ collapse is not uniformly so. We report this as a majority pass with an
 explicit caveat, not a unanimous clean result -- and as evidence that
 different criteria within the same protocol can carry different
 seed-sensitivity, which no single run can reveal.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/fig1_dose_response.pdf}
+\caption{Dose-response for the two targets that pass criterion 2: the
+real steering direction's score minus the matched-norm random control's
+score, at each tested $\alpha$ in the pre-established safe operating
+range. Both show a clean, monotonic increase with error bars (95\%
+bootstrap CIs) that stay bounded away from zero at every point.}
+\label{fig:dose-response}
+\end{figure}
 
 \subsection{Immunogenicity: Killed at the Proxy Gate, With a Named
   Confound}
@@ -373,6 +405,19 @@ criterion. We recommend that any activation-steering pipeline reporting
 a criterion-specific robustness check rerun with at least two additional
 seeds before treating that specific criterion's verdict as settled, even
 if the headline effect (existence and direction) is stable.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\linewidth]{figures/fig3_seed_robustness.pdf}
+\caption{The intrinsic-disorder target's effect (blue) and the same
+effect after the two dominant substituted residues are excluded (orange,
+with 95\% bootstrap CIs), across three independent seeds. The full
+effect is stable across all three; the excluded-residue effect is
+significant on seeds 0 and 2 but its confidence interval crosses zero
+on seed 1 -- the same underlying effect, the same criterion, three
+different verdicts on that one criterion.}
+\label{fig:seed-robustness}
+\end{figure}
 
 \section{Discussion}
 
