@@ -1,0 +1,251 @@
+\documentclass{article}
+
+\usepackage[dblblindworkshop]{neurips_2026}
+\workshoptitle{Interpretability for Discovery}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+\title{Causal Steering of Protein Language Models: \\
+When Correlational Validation Fails, and How to Catch It}
+
+\author{%
+  Anonymous Author(s) \\
+  Anonymous Institution \\
+  \texttt{anonymous@anonymous.edu}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Activation steering has recently been shown to reproduce a known protein
+property (thermostability) in ESM2-650M via difference-of-means vectors.
+We ask whether a scoring proxy's correlation with real experimental
+labels predicts whether steering toward it actually works, and find the
+answer is no. Under a pre-registered six-criterion protocol testing five
+novel target properties, our best-validated proxy (binding affinity,
+$r=0.80$ held-out) steers nothing, while a substantially weaker one
+($r=0.22$, catalytic activity) produces a robust, three-seed-replicated
+effect. This mirrors an independent, component-level finding in the same
+model family: attention heads ranked by correlation with real 3D
+contacts show near-zero relationship to their causal ablation effect. We
+show a single-seed steering result can mislead in criterion-specific
+ways -- one target's effect direction replicates across three seeds
+while its residue-exclusion check does not (2 of 3) -- and introduce a
+lightweight diagnostic, steering-vector cosine similarity across
+targets, that explains an otherwise-unexplained ambiguous result as a
+geometric echo of a different property's validated direction. We release
+the full protocol, all target harnesses, and the seed-replication data.
+\end{abstract}
+
+\section{Introduction}
+
+Difference-of-means activation steering -- adding a direction built from
+the mean activation difference between high- and low-property example
+groups to a residual stream -- reproduces known thermostability biology
+in ESM2-650M \citep{huang2025steering}. We ask the natural follow-up: does
+a scoring proxy's correlation with real labels predict whether steering
+toward a \emph{new} property works? Across five novel targets under one
+pre-registered protocol, the best-validated proxy in our study ($r=0.80$,
+binding affinity) produces a flat null effect, while a substantially
+weaker proxy ($r=0.22$, catalytic activity) produces a clean,
+three-seed-replicated effect. This mirrors an independent,
+component-level result: Vig et al.\ \citep{vig2021bertology} found an
+attention head whose correlation with real 3D contacts is 12.9$\times$
+enrichment, explicitly flagged as untested causally; ablating it gives an
+effect indistinguishable from a low-correlation control, and a full
+480-head sweep ranks the correlational top pick 313th of 480 by actual
+causal effect. Two levels, two techniques, one lesson: correlational
+signal is evidence about representations, not about intervention. Our
+contribution is the audit discipline needed to trust a causal claim
+here, demonstrated via two near-misses caught in our own pipeline before
+they could be reported as clean results.
+
+\section{Method}
+\label{sec:method}
+
+We lock six criteria before testing any target, computed automatically:
+(1) the real direction beats a matched-norm random-direction control via
+paired bootstrap (10{,}000 resamples); (2) a monotonic dose-response
+across $\geq3$ steering strengths, restricted to a pre-established safe
+range (\S\ref{sec:cases}); (3) the effect survives residue-exclusion; (4)
+the proxy is validated against real labels \emph{before} the run; (5) it
+beats the best existing technique where one exists; (6) $\geq150$
+held-out evaluation sequences. A target failing any criterion outright is
+a \textbf{KILL}; one passing 1--2 but failing 3 or 4 is
+\textbf{AMBIGUOUS}.
+
+\section{The Central Finding: Proxy Validity Does Not Predict Causal Effect}
+\label{sec:sweep}
+
+\begin{table}[t]
+\centering
+\caption{Five novel targets. Proxy $r$: Pearson correlation vs.\ real
+labels, held-out, before any steering run.}
+\label{tab:sweep}
+\small
+\begin{tabular}{@{}p{2.3cm}p{1.0cm}p{2.9cm}p{1.6cm}@{}}
+\toprule
+Target & Proxy $r$ & Steering result & Verdict \\
+\midrule
+Binding affinity & 0.80 & flat null, all $\alpha$ & KILL \\
+Catalytic activity & 0.22 & PASS, 3/3 seeds & \textbf{PASS} \\
+Intrinsic disorder & 0.45 & 3/3 direction; 2/3 robustness & \textbf{PASS*} \\
+Immunogenicity & $\leq$0.10 & not run & KILL (pre-run) \\
+Expression yield & 0.31 & fails residue-exclusion & AMBIGUOUS \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\footnotesize *PASS on criteria 1,2,4,6, and 2/3 seeds on criterion 3.
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\linewidth]{figures/fig2_proxy_vs_effect.pdf}
+\caption{Proxy validity vs. steering effect size (Cohen's $d$,
+$\alpha=0.5$). The best-validated proxy (binding affinity, $r=0.80$)
+gives the smallest effect; a proxy less than half as strong (catalytic
+activity, $r=0.22$) gives one of the two largest. No positive trend.}
+\label{fig:proxy-vs-effect}
+\end{figure}
+
+\textbf{Binding affinity} (ProteinGym DMS, KRAS/DARPin): a
+mutational-sensitivity-weighted proxy validated more rigorously than any
+other target here ($r=0.80$ held-out; weight-shuffle null $r=-0.001$;
+held-out-position generalization $r=0.54$; single-to-double-mutant
+extrapolation $r=0.70$) -- yet the steering effect is a flat null at
+every $\alpha$, zero degenerate sequences at any strength. A plausible
+mechanism: this dataset's vector-building groups are single-backbone
+point mutants (1--2 residues from a shared reference), giving
+difference-of-means little compositional signal to act on -- measured
+directly, mean compositional distance between low/high groups is $0.003$
+here vs.\ $0.02$--$0.05$ for the three cross-protein targets below.
+
+\textbf{Catalytic activity} (DLKcat, cross-protein kcat): a
+glycine-minus-arginine proxy, the weakest of the four runnable targets
+($r=0.22$), matching the published activity-stability tradeoff in
+enzymology. Produces a clean, monotonic, residue-robust effect
+(Figure~\ref{fig:dose-response}, left) replicated identically across
+three independent seeds -- the one target with fully unanimous
+seed-robustness.
+
+\textbf{Intrinsic disorder} (DisProt, TOP-IDP scale, $r=0.45$, the
+strongest proxy here, AUC $0.71$ at the per-residue level): the effect is
+significant and monotonic on all 3 seeds (Figure~\ref{fig:dose-response},
+right), but its residue-exclusion check passes on 2/3 seeds (36--42\%
+magnitude retained) and fails on the third (10\% retained, CI crosses
+zero) -- existence and direction are seed-stable; the artifact check is
+not, uniformly.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig1_dose_response.pdf}
+\caption{Dose-response, the two targets passing criterion 2. Both
+monotonic, 95\% bootstrap CIs bounded away from zero throughout.}
+\label{fig:dose-response}
+\end{figure}
+
+\textbf{Immunogenicity} (IEDB, 4 tiers): proxies predictive on a
+surrogate binding-affinity tier ($r=0.37$--$0.43$) collapse near-chance on
+the real T-cell-response endpoint ($r\leq0.10$); a full-length-antigen
+proxy reaching $r=0.38$ is a source-organism confound (organism identity
+explains 58\% of the apparent signal; flips to $r=-0.32$ once held out of
+cross-validation). Killed before any steering run.
+
+\textbf{Expression yield} (eSol, net-charge-deviation proxy, $r=0.31$--$0.34$):
+significant, dose-responsive, but collapses under residue-exclusion.
+Rather than discarding this, we compute steering-vector cosine similarity
+against every other target: $+0.30$ overall with intrinsic disorder's
+vector, rising to $+0.40$--$0.50$ at the three deepest layers -- consistent
+with disordered regions independently reducing solubility/expression in
+the literature. This is best read as a partial echo of disorder's
+already-validated effect through a more collapse-prone proxy, not a
+sixth steerable property.
+
+\section{Self-Correction Case Studies}
+\label{sec:cases}
+
+\textbf{A spurious pass from an unsafe comparison.} Testing whether
+restricting steering to the 5 layers previously found causally necessary
+preserves the full 33-layer effect, a first pass selected its
+best-performing $\alpha$ from the whole tested range, including
+$\alpha\geq1.0$, and reported a clean pass at $\alpha=2.0$. This was
+comparison artifact: at that $\alpha$ the 33-layer arm had already fully
+collapsed into degenerate output (zero non-degenerate sequences), while
+the 5-layer arm had not -- it won only by breaking down later.
+Restricting the comparison to a range where neither arm has collapsed and
+rerunning end to end: the 5-layer subset is real but retains only
+43--59\% of the full effect.
+
+\textbf{A criterion passing on only 2 of 3 seeds.} The disorder target's
+residue-exclusion check (\S\ref{sec:sweep}) is seed-sensitive even though
+the headline effect is not -- a single seed could have reported either a
+false unanimous pass or a false kill on this one criterion, undetectable
+without a multi-seed rerun.
+
+\section{Related Work}
+
+\citet{huang2025steering} validate this steering method on
+thermostability; we extend it to five new properties under a
+pre-registered protocol and test, to our knowledge for the first time,
+whether proxy correlation strength predicts steering success across
+unrelated properties. \citet{vig2021bertology} identify the head we redo
+as a genuine causal test. \citet{adams2025mechanistic} train SAEs on
+ESM-2 and show via linear probing -- correlational -- that thermostability
+and localization determinants are identifiable in SAE feature space;
+their one steering check is a coherence test, not validation against a
+real label, and their discussion states ``investigating how to steer the
+model in useful ways remains an open direction for future work.'' We
+answer a version of that for a non-SAE mechanism, specifically for
+whether correlational validity predicts causal usefulness.
+
+\section{Discussion}
+
+Every steering result here is causal about the model's activation
+space -- a real intervention against a random-direction control and a
+residue-exclusion check -- not validated against a wet-lab assay: a PASS
+means ``causally steers a validated proxy,'' not ``causally engineers the
+biological property.'' The vector-geometry check that explained the
+expression-yield result is cheap (one extra embedding pass) and worth
+running by default whenever multiple targets are tested together. All
+experiments use one model (ESM2-650M) at one scale; all proxies are
+compositional heuristics; seed-robustness was checked for two of five
+targets; no structural/functional plausibility check was run on generated
+sequences.
+
+\section{Conclusion}
+
+Correlational validity -- of an attention head's biological alignment, or
+a proxy's correlation with real labels -- does not predict causal effect
+when actually tested, at two levels of the same model class. Proxy
+validation strength is not a reliable filter for which targets are worth
+attempting, and a single steering run should not be trusted without a
+seed-robustness check where the result matters downstream.
+
+\section*{Responsible-use statement}
+This work identifies methodological pitfalls in causally validating
+activation-steering claims on protein language models and does not
+introduce a new capability for generating harmful biological sequences;
+all target properties studied (thermostability, binding, catalysis,
+disorder, immunogenicity, expression) are common protein-engineering
+objectives with dual-use risk no greater than the underlying published
+steering method \citep{huang2025steering} we extend. We see no additional
+mitigation specific to this paper's contribution beyond standard
+biosecurity practice already governing protein-language-model research.
+
+\bibliographystyle{plainnat}
+\bibliography{reference}
+
+\end{document}
