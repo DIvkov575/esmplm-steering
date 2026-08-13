@@ -1,4 +1,4 @@
-\begin{thebibliography}{3}
+\begin{thebibliography}{9}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -14,11 +14,60 @@ Etowah Adams, Liam Bai, Minji Lee, Yiyang Yu, and Mohammed AlQuraishi.
   Learning}, volume 267 of \emph{Proceedings of Machine Learning Research},
   pages 460--476, 2025.
 
+\bibitem[Campen et~al.(2008)Campen, Williams, Brown, Meng, Uversky, and
+  Dunker]{campen2008topidp}
+Andrew Campen, Ryan~M. Williams, Celeste~J. Brown, Jingwei Meng, Vladimir~N.
+  Uversky, and A.~Keith Dunker.
+\newblock Top-idp-scale: a new amino acid scale measuring propensity for
+  intrinsic disorder.
+\newblock \emph{Protein \& Peptide Letters}, 15\penalty0 (9):\penalty0
+  956--963, 2008.
+\newblock \doi{10.2174/092986608785849164}.
+
 \bibitem[Huang et~al.(2025)Huang, Zhu, He, and Yao]{huang2025steering}
 Long-Kai Huang, Rongyi Zhu, Bing He, and Jianhua Yao.
 \newblock Steering protein language models.
 \newblock \emph{arXiv preprint arXiv:2509.07983}, 2025.
 \newblock Accepted to ICML 2025.
+
+\bibitem[Li et~al.(2022)Li, Yuan, Lu, Li, Chen, Engqvist, Kerkhoven, and
+  Nielsen]{li2022dlkcat}
+Feiran Li, Le~Yuan, Hongzhong Lu, Gang Li, Yu~Chen, Martin K.~M. Engqvist,
+  Eduard~J. Kerkhoven, and Jens Nielsen.
+\newblock Deep learning-based kcat prediction enables improved
+  enzyme-constrained model reconstruction.
+\newblock \emph{Nature Catalysis}, 5\penalty0 (8):\penalty0 662--672, 2022.
+\newblock \doi{10.1038/s41929-022-00798-z}.
+
+\bibitem[Niwa et~al.(2009)Niwa, Ying, Saito, Jin, Takada, Ueda, and
+  Taguchi]{niwa2009esol}
+Tatsuya Niwa, Bei-Wen Ying, Katsuyo Saito, WenZhen Jin, Shoji Takada, Takuya
+  Ueda, and Hideki Taguchi.
+\newblock Bimodal protein solubility distribution revealed by an aggregation
+  analysis of the entire ensemble of escherichia coli proteins.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 106\penalty0
+  (11):\penalty0 4201--4206, 2009.
+\newblock \doi{10.1073/pnas.0811922106}.
+
+\bibitem[Notin et~al.(2023)Notin, Kollasch, Ritter, Van~Niekerk, Paul, Spinner,
+  Rollins, Shaw, Orenbuch, Weitzman, Frazer, Dias, Franceschi, Gal, and
+  Marks]{notin2023proteingym}
+Pascal Notin, Aaron Kollasch, Daniel Ritter, Lood Van~Niekerk, Steffanie Paul,
+  Han Spinner, Nathan Rollins, Ada Shaw, Rose Orenbuch, Ruben Weitzman,
+  Jonathan Frazer, Mafalda Dias, Dinko Franceschi, Yarin Gal, and Debora Marks.
+\newblock Proteingym: Large-scale benchmarks for protein fitness prediction and
+  design.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, pages 64331--64379, 2023.
+\newblock \doi{10.52202/075280-2810}.
+
+\bibitem[Quaglia et~al.(2022)]{quaglia2022disprot}
+Federica Quaglia et~al.
+\newblock Disprot in 2022: improved quality and accessibility of protein
+  intrinsic disorder annotation.
+\newblock \emph{Nucleic Acids Research}, 50\penalty0 (D1):\penalty0 D480--D487,
+  2022.
+\newblock \doi{10.1093/nar/gkab1082}.
 
 \bibitem[Vig et~al.(2021)Vig, Madani, Varshney, Xiong, Socher, and
   Rajani]{vig2021bertology}
@@ -27,5 +76,15 @@ Jesse Vig, Ali Madani, Lav~R. Varshney, Caiming Xiong, Richard Socher, and
 \newblock Bertology meets biology: Interpreting attention in protein language
   models.
 \newblock In \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem[Vita et~al.(2019)Vita, Mahajan, Overton, Dhanda, Martini, Cantrell,
+  Wheeler, Sette, and Peters]{vita2019iedb}
+Randi Vita, Swapnil Mahajan, James~A. Overton, Sandeep~Kumar Dhanda, Sheridan
+  Martini, Jason~R. Cantrell, Daniel~K. Wheeler, Alessandro Sette, and Bjoern
+  Peters.
+\newblock The immune epitope database (iedb): 2018 update.
+\newblock \emph{Nucleic Acids Research}, 47\penalty0 (D1):\penalty0 D339--D343,
+  2019.
+\newblock \doi{10.1093/nar/gky1006}.
 
 \end{thebibliography}

@@ -1,60 +1,87 @@
-# Causal Steering of Protein Language Models
+# Validating Causal Steering in Protein Language Models
 
-Workshop submission packages and backing research for "Causal Steering
-of Protein Language Models: When Correlational Validation Fails, and How
-to Catch It."
+Workshop submission packages, a named arXiv manuscript, and the
+supporting experiments for "Validating Causal Steering in Protein
+Language Models: Proxy Accuracy Does Not Guarantee Steering Success."
 
-## Submissions (deadline: Aug 29, 2026, AoE)
+## Planned submissions
 
-Three venue-specific, compiled, anonymized packages ready for upload:
+The two planned workshop submissions are double-blind. Their LaTeX
+sources and PDFs are therefore anonymous.
 
-| Venue | Path | Pages | Template |
-|---|---|---|---|
-| **ICBINB-BIO** (Failure Modes of AI in Biology) | [`docs/submissions/icbinb-bio/`](docs/submissions/icbinb-bio/) | 6/8 | NeurIPS 2026 dblblindworkshop |
-| **Interp4Discovery** (Interpretability for Discovery) | [`docs/submissions/interp4discovery/`](docs/submissions/interp4discovery/) | 4/5 | NeurIPS 2026 dblblindworkshop |
-| **XAI4Science** (Knowledge Discovery and Trust) | [`docs/submissions/xai4science/`](docs/submissions/xai4science/) | 6/8 | NeurIPS 2026 dblblindworkshop |
+| Venue | Path | Page limit | Review format |
+|---|---|---:|---|
+| ICBINB-BIO | [`docs/submissions/icbinb-bio/`](docs/submissions/icbinb-bio/) | 8 | Double-blind |
+| Interp4Discovery | [`docs/submissions/interp4discovery/`](docs/submissions/interp4discovery/) | 5 | Double-blind |
 
-All three are non-archival; acceptance does not prevent later archival
-publication (e.g., ICML 2027).
+The XAI4Science package in
+[`docs/archive/xai4science/`](docs/archive/xai4science/) is an
+archived draft, not a planned submission. The 2026 workshop focuses on
+weather and climate foundation models, so this protein-language-model
+paper is not a close fit.
 
-## Backing research
+Both planned workshop deadlines are August 29, 2026, at 11:59 p.m.
+Anywhere on Earth.
 
-The code, data, and results backing every number in the papers:
+## arXiv manuscript
 
-- **L42** — thermostability steering baseline (Huang et al. 2025 reproduction)
-- **L48/L49** — component-level evidence (Vig et al. attention-head causal
-  ablation, full 480-head sweep)
-- **L50** — pre-registered 6-criterion protocol
-- **L51–L57** — the 5-target sweep (binding affinity KILL, catalytic activity
-  PASS, intrinsic disorder PASS*, immunogenicity KILL pre-run, expression
-  yield AMBIGUOUS)
-- **L58** — cross-target steering-vector geometry cross-check (explains L57's
-  AMBIGUOUS result as a geometric echo of L55's validated disorder direction)
+[`docs/arxiv/`](docs/arxiv/) contains the named manuscript:
 
-## Running
+- Dmitriy Ivkov
+- University of Michigan, Ann Arbor
+- `divkov@umich.edu`
+
+The arXiv manuscript and the workshop manuscripts are separate files.
+The arXiv version may contain the author's name, while the workshop
+versions must remain anonymous during review. A public preprint can make
+an anonymous submission easy to identify through its title and wording.
+The conservative sequence is to prepare the arXiv version now and post
+it after workshop review, unless the workshop explicitly permits
+preprints during review.
+
+## Anonymous code sharing
+
+An anonymous GitHub repository is not needed for the current workshop
+drafts. If code is included with a double-blind submission, the safest
+option is an anonymous supplementary archive uploaded through the
+submission system. An anonymous repository snapshot is useful only when
+the venue allows external links and the code is too large for the
+supplement.
+
+Do not link this repository from an anonymous paper. It is public, its
+URL contains the author's username, and its history contains identifying
+information. An anonymous snapshot must remove names, email addresses,
+usernames, acknowledgments, remote URLs, and commit history. Even then,
+an exact-title search may connect the snapshot to this public repository.
+
+See [`docs/SUBMISSION_GUIDE.md`](docs/SUBMISSION_GUIDE.md) for the
+structure of each manuscript and the pre-submission anonymity checks.
+
+## Supporting experiments
+
+The code, data, and saved results supporting the manuscripts include:
+
+- L42: thermostability steering baseline
+- L48/L49: attention-head causal ablation and the 480-head sweep
+- L50: the six-criterion evaluation protocol
+- L51-L57: the five-target steering study
+- L58: cross-target steering-vector comparison
+
+Install the Python dependencies and run the unit tests with:
 
 ```bash
 pip install -r requirements.txt
-pytest tests/ -q    # 113 tests, pure-math only, no GPU needed
+pytest tests/ -q
 ```
 
-Run scripts require ESM2-650M (auto-selects CUDA > MPS > CPU):
+Experiment scripts require ESM2-650M and select CUDA, MPS, or CPU in
+that order:
+
 ```bash
-python -m plm_steering.l54_run_repro   # catalytic activity (PASS)
-python -m plm_steering.l55_run_repro   # intrinsic disorder (PASS*)
-python -m plm_steering.l53_run_repro   # binding affinity (KILL)
-python -m plm_steering.l57_run_repro   # expression yield (AMBIGUOUS)
-python -m plm_steering.l56_immunogenicity_proxy_validation  # proxy-only (KILL)
-python -m plm_steering.l58_vector_geometry_crosscheck  # cross-target cosine similarity
+python -m plm_steering.l54_run_repro
+python -m plm_steering.l55_run_repro
+python -m plm_steering.l53_run_repro
+python -m plm_steering.l57_run_repro
+python -m plm_steering.l56_immunogenicity_proxy_validation
+python -m plm_steering.l58_vector_geometry_crosscheck
 ```
-
-One-time data fetches (already run; outputs committed):
-```bash
-python -m plm_steering.l56_fetch_tier2_and_allergen_data  # Tier-2 + allergen-check data
-```
-
-## Source draft and figures
-
-[`docs/workshop_paper/`](docs/workshop_paper/) — the generic-template draft
-all three venue submissions derive from, with `make_figures.py` regenerating
-every figure directly from the committed `results.json` files.

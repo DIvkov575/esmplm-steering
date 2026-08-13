@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\usepackage[dblblindworkshop,nonanonymous]{neurips_2026}
+\usepackage[dblblindworkshop]{neurips_2026}
 
 \workshoptitle{I Can't Believe It's Not Better (ICBINB): Failure Modes of AI in Biology}
 
@@ -9,6 +9,7 @@
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{nicefrac}
@@ -16,361 +17,383 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 
-\title{Causal Steering of Protein Language Models: \\
-When Correlational Validation Fails, and How to Catch It}
+\title{Failure Modes in Causal Steering of Protein Language Models: \\
+Why Proxy Accuracy Does Not Guarantee Steering Success}
 
-\author{%
-  Dmitriy Ivkov \\
-  University of Michigan \\
-  \texttt{divkov@umich.edu}
-}
+\author{Anonymous Authors}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-Activation steering has recently been shown to reproduce a known protein
-property (thermostability) in ESM2-650M via difference-of-means vectors.
-We ask whether a scoring proxy's correlation with real experimental
-labels predicts whether steering toward it works, and find that it does
-not. Under a pre-registered six-criterion protocol, we test five novel
-target properties and report the failures alongside the successes.
-Binding affinity's proxy is the best-validated in our study, with
-$r=0.80$ held-out and confirmation from a weight-shuffle null control
-and held-out-position generalization. Yet it steers nothing. A
-substantially weaker proxy ($r=0.22$, catalytic activity) produces a
-robust, three-seed-replicated effect. Immunogenicity is killed at the
-proxy-validation gate before any model run, after a proxy that looks
-like a real signal ($r=0.38$) turns out to be a source-organism
-confound. Expression yield passes the naive check but fails
-residue-exclusion; a follow-up diagnostic explains why: its steering
-vector is a partial geometric echo of a different, already-validated
-target's direction. This mirrors an independent, component-level finding
-in the same model family: attention heads ranked by correlation with
-real 3D contacts show near-zero relationship to their causal ablation
-effect. We further show a single-seed result can mislead in
-criterion-specific ways. We also describe two near-misses caught in our
-own pipeline: a spurious pass from comparing arms at an unsafe
-intervention strength and a robustness check that holds on only 2 of 3
-seeds. These cases show why this level of scrutiny is necessary before a
-steering result is trusted. We release the full protocol, all target
-harnesses, and the seed-replication data.
+Difference-of-means activation steering has reproduced a known
+thermostability effect in ESM2-650M. We test whether the same method
+transfers to five new protein properties and whether a more accurate
+scoring proxy provides a better steering target. The binding-affinity
+proxy has the highest held-out correlation in the study ($r=0.80$), but
+its steering direction has no measurable effect. A weaker
+catalytic-activity proxy ($r=0.22$) produces a consistent effect across
+three random seeds. An immunogenicity proxy that initially appears
+predictive is explained by source-organism confounding, so that target
+does not reach the steering stage. An expression-yield effect fails a
+residue-exclusion check and overlaps with the steering direction for
+intrinsic disorder. The evaluation also exposes two problems in our own
+analysis. One comparison used an intervention strength at which a
+baseline had already collapsed, while one robustness criterion changed
+its verdict across seeds. These cases show why proxy validation and a
+single successful run are not sufficient evidence for a reliable
+steering intervention.
 \end{abstract}
 
 \section{Problem}
 \label{sec:problem}
 
-\paragraph{Task and setting.} Difference-of-means activation steering adds
-a direction to a protein language model's residual stream. The direction
-is built from the mean activation difference between high- and
-low-property example groups. This method has been shown to reproduce
-known thermostability biology in ESM2-650M \citep{huang2025steering}. The
-natural next question
-for anyone applying this technique to a new biological property is
-whether a scoring proxy's correlation with real experimental labels
-predicts whether steering toward it will work.
+\subsection{Research question and setting}
 
-\paragraph{Assumptions being tested.} Adopting this technique for a new
-target relies on two assumptions. First, validating a compositional proxy
-against real labels is a reliable gate before a steering experiment.
-Second, a single steering run that clears a significance threshold is
-trustworthy evidence of a causal effect. We test five novel target
-properties: binding affinity, catalytic activity, intrinsic disorder,
-immunogenicity, and expression yield. All are tested under one
-pre-registered protocol (\S\ref{sec:approach}) designed specifically to
-stress-test both assumptions, and report every outcome, not only the
-successes.
+Difference-of-means activation steering adds a direction to a protein
+language model's residual stream during generation. The direction is
+formed from the difference between mean activations for examples with
+high and low values of a target property. The method has reproduced a
+known thermostability effect in ESM2-650M
+\citep{huang2025steering}.
 
-\paragraph{Target metrics.} For each property, we measure (1) Pearson $r$ of the
-compositional proxy against real experimental labels on a held-out
-split, computed before any steering run; (2) the real steering
-direction's effect size against a matched-norm random-direction control,
-via paired bootstrap; (3) whether that effect survives a
-residue-exclusion robustness check; (4) whether the result replicates
-across independent random seeds. A ``desired improvement'' would be a
-positive, monotonic, seed-stable relationship between proxy validity and
-steering effect size. We do not find one.
+Applying the method to a new property raises two separate questions. A
+scoring proxy may agree with experimental labels, but the steering
+direction built for that property may still be ineffective. A result may
+also depend on the train-test split, random control direction, or
+intervention strength. We therefore evaluate both the steering direction
+and the stability of the evidence used to support it.
+
+\subsection{Targets and measurements}
+
+The study covers five properties that were not part of the original
+thermostability experiment: binding affinity, catalytic activity,
+intrinsic disorder, immunogenicity, and expression yield. For each
+property, we first measure the Pearson correlation between a
+compositional proxy and experimental labels on held-out data. If the
+proxy passes this check, we compare the property-derived steering
+direction with a random direction of the same norm.
+
+The main outcome is the score difference between the learned and random
+directions. We also test whether the effect changes monotonically with
+intervention strength, remains after dominant residue substitutions are
+excluded from scoring, and repeats across random seeds. If proxy
+accuracy were a useful way to select steering targets, properties with
+stronger held-out correlations would also have larger or more consistent
+steering effects. We do not observe that pattern.
 
 \section{Proposed Approach}
 \label{sec:approach}
 
-We lock a six-criterion decision rule before testing any new target and
-compute it automatically at the end of each run. Criterion 1 requires
-the real direction to beat a matched-norm random control via paired
-bootstrap with 10{,}000 resamples. Criterion 2 requires a monotonic
-dose-response across at least three strengths within a safe operating
-range (\S\ref{sec:reason}). Criterion 3 requires the effect to survive
-residue-exclusion, and criterion 4 requires validation of the proxy
-against real labels before steering. Criterion 5 requires the result to
-beat the best existing technique when one exists, and criterion 6
-requires at least 150 held-out sequences. A target failing any criterion
-is a KILL; one passing 1--2 but failing 3 or 4 is AMBIGUOUS.
+\subsection{Steering procedure}
 
-The core mechanism under test in each of the five targets is identical:
-build a per-layer difference-of-means steering vector from real
-high/low-property sequence groups, add it to ESM2-650M's residual stream
-at generation time, and score the result with a compositional proxy
-validated in advance. The hypothesis under which this is expected to
-work is Huang et al.'s finding for thermostability \citep{huang2025steering}
-generalizing to other properties whenever the scoring proxy is itself
-well-validated. We also recap an independent, component-level
-precondition test: Vig et al.\ \citep{vig2021bertology} found an
-attention head in a protein language model whose attention pattern
-strongly correlates with real 3D contacts; we ablate it directly and
-measure the actual causal effect, and extend this to every head in the
-model (480 total), to test whether correlational salience predicts
-causal necessity one level below the steering question.
+For each target, we divide real protein sequences into high-property and
+low-property groups. We compute the mean activation for each group at
+every layer of ESM2-650M and subtract the two means. During generation,
+we add a scaled version of this direction to the residual stream. The
+same code handles vector construction, random controls, sequence
+generation, bootstrap testing, and output filtering for every target.
+Using one implementation allows us to change the dataset and scoring
+proxy without changing the intervention or evaluation procedure.
+
+\subsection{Six evaluation requirements}
+
+We fix the following requirements before testing the new properties:
+
+\begin{enumerate}
+\item The property-derived direction must outperform a random direction
+  of the same norm in a paired bootstrap test with 10,000 resamples.
+\item The effect must increase monotonically across at least three
+  intervention strengths in a range where generation remains stable.
+\item The effect must remain after the most frequently substituted
+  residues are excluded from the score.
+\item The scoring proxy must agree with experimental labels on held-out
+  data before steering is attempted.
+\item The method must outperform an existing baseline when a suitable
+  baseline is available.
+\item An evaluation of a new property must contain at least 150 held-out
+  sequences.
+\end{enumerate}
+
+The third requirement checks for compositional collapse. A steering
+direction can appear successful if it repeatedly inserts one residue
+that directly increases the proxy score. Excluding the dominant
+substitutions tests whether the effect extends beyond that narrow change.
+We use three assessment outcomes. If proxy validation fails, we reject
+the proxy and do not attempt steering. If the main steering test
+succeeds but residue exclusion fails or changes across seeds, we
+classify the evidence as inconclusive. We call a result supported only
+when it satisfies every applicable requirement.
+
+\subsection{Attention-head comparison}
+
+We also examine whether the same problem appears at the level of
+individual attention heads. Following \citet{vig2021bertology}, we
+measure contact enrichment in their protein language model and select
+the most enriched head in our data. We ablate that head and compare the
+change in masked-residue prediction with a low-correlation control head.
+We then repeat the ablation for all 480 heads in the model.
 
 \section{Observed Outcome}
 \label{sec:outcome}
 
-The central negative result: proxy validity and steering effect size
-show no positive relationship (Table~\ref{tab:sweep},
-Figure~\ref{fig:proxy-vs-effect}). Binding affinity's proxy is the
-best-validated of any target we tried ($r=0.80$ held-out, confirmed by a
-weight-shuffle null control giving $r=-0.001$, held-out-position
-generalization at $r=0.54$, and mutational-load extrapolation at
-$r=0.70$. Despite this validation, the steering effect is a flat,
-unambiguous null at every tested $\alpha$, with zero degenerate sequences
-at any strength.
-Catalytic activity's proxy is the weakest of the four runnable targets
-($r=0.22$) and produces a clean, monotonic, residue-robust effect that
-replicates identically across three independent seeds
-(Figure~\ref{fig:dose-response}).
+\subsection{Proxy accuracy does not predict steering effects}
+
+Table~\ref{tab:sweep} summarizes the five target properties. Binding
+affinity has the strongest proxy validation but no measurable steering
+effect. Catalytic activity has the weakest proxy among the four runnable
+targets but passes every requirement on three random seeds.
 
 \begin{table}[t]
 \centering
-\caption{Summary of all five novel target properties. Proxy $r$ is
-Pearson correlation against real labels on a held-out split, computed
-before any steering run.}
+\caption{Results for the five target properties. Proxy $r$ is the
+Pearson correlation with experimental labels on held-out data, measured
+before steering.}
 \label{tab:sweep}
 \small
-\begin{tabular}{@{}p{2.5cm}p{2.4cm}p{1.2cm}p{3.4cm}p{1.9cm}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.4cm}
+                    >{\raggedright\arraybackslash}p{2.7cm}
+                    >{\raggedright\arraybackslash}p{1.2cm}
+                    >{\raggedright\arraybackslash}p{3.4cm}
+                    >{\raggedright\arraybackslash}p{2.3cm}@{}}
 \toprule
-Target & Dataset & Proxy $r$ & Steering result & Verdict \\
+Target & Dataset & Proxy $r$ & Steering result & Assessment \\
 \midrule
-Binding affinity & ProteinGym DMS (KRAS/DARPin) & 0.80 & flat null, all $\alpha$ & KILL \\
-Catalytic activity & DLKcat (cross-protein) & 0.22 & PASS, 3/3 seeds & PASS \\
-Intrinsic disorder & DisProt & 0.45 & PASS, 3/3 direction; 2/3 robustness & PASS* \\
-Immunogenicity & IEDB (4-tier) & $\leq$0.10 & not run & KILL (pre-run) \\
-Expression yield & eSol & 0.31 & fails residue-exclusion & AMBIGUOUS \\
+Binding affinity & ProteinGym DMS (KRAS/DARPin) & 0.80 & no measurable effect & Unsupported \\
+Catalytic activity & DLKcat (cross-protein) & 0.22 & repeats across 3 seeds & Supported \\
+Intrinsic disorder & DisProt & 0.45 & main effect 3/3; check 2/3 & Inconclusive \\
+Immunogenicity & IEDB (4-tier) & $\leq0.10$ & steering not attempted & Proxy rejected \\
+Expression yield & eSol & 0.31 & fails residue-exclusion check & Inconclusive \\
 \bottomrule
 \end{tabular}
-
-\smallskip
-\footnotesize *PASS on criteria 1, 2, 4, 6, and 2 of 3 seeds on criterion 3 (\S\ref{sec:disorder-detail}).
 \end{table}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.68\linewidth]{figures/fig2_proxy_vs_effect.pdf}
-\caption{The four runnable targets from Table~\ref{tab:sweep}, plotted as
-proxy validity (Pearson $r$) against steering effect size (Cohen's $d$
-at $\alpha=0.5$). The best-validated proxy (binding affinity, $r=0.80$)
-produces the smallest effect (indistinguishable from zero); a proxy less
-than half as strong (catalytic activity, $r=0.22$) produces one of the
-two largest effects. There is no visible positive trend.}
+\caption{Proxy correlation and steering effect size for the four targets
+that reach the steering stage. Effect size is Cohen's $d$ at
+$\alpha=0.5$ for the learned direction relative to the matched random
+direction. The four points show no positive relation between the two
+measurements.}
 \label{fig:proxy-vs-effect}
 \end{figure}
 
-\paragraph{Component-level precondition, same pattern.} Vig et al.'s
-attention head \citep{vig2021bertology} shows 12.9$\times$ contact
-enrichment over background, but ablating it produces an effect
-statistically indistinguishable from ablating a low-correlation control
-head. A full sweep of all 480 heads, ranked purely by measured causal
-effect with zero correlational information, shows the correlational top
-pick ranks 313th of 480, and 166 of 480 heads (35\%) show exactly zero
-measurable causal effect. This confirms that the result is not due to an
-unlucky choice of control.
+\subsection{Binding affinity}
 
-\paragraph{Immunogenicity: killed before any model run.} Compositional
-proxies that look predictive on a surrogate binding-affinity tier
-($r=0.37$--$0.43$) collapse to near-chance on the real T-cell-response
-endpoint ($r\leq0.10$), and a full-length-antigen proxy that appears to
-reach $r=0.38$ is a source-organism confound (organism identity alone
-explains 58\% of the apparent signal; the same proxy's correlation flips
-to $-0.32$ once organism is held out of cross-validation). No proxy
-survives criterion 4, so no steering script was written.
+We use a ProteinGym deep-mutational-scanning assay
+\citep{notin2023proteingym} of KRAS binding to a DARPin. The proxy uses
+position-specific mutational-sensitivity weights learned on the training
+split and reaches $r=0.80$ on held-out data. A weight-shuffle control
+gives $r=-0.001$. The proxy also generalizes to positions excluded from
+weight fitting ($r=0.54$) and from single to double mutants ($r=0.70$).
 
-\paragraph{Expression yield: passes the naive check, fails the real one.}
-The proxy validates at $r=0.31$--$0.34$ and produces a significant,
-dose-responsive steering effect. The effect collapses to statistical
-insignificance under residue-exclusion, which is the same
-compositional-collapse pattern our protocol exists to catch.
+The steering direction nevertheless has no detectable effect at any
+tested strength. Because generation remains stable and produces no
+degenerate sequences at those strengths, output collapse does not
+explain the result.
 
-\subsection{Intrinsic disorder: a seed-sensitive result, reported honestly}
-\label{sec:disorder-detail}
+\subsection{Catalytic activity}
 
-Using DisProt, we build a proxy from the published TOP-IDP disorder
-scale \citep{campen2008topidp} ($r=0.45$ held-out, the strongest proxy
-in our sweep, confirmed at the per-residue level with AUC $0.71$). The
-steering effect is significant and monotonically dose-responsive on
-every one of three independent seeds
-(Figure~\ref{fig:dose-response}). However, the residue-exclusion
-robustness check specifically passes on 2 of 3 seeds (36--42\% of effect
-magnitude retained, CI excludes zero) and fails on the third (10\%
-retained, CI crosses zero). The effect's existence and direction are
-seed-stable, but the artifact check that rules out pure compositional
-collapse is not uniformly stable (Figure~\ref{fig:seed-robustness}).
+For catalytic activity, we use a cross-protein enzyme turnover dataset
+from DLKcat \citep{li2022dlkcat}. The proxy measures the fraction of
+glycine minus the fraction of arginine. Its held-out correlation is
+$r=0.22$, the weakest among the four targets that reach the steering
+stage. Even so, the steering effect is significant and monotonic,
+remains after residue exclusion, and repeats across three random seeds.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_dose_response.pdf}
-\caption{Dose-response for the two targets that pass criterion 2. Both
-show a clean, monotonic increase with 95\% bootstrap CIs bounded away
-from zero at every point.}
+\caption{Dose-response curves for catalytic activity and intrinsic
+disorder. Both effects increase monotonically across the tested
+intervention strengths. Error bars show 95\% bootstrap confidence
+intervals.}
 \label{fig:dose-response}
 \end{figure}
+
+\subsection{Intrinsic disorder}
+\label{sec:disorder}
+
+We use DisProt annotations \citep{quaglia2022disprot}. The
+intrinsic-disorder proxy uses the published TOP-IDP amino-acid scale
+\citep{campen2008topidp}. It reaches held-out $r=0.45$ and per-residue
+AUC $0.71$. The main steering effect is significant and monotonic on all
+three random seeds. The residue-exclusion check passes on two seeds but
+fails on the third. The effect is repeatable, but the evidence against a
+simple compositional artifact is not equally strong on every seed.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.7\linewidth]{figures/fig3_seed_robustness.pdf}
-\caption{The intrinsic-disorder target's effect (blue) and the same
-effect after the two dominant substituted residues are excluded
-(orange, 95\% bootstrap CIs), across three independent seeds. The full
-effect is stable across all three; the excluded-residue effect is
-significant on seeds 0 and 2 but its CI crosses zero on seed 1. The
-underlying effect is unchanged, but the criterion produces three
-different verdicts.}
+\caption{Intrinsic-disorder effects before and after residue exclusion
+for three random seeds. The main effect is stable, but the confidence
+interval for the residue-excluded score crosses zero on seed 1.}
 \label{fig:seed-robustness}
 \end{figure}
 
+\subsection{Immunogenicity}
+
+For immunogenicity, we use records from the Immune Epitope Database
+\citep{vita2019iedb}. Candidate proxies correlate with a surrogate
+binding-affinity endpoint but fall to $r\leq0.10$ on the measured
+T-cell-response endpoint. One proxy for full-length antigens initially
+reaches $r=0.38$. Further testing shows that organism identity explains
+58\% of this signal. When organism identity is held out during
+cross-validation, the correlation changes to $-0.32$. Because no proxy
+passes the validation requirement, we do not run a steering experiment.
+
+\subsection{Expression yield}
+
+We use expression-yield measurements from eSol
+\citep{niwa2009esol}. The proxy reaches $r=0.31$--$0.34$ and produces a
+significant dose response. The effect disappears when the dominant
+residue substitutions are excluded. The main result is therefore
+inconclusive under the fixed protocol.
+
+\subsection{Attention-head ablation}
+
+In our replication of \citet{vig2021bertology}, the most
+contact-enriched head has 12.9-fold enrichment over background. Ablating
+it produces a change that is statistically indistinguishable from
+ablating a low-correlation control head. The full sweep does not provide
+a precise rank because the evaluation uses 104 sampled positions and
+many heads have identical measured effects. The selected head shares its
+value with 131 other heads, forming a tied block that spans ranks
+286--417. At the same resolution, 166 heads show no measurable ablation
+effect. Strong contact correlation therefore does not imply a large or
+unique contribution to masked-residue prediction.
+
 \section{Reason for Failure}
-\label{sec:reason}
+\label{sec:failure}
 
-\paragraph{Binding affinity's null is mechanistically explained, not just
-observed.} The vector-building groups for this target are single-backbone
-point mutants. They differ by 1--2 residues from a shared 188-residue
-reference, which gives the difference-of-means construction very little
-raw compositional signal to use. This limitation is independent of
-whether binding affinity is causally steerable. We measure it directly:
-mean per-residue compositional distance between the low/high vector-building
-groups is $0.003$ for this target, versus $0.02$--$0.05$ for the three
-cross-protein datasets in our sweep. A well-validated scoring
-function does not guarantee the underlying difference-of-means
-construction has anything to act on.
+\subsection{The binding-affinity groups differ at few residues}
 
-\paragraph{Expression yield's failure is explained by vector geometry,
-not discarded as noise.} We compute cosine similarity between this target's
-steering vector and every other target's, layer by layer, and find
-substantial overlap with the intrinsic-disorder target's vector: $+0.38$
-on the full 33-layer concatenation, rising to $+0.56$--$0.67$ at the
-three deepest layers. This is consistent with the independently
-documented biology (disordered regions reduce solubility and expression
-yield). Expression yield's apparent signal is best understood as a
-partial, noisier echo of disorder's already-validated real direction,
-filtered through a proxy more prone to compositional collapse than
-TOP-IDP. It is not independent evidence of a sixth steerable property.
+The binding-affinity sequences are point mutants of one 188-residue
+reference protein. The high- and low-binding groups differ by only one
+or two residues per sequence. Their mean per-residue compositional
+distance is $0.003$, compared with $0.02$--$0.05$ for the three
+cross-protein datasets.
 
-\paragraph{A near-miss that would have hidden the real boundary condition.}
-As a mechanistic follow-up on thermostability, we tested whether
-restricting steering to the 5 layers previously identified as causally
-necessary preserves the effect of steering all 33. A first
-implementation selected its best-performing $\alpha$ from the full
-tested range, including $\alpha \geq 1.0$, and reported a clean pass: the
-5-layer subset appeared to outperform the full intervention at
-$\alpha=2.0$. This was an artifact of comparison: at that $\alpha$, the
-33-layer intervention had already fully collapsed into degenerate output
-(zero non-degenerate evaluation sequences), while the 5-layer subset had
-not yet collapsed. It ``won'' only because it broke down later, not
-because it steered harder in any comparable regime. Restricting the
-comparison to a pre-established safe operating range and rerunning end
-to end gives the real result: the 5-layer subset produces a real,
-residue-robust effect, but retains only 43--59\% of the full effect size.
-This is informative but not the unqualified success suggested by the
-uncollapsed comparison.
+This difference offers a possible explanation for the failed
+intervention. The proxy uses position-specific weights, so it can predict
+binding labels from a small number of mutations. In contrast, the
+steering direction averages activations over groups of nearly identical
+sequences. The few mutations that distinguish the groups may contribute
+too little to that average. Our evidence supports this explanation as a
+possibility, not as a demonstrated mechanism.
 
-\paragraph{Boundary conditions and actionable takeaways.} Proxy
-validation strength is not a reliable filter for which targets are worth
-attempting. Check the raw compositional separation between
-vector-building groups, not just the scoring function's correlation with
-ground truth. Any $\alpha$-selection or best-config comparison must be
-restricted to a range where every compared arm is known to be
-non-degenerate, or a collapse-order artifact can produce a spurious win.
-A criterion-specific robustness check, such as residue-exclusion, can
-have different seed sensitivity than the headline effect and therefore
-needs its own multi-seed check. An AMBIGUOUS or unexplained result also
-warrants a cheap vector-geometry cross-check against other validated
-targets in the same study before being dismissed as noise.
+\subsection{The expression-yield direction overlaps with disorder}
+
+We compare the expression-yield steering vector with every other target
+vector. Its cosine similarity with the intrinsic-disorder direction is
+$+0.38$ across all 33 layers and rises to $+0.56$--$0.67$ in the three
+deepest layers. This overlap shows that the directions are not orthogonal
+and may capture some of the same compositional variation. It does not
+show that disorder causes the expression-yield result. Because the
+expression-yield result also fails residue exclusion, we do not count it
+as separate evidence for a new steering effect. Vector similarity is
+inexpensive to compute and is useful when several related targets are
+studied in the same model.
+
+\subsection{Unstable generation made five-layer steering look stronger}
+
+In a follow-up thermostability experiment, we compared steering all 33
+layers with steering only five layers previously identified as
+important. An early analysis selected the best intervention strength
+from the full tested range. At that strength, generation under the
+33-layer intervention had already collapsed, while generation under the
+5-layer intervention had not. The 5-layer version appeared better only
+because it failed at a higher strength.
+
+We restricted the comparison to a range where both interventions
+produced stable sequences and reran the experiment. The 5-layer
+intervention then retained 43--59\% of the full effect. This is a useful
+partial result, but it does not support the original claim that five
+layers perform as well as all 33.
+
+\subsection{A robustness criterion changed across seeds}
+
+The intrinsic-disorder effect repeats across all three seeds, but its
+residue-exclusion check passes on only two. A single run could therefore
+support either a pass or a failure for that criterion. Repeating only
+the main effect is not enough when a separate artifact check is used to
+justify the result.
+
+\subsection{Practical recommendations}
+
+Before steering, researchers should measure how much the high- and
+low-property groups differ, not only how well the scoring proxy predicts
+labels. Comparisons between methods or layer sets should use a range in
+which every intervention produces stable output. Artifact checks should
+be repeated across seeds when they support an important claim. When
+several properties are studied together, similarities between their
+steering vectors can reveal that two apparent effects may not be
+independent.
 
 \section{Related Work}
 
-\citet{huang2025steering} introduce difference-of-means activation
-steering for protein language models and validate it on thermostability;
-we extend their harness to five new properties under a pre-registered
-protocol and test, for the first time to our knowledge, whether proxy
-correlation strength predicts steering success across multiple unrelated
-properties. \citet{vig2021bertology} identify the attention head we
-redo as a genuine causal test and extend to a full 480-head sweep.
-\citet{adams2025mechanistic} train sparse autoencoders on ESM-2 and show
-via the correlational method of linear probing that known determinants
-of thermostability and localization are identifiable in SAE feature
-space. Their one steering experiment is a coherence check, not a
-validation against a real label, and their own discussion states that
-``investigating how to steer the model in useful ways remains an open
-direction for future work.'' We answer a version of that question for a
-non-SAE steering mechanism, specifically for whether correlational
-validity predicts causal usefulness.
+\citet{huang2025steering} introduced difference-of-means activation
+steering for protein language models and validated the method on
+thermostability. We apply the same intervention to five new properties
+under one fixed evaluation protocol.
+
+\citet{vig2021bertology} identified attention heads whose attention
+patterns correlate with 3D protein contacts. We reproduce their analysis,
+test the most enriched head in our data by causal ablation, and extend
+the analysis to all heads in the model.
+
+\citet{adams2025mechanistic} used linear probes to identify biological
+information in sparse-autoencoder features from ESM-2. Their steering
+experiment tested sequence coherence rather than agreement with an
+experimental property label. Our study asks whether correlational
+evidence predicts the outcome of a downstream intervention.
 
 \section{Limitations}
 
-All experiments use a single model, ESM2-650M, at a single scale. All
-proxies are compositional heuristics chosen for interpretability and
-speed, not learned predictors. A stronger, non-compositional proxy might
-behave differently. Each target's final proxy was selected as the best
-of several candidates, typically 7 to 9, scored on the same held-out
-split whose $r$ is reported as the validation number. We did not use a
-separate train/select/test split. This garden-of-forking-paths bias
-optimistically inflates every reported proxy-$r$, so the absolute values
-in Table~\ref{tab:sweep} should be read as upper bounds. It does not
-obviously overturn the central ordinal comparison because binding
-affinity remains the best-validated target and remains null.
+All experiments use ESM2-650M at one model scale. The proxies are
+compositional heuristics rather than learned predictors. A stronger
+non-compositional proxy could behave differently. We selected each final
+proxy from several candidates using the same held-out split on which we
+report its correlation, so the reported correlations are likely
+optimistic.
 
-We ran many significance tests overall: 5 targets across 5 alphas,
-3-seed reruns for two targets, and the 480-head sweep. We did not apply a
-multiple-comparisons correction. Requiring multi-alpha and multi-seed
-agreement for any PASS partially mitigates this issue, but borderline
-criteria remain close to the noise floor. One example is the
-residue-exclusion check in \S\ref{sec:disorder-detail}, which is
-significant on only 2 of 3 seeds. We tested seed robustness for catalytic
-activity and intrinsic disorder, but not all five targets. We also did
-not run structural or functional plausibility checks, such as
-predicted-fold confidence, on generated sequences. A PASS therefore does
-not rule out otherwise implausible proteins.
+We ran multiple significance tests without a formal correction.
+Agreement across intervention strengths and seeds reduces this risk but
+does not remove it. Seed robustness was checked for only two targets. We
+also did not evaluate generated sequences with a wet-lab assay or a
+structural plausibility model. A successful protocol result means that
+the intervention changes a validated proxy. It does not establish that
+the generated protein has the intended biological property.
 
-Every steering result here is causal about the model's activation space.
-It reflects a real intervention evaluated against a random-direction
-control and a residue-exclusion check, but it is not validated against a
-real biological assay. A PASS means ``causally steers a validated
-compositional proxy,'' not ``causally engineers the underlying biological
-property.''
+\section{Conclusion}
+
+Across these experiments, higher proxy accuracy does not guarantee more
+successful steering. The binding-affinity result shows that a
+well-validated score can still produce an ineffective
+difference-of-means direction. The seed and intervention-range checks
+also show how a plausible result can receive the wrong interpretation.
+Reliable steering claims require direct tests of the intervention, its
+artifacts, and its stability.
 
 \section*{LLM usage disclosure}
-Large language model assistance (Claude, Anthropic) was used throughout
-this project for code authoring, experiment scripting, literature lookup,
-and drafting of this manuscript. All experimental design decisions, the
-pre-registered protocol, and the interpretation of results were made and
-verified by the authors; every quantitative claim in this paper is backed
-by a runnable script and a committed results file, checked against the
-paper's prose during preparation.
+Claude (Anthropic) assisted with code writing, experiment scripts,
+literature searches, and manuscript drafting. We chose the study design,
+ran and checked the experiments, and verified each numerical claim
+against committed outputs.
 
 \section*{Code and data availability}
-Code and results supporting every number in this paper are publicly
-available in the project repository, which is released regardless of
-submission outcome.
+Code, data-processing scripts, and saved results will be released after
+the double-blind review period. The submission does not link to an
+identifying repository.
 
 \section*{Reproducibility statement}
-All five target properties in Table~\ref{tab:sweep} reuse one fixed
-harness (steering-vector construction, matched-norm random control,
-paired bootstrap significance test, degeneracy filter), varying only the
-target dataset and scoring proxy, so a single implementation bug cannot
-selectively explain a subset of the reported results. Every quantitative
-claim, including both near-misses in \S\ref{sec:reason}, is backed by
-a committed, re-runnable script and a saved results file; the two
-multi-seed claims (catalytic activity, intrinsic disorder) rerun the
-identical pipeline end to end per seed rather than resampling a single
-run's output.
+All five targets use the same implementation for steering-vector
+construction, matched-norm random controls, paired bootstrap testing,
+and output filtering. The multi-seed experiments rerun the complete
+pipeline rather than resampling one run's output. Saved result files
+support the numerical claims reported in the paper.
 
 \bibliographystyle{plainnat}
 \bibliography{reference}
