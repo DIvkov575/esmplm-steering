@@ -42,6 +42,7 @@ from plm_steering.l57_expression_yield_steering import (
     expression_yield_proxy,
     expression_yield_proxy_excluding,
 )
+from plm_steering.legacy_runner_guard import refuse_legacy_runner
 
 MODEL_NAME = "facebook/esm2_t33_650M_UR50D"
 DATA_PATH = Path(__file__).resolve().parent / "data_cache" / "expression" / "esol_clean.csv"
@@ -136,6 +137,8 @@ def score_expression_yield(sequences):
 
 
 def main():
+    refuse_legacy_runner("plm_steering.l57_run_repro")
+
     device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"device: {device}", flush=True)
 

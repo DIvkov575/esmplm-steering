@@ -26,6 +26,7 @@ from plm_steering.l42_steering_repro import (
     paired_bootstrap_mean_diff,
 )
 from plm_steering.l51_aggregation_steering import aggregation_resistance_proxy, aggregation_resistance_proxy_excluding
+from plm_steering.legacy_runner_guard import refuse_legacy_runner
 
 MODEL_NAME = "facebook/esm2_t33_650M_UR50D"
 DATA_PATH = Path(__file__).resolve().parent / "data_cache" / "aggregation" / "agg50_clean.csv"
@@ -109,6 +110,8 @@ def score_aggregation_resistance(sequences):
 
 
 def main():
+    refuse_legacy_runner("plm_steering.l51_run_repro")
+
     device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"device: {device}", flush=True)
 

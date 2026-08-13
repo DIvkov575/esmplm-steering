@@ -41,6 +41,7 @@ from plm_steering.l42_steering_repro import (
     paired_bootstrap_mean_diff,
     split_by_percentile,
 )
+from plm_steering.legacy_runner_guard import refuse_legacy_runner
 
 MODEL_NAME = "facebook/esm2_t33_650M_UR50D"
 DATA_PATH = Path(__file__).resolve().parent / "data_cache" / "meltome" / "mixed_split.csv"
@@ -150,6 +151,8 @@ def ivywrel_fraction_excluding(sequence: str, excluded: frozenset) -> float:
 
 
 def main():
+    refuse_legacy_runner("plm_steering.l52_layer_subset_causal_steering")
+
     device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"device: {device}", flush=True)
 

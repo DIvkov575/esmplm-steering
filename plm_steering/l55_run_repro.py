@@ -40,6 +40,7 @@ from plm_steering.l42_steering_repro import (
     paired_bootstrap_mean_diff,
 )
 from plm_steering.l55_disorder_steering import disorder_proxy, disorder_proxy_excluding
+from plm_steering.legacy_runner_guard import refuse_legacy_runner
 
 MODEL_NAME = "facebook/esm2_t33_650M_UR50D"
 DATA_PATH = Path(__file__).resolve().parent / "data_cache" / "disorder" / "disprot_clean.csv"
@@ -148,6 +149,8 @@ def score_disorder(sequences):
 
 
 def main():
+    refuse_legacy_runner("plm_steering.l55_run_repro")
+
     device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"device: {device}", flush=True)
 

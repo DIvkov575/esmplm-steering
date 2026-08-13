@@ -122,6 +122,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import roc_auc_score
+from plm_steering.legacy_runner_guard import refuse_legacy_runner
 
 DATA_DIR = Path(__file__).resolve().parent / "data_cache" / "immunogenicity"
 CANONICAL = frozenset("ACDEFGHIKLMNPQRSTVWY")
@@ -440,6 +441,8 @@ def report_organism_confound(antigens):
 
 
 def main():
+    refuse_legacy_runner("plm_steering.l56_immunogenicity_proxy_validation")
+
     summary = {}
     seqs, labels = load_binding_affinity()
     summary["tier1_binding_affinity"] = report_tier(
