@@ -4,7 +4,7 @@ Ledger version: 0.1
 
 Updated: 2026-08-13
 
-Program state: BASELINE COMMIT READY
+Program state: CONTRACT CORRECTION IN PROGRESS
 
 ## Active scope
 
@@ -24,10 +24,10 @@ Program state: BASELINE COMMIT READY
 | Program orchestration and claim registry | Codex main session | `019ffc96-17fe-70b0-b7ed-c8d499598db5` | In progress | `docs/CLAIM_REGISTRY.md`, this ledger |
 | Official venue-policy verification | Turing | `019ffd1c-1ea6-7763-9237-cdb0b291111d` | Complete and accepted | `docs/VENUE_POLICY_2026.md` |
 | Artifact provenance inventory | Leibniz | `019ffd1c-24a4-7460-a6ff-47348bfd1dc6` | Complete and accepted | `docs/ARTIFACT_INVENTORY.md` |
-| ICBINB experiment manifest | Pauli | `019ffd1c-2bc4-7412-8740-2ad6648f8fb1` | Statistically accepted; exact-commit review pending | `docs/ICBINB_EXPERIMENT_MANIFEST.md` |
-| Interp preregistration | Ramanujan | `019ffd1c-33df-75c1-94d8-ef3244927a5b` | Reconciled for feasibility; final lock remains blocked | `docs/INTERP4DISCOVERY_PREREGISTRATION.md` |
-| Statistical contract review | Hume | `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Complete; 0 Critical and 0 Major findings remain | `docs/STATISTICAL_CONTRACT_ACCEPTANCE.md` |
-| Cross-document contract review | Maxwell | `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | First pass complete; exact-commit re-review pending | `docs/CONTRACT_CONSISTENCY_REVIEW.md` |
+| ICBINB experiment manifest | Pauli | `019ffd1c-2bc4-7412-8740-2ad6648f8fb1` | Earlier candidate passed statistical review; exact correction-commit review pending | `docs/ICBINB_EXPERIMENT_MANIFEST.md` |
+| Interp preregistration | Ramanujan | `019ffd1c-33df-75c1-94d8-ef3244927a5b` | Cohort and discovery stage correction in progress; final lock remains blocked | `docs/INTERP4DISCOVERY_PREREGISTRATION.md` |
+| Statistical contract review | Hume | `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Earlier candidate accepted; exact correction-commit review pending | `docs/STATISTICAL_CONTRACT_ACCEPTANCE.md` |
+| Cross-document contract review | Maxwell | `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Exact review of `14baabb` held on 3 Major findings | `docs/CONTRACT_COMMIT_REVIEW.md` |
 
 These agents are contract workers or independent reviewers. They are not final
 reviewers of their own outputs.
@@ -46,6 +46,10 @@ reviewers of their own outputs.
 | Historical package ownership check | `plm_steering.submission_ownership` for both papers | Both packages rejected as expected; neither is a submission input |
 | Contract static checks | JSON, ASCII, em dash, formatting, and `git diff --check` scans | Passed for the active contract set |
 | Final statistical contract review | `docs/STATISTICAL_CONTRACT_ACCEPTANCE.md` | Accepted with 0 Critical and 0 Major findings |
+| Baseline commit | `14baabb2435835b345946b065f5268f067cc0d3b` | Committed and pushed; superseded as an execution candidate by open review corrections |
+| Exact baseline consistency review | `docs/CONTRACT_COMMIT_REVIEW.md` | Held with 0 Critical, 3 Major, and 1 Minor findings |
+| Ownership checker correction | Huygens, `019ffd75-3142-74c3-8b51-1391723775e6` | CSV-ledger binding and bypass tests integrated |
+| Correction candidate verification | Full suite, ownership bypass suite, static scans, package rejection, and legacy-runner guards | 152 full tests and 34 ownership tests passed; operational checks passed |
 
 ## Environment baseline
 
@@ -56,7 +60,7 @@ reviewers of their own outputs.
 | Dependency source | `requirements.txt`; exact tested versions in `requirements-lock.txt` |
 | Installation command | `uv pip install --python .venv/bin/python -r requirements.txt` |
 | Test command | `.venv/bin/python -m pytest -p no:cacheprovider -q` |
-| Test result | 123 passed in 4.13 seconds |
+| Test result | 152 passed in 5.03 seconds |
 
 The default Homebrew Python 3.14 environment cannot collect the suite because
 it lacks `torch` and `scikit-learn`. Use the Python 3.11 environment for
@@ -70,18 +74,18 @@ repository work.
 - [x] Cohort, result-ledger, and citation-ledger schemas exist.
 - [x] Official venue policies are verified from current official sources.
 - [x] Artifact inventory is complete and hashes are recorded.
-- [x] ICBINB experiment manifest is reviewed against the claim registry.
+- [ ] Exact correction-commit ICBINB manifest is statistically accepted.
 - [x] Interp preregistration contains an explicit complete lock-key set and
   unresolved values remain null.
 - [x] Active contract artifacts pass prose and static checks.
-- [ ] Contract artifacts are committed and pushed.
+- [ ] Corrected contract artifacts are committed and pushed.
 - [ ] Sibling worktrees start from the exact contract commit.
 
 No experiment owner or paper owner starts before this gate closes.
 
 ## Next execution gate
 
-After the contract commit:
+After the accepted correction commit:
 
 1. Create `research/shared-audit`, `paper/icbinb`, and
    `paper/interp4discovery` from the exact same commit.
@@ -115,6 +119,7 @@ After the contract commit:
 | 2026-08-13 | Hume | Orchestrator | `docs/STATISTICAL_CONTRACT_REREVIEW.md` | Rereview found five Major contract findings; corrections applied; final blocker-only review pending |
 | 2026-08-13 | Hume | Orchestrator | `docs/STATISTICAL_CONTRACT_ACCEPTANCE.md` | Statistical contract accepted; 0 Critical and 0 Major findings remain |
 | 2026-08-13 | Maxwell | Orchestrator | `docs/CONTRACT_CONSISTENCY_REVIEW.md` | First pass accepted; blockers require correction and committed-revision re-review |
+| 2026-08-13 | Maxwell | Orchestrator | `docs/CONTRACT_COMMIT_REVIEW.md` | Exact review of `14baabb` held with 3 Major and 1 Minor findings |
 
 Future handoffs must list inputs, changed files, supported and unsupported
 claims, checks run, unresolved blockers, and the recommended gate decision.

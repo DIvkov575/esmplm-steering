@@ -53,3 +53,12 @@ experiment or submission phase.
 4. Ask the consistency reviewer to review the exact committed revision.
 5. Do not create experiment worktrees until no contract-freeze critical or
    major finding remains.
+
+## Exact review of `14baabb`
+
+| Finding | Resolution | State |
+|---|---|---|
+| M-01, statistical acceptance did not name committed bytes | Status boards now distinguish the earlier candidate review from the required exact correction-commit review. | Open until exact corrected-commit review |
+| M-02, ownership checker boundary incomplete | The checker rejects exact study identifiers, generic steering results, and unlisted or hash-mismatched evidence files. Its allowlist is bound to the contracted CSV result ledger. | Corrected; focused bypass tests pass |
+| M-03, Interp cohort and discovery stages incomplete | The preregistration now defines candidate-to-final cohort materialization, discovery materialization, exact stage locks, owners, parent-lock sets, and command inputs. | Contract corrected; implementation blocked |
+| N-01, status boards described a pre-commit state | The boards record commit `14baabb`, its HOLD decision, and the correction state. | Corrected |

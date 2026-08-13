@@ -73,8 +73,8 @@ The following items must be part of the final preregistration lock:
 
 - this document and its content hash;
 - the source revision and environment lock;
-- the complete discovery manifest and the metadata-only confirmation cohort
-  manifest;
+- the reviewed `feasibility/discovery_manifest.json` and
+  `feasibility/candidate_cohort_manifest.json` hashes;
 - the position-matching specification;
 - the selected top-five heads and their matched head controls;
 - all numeric statistical, precision, replication, and calibration thresholds;
@@ -82,10 +82,11 @@ The following items must be part of the final preregistration lock:
 - the runtime projection and compute decision;
 - the expected artifact list.
 
-The `ROLE_HANDOFF` lock key records owner identities and write scopes only.
+The `ROLE_HANDOFF` lock key records the discovery, cohort and matching,
+ablation, and analysis owner identities and their disjoint write scopes.
 After actual matching closes, `matching/handoff.json` records the accepted
-matching stage hash. The ablation command requires that separate handoff
-artifact.
+cohort, discovery, and matching stage hashes. The ablation command requires
+that separate handoff artifact.
 
 ## 3. Structure panels
 
@@ -586,6 +587,7 @@ Before the final lock, discovery-only feasibility work writes:
 
 - `feasibility/specification.json`
 - `feasibility/runtime_benchmark.json`
+- `feasibility/discovery_manifest.json`
 - `feasibility/candidate_cohort_manifest.json`
 - `feasibility/matching_simulation.json`
 - `feasibility/precision_simulation.json`
@@ -593,6 +595,11 @@ Before the final lock, discovery-only feasibility work writes:
 
 These files contain no confirmation-panel attention, baseline probability,
 matching, or ablation outcome. The final lock consumes their reviewed hashes.
+The `discovery-manifest` command records the exact discovery panel, ranking
+inputs, selected heads, control matching, and mean-replacement inputs. The
+`candidate-cohort` command records structure and sequence metadata only. That
+candidate manifest is an input to the final cohort stage and never becomes
+the final cohort manifest by renaming or implicit copying.
 
 ### 13.1 `lock/preregistration_lock.json`
 
@@ -617,6 +624,14 @@ One record per PDB chain:
 - inclusion status and exclusion reason;
 - chain, distance, sequence-separation, and length rules.
 
+The post-lock `build-cohort` command produces this file and
+`cohort/stage_lock.json`. It consumes the final preregistration lock, the
+accepted feasibility lock, and the candidate cohort manifest. It may apply
+only the frozen metadata rules. It cannot compute confirmation attention,
+baseline probabilities, matching, or ablation outcomes. The cohort stage lock
+records the final lock, feasibility lock, candidate manifest hash, and every
+final cohort artifact hash.
+
 ### 13.3 `discovery/head_selection.json`
 
 One record per head:
@@ -629,6 +644,13 @@ One record per head:
 - top-five flag;
 - control eligibility;
 - selected-head ID served, control role, and matching distances.
+
+The post-lock `build-discovery` command produces this file and
+`discovery/stage_lock.json`. It materializes the reviewed feasibility
+discovery manifest under the final lock and verifies the frozen head ranking,
+top-five set, controls, and replacement inputs. It cannot read confirmation
+data. The discovery stage lock records the final lock, feasibility lock,
+feasibility discovery-manifest hash, and every final discovery artifact hash.
 
 ### 13.4 `matching/position_matches.jsonl`
 
@@ -644,8 +666,11 @@ One record per contact-bearing position and its matched set:
 
 Matching also writes `matching/balance.json`,
 `matching/common_support.json`, `matching/stage_lock.json`, and
-`matching/handoff.json`. The handoff is written only after the matching owner,
-ablation owner, and orchestrator accept the matching stage hash.
+`matching/handoff.json`. The matching stage consumes the accepted cohort and
+discovery stage locks. Its stage lock records both parent hashes. The handoff
+is written only after the cohort and matching owner, discovery owner, ablation
+owner, and orchestrator accept the cohort, discovery, and matching stage
+hashes.
 
 ### 13.5 `ablation/ablation_records.jsonl`
 
@@ -699,12 +724,26 @@ and one complete confirmatory branch pass. Otherwise it records `NO_GO` and
 the exact failed conditions.
 
 Each stage lock contains exact hashes for every artifact in that stage and
-the accepted parent-stage lock. Cohort, discovery, matching, ablation, and
-analysis stages become append-only when their own stage lock is written. A
-later correction, including one before the gate, requires a new experiment ID
-and a linked amendment. The gate consumes only stage-locked hashes.
+its accepted parent lock or parent-lock set. Cohort and discovery each depend
+on the final and feasibility locks. Matching depends on the accepted cohort
+and discovery locks. Ablation depends on the matching handoff, and analysis
+depends on the discovery and ablation locks. Cohort, discovery, matching,
+ablation, and analysis stages become append-only when their own stage lock is
+written. A later correction, including one before the gate, requires a new
+experiment ID and a linked amendment. The gate consumes only stage-locked
+hashes.
 
-### 13.9 Required commands
+### 13.9 `result_ledger.csv`
+
+After the gate and independent statistical review, the orchestrator composes
+one controlling row for each Interp claim from the accepted stage locks,
+`gate/gate_decision.json`, and the review decision. Failed, stopped, excluded,
+and negative analyses remain in the ledger. Artifact-list cells follow
+`docs/RESULT_LEDGER_SCHEMA.md` and contain JSON arrays. The ledger is written
+to the output root and becomes immutable when the submission evidence
+allowlist records its SHA-256.
+
+### 13.10 Required commands
 
 Run from the repository root in a clean worktree. These are target interfaces.
 They must remain unavailable until strict argument parsing, safe output-path
@@ -726,6 +765,9 @@ from the identifier in its input artifact.
 .venv/bin/python -m plm_steering.interp4discovery benchmark \
   --feasibility-spec "plm_steering/interp4discovery_out/$EXPERIMENT_ID/feasibility/specification.json"
 
+.venv/bin/python -m plm_steering.interp4discovery discovery-manifest \
+  --feasibility-spec "plm_steering/interp4discovery_out/$EXPERIMENT_ID/feasibility/specification.json"
+
 .venv/bin/python -m plm_steering.interp4discovery candidate-cohort \
   --feasibility-spec "plm_steering/interp4discovery_out/$EXPERIMENT_ID/feasibility/specification.json"
 
@@ -745,13 +787,24 @@ from the identifier in its input artifact.
   --output-root "plm_steering/interp4discovery_out/$EXPERIMENT_ID"
 
 .venv/bin/python -m plm_steering.interp4discovery build-cohort \
-  --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json"
+  --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json" \
+  --feasibility-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/feasibility/stage_lock.json" \
+  --candidate-cohort "plm_steering/interp4discovery_out/$EXPERIMENT_ID/feasibility/candidate_cohort_manifest.json"
+
+.venv/bin/python -m plm_steering.interp4discovery build-discovery \
+  --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json" \
+  --feasibility-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/feasibility/stage_lock.json" \
+  --discovery-manifest "plm_steering/interp4discovery_out/$EXPERIMENT_ID/feasibility/discovery_manifest.json"
 
 .venv/bin/python -m plm_steering.interp4discovery match \
-  --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json"
+  --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json" \
+  --cohort-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/cohort/stage_lock.json" \
+  --discovery-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/discovery/stage_lock.json"
 
 .venv/bin/python -m plm_steering.interp4discovery accept-matching \
   --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json" \
+  --cohort-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/cohort/stage_lock.json" \
+  --discovery-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/discovery/stage_lock.json" \
   --matching-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/matching/stage_lock.json"
 
 .venv/bin/python -m plm_steering.interp4discovery ablate \
@@ -760,15 +813,19 @@ from the identifier in its input artifact.
 
 .venv/bin/python -m plm_steering.interp4discovery analyze \
   --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json" \
+  --discovery-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/discovery/stage_lock.json" \
   --ablation-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/ablation/stage_lock.json"
 
 .venv/bin/python -m plm_steering.interp4discovery gate \
   --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json" \
+  --cohort-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/cohort/stage_lock.json" \
+  --discovery-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/discovery/stage_lock.json" \
   --analysis-lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/analysis/stage_lock.json"
 
 .venv/bin/python -m plm_steering.interp4discovery verify \
   --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json" \
-  --gate "plm_steering/interp4discovery_out/$EXPERIMENT_ID/gate/gate_decision.json"
+  --gate "plm_steering/interp4discovery_out/$EXPERIMENT_ID/gate/gate_decision.json" \
+  --ledger "plm_steering/interp4discovery_out/$EXPERIMENT_ID/result_ledger.csv"
 ```
 
 Every command rejects unknown arguments and existing output files. `verify`
@@ -778,9 +835,12 @@ replacement result, or gate condition.
 The command order is fixed. Discovery-only work runs from
 `feasibility-init` through `feasibility-lock`. The final `lock` command then
 consumes the reviewed feasibility stage lock and all resolved lock values.
-Only that final lock authorizes `build-cohort`, `match`, `accept-matching`,
-`ablate`, `analyze`, `gate`, and `verify`, in that order. No confirmation
-command can create an input required by the final lock.
+Only that final lock authorizes `build-cohort` and `build-discovery`. Those
+two independent stages may run in either order. Both must close before
+`match`, followed by `accept-matching`, `ablate`, `analyze`, and `gate`.
+Independent review and result-ledger construction follow the gate, then
+`verify` closes the artifact set. No confirmation command can create an input
+required by the final lock.
 
 ## 14. Stopping rule
 
@@ -863,7 +923,7 @@ not another editable carrier status, records confirmation authorization.
 | `PERTURBATION_CALIBRATION` | Zero and mean magnitude thresholds and required calibration result | Frozen thresholds pass |
 | `METHOD_SENSITIVITY` | Positive-branch sign-reversal rule and any additional method threshold | Claim wording matches zero replacement |
 | `ARTIFACT_PATHS` | Exact repository-relative output root and every expected file | No wildcard, absolute, or escaping path |
-| `ROLE_HANDOFF` | Matching owner, ablation owner, analysis owner, and disjoint write scopes | Owners are assigned and prohibited role combinations are absent |
+| `ROLE_HANDOFF` | Discovery owner, cohort and matching owner, ablation owner, analysis owner, and disjoint write scopes | Owners are assigned and prohibited role combinations are absent |
 
 Resolving every text marker is not enough. The experiment becomes frozen only
 when all 20 keys pass validation, the feasibility stage lock verifies, the

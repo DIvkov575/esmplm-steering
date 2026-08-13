@@ -11,7 +11,7 @@ number already present in a narrative document.
 Source plan: `docs/PAPER_PORTFOLIO_PLAN.md`
 
 Source plan SHA-256 for this contract revision:
-`4e380703696476e03381c91400f8983d15b4b8f2a91d958f84f6e378d76be3dc`
+`f8b06e8f2ebd1d6e7324ed5f56b9ba507d70aaf5e5583f9b2d089e2eb820986f`
 
 ## 1. Purpose and decision boundary
 

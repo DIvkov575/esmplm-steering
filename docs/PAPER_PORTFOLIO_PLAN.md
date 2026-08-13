@@ -847,7 +847,8 @@ before August 29.
 | Orchestrator | Freeze contracts, assign work, merge accepted outputs, enforce gates | Program artifacts and integration branch |
 | Shared methods owner | Manifests, invalid-output analysis, edit-burden metrics, shared statistics | Shared experiment code and locked result bundles |
 | ICBINB paper owner | Rebuild the failure-audit paper from the ICBINB result bundle | ICBINB paper directory only |
-| Interp cohort and matching owner | Independent PDB panel, baseline probabilities, position matching, and matching stage lock | Interp cohort and matching code and outputs only |
+| Interp discovery owner | Discovery panel manifest, head ranking, head controls, replacement inputs, and discovery stage lock | Interp discovery code and outputs only; confirmation artifacts are prohibited |
+| Interp cohort and matching owner | Confirmation cohort materialization, baseline probabilities, position matching, and cohort and matching stage locks | Interp cohort and matching code and outputs only |
 | Interp ablation owner | Hook isolation, perturbation calibration, zero and mean replacement runs | Interp ablation code and outputs; matching stage is read-only |
 | Interp analysis owner | Locked head outcomes, resampling, branch tests, and gate artifact | Interp analysis outputs; cohort, matching, and ablation stages are read-only |
 | Interp paper owner | Write only from the locked Interp result bundle | Interp paper directory only |
@@ -867,13 +868,18 @@ The following role combinations are prohibited:
 - experiment owner and statistical reviewer for the same paper;
 - paper owner and final technical reviewer for the same paper;
 - either paper owner and cross-paper reviewer;
-- submission-package owner and final anonymity reviewer.
+- submission-package owner and final anonymity reviewer;
+- Interp discovery owner and Interp cohort and matching owner;
+- Interp discovery owner and Interp analysis owner;
 - Interp cohort and matching owner and Interp ablation owner.
 
-The Interp matching stage is hashed and accepted before ablation begins. The
-matching owner cannot read ablation output. The ablation owner receives only
-the preregistration lock and matching stage lock and cannot edit either. Every
-later stage verifies its accepted parent hash.
+The Interp cohort and discovery stages are separately hashed before matching.
+Matching consumes both accepted locks. The matching stage and its three-lock
+handoff are accepted before ablation begins. The discovery owner cannot read
+confirmation artifacts, and the matching owner cannot read ablation output.
+The ablation owner receives only the preregistration lock and accepted
+matching handoff and cannot edit either. Every later stage verifies its
+accepted parent-lock set.
 
 The ICBINB and Interp paper owners work independently. They receive the shared
 method manifest, the claim registry, and only their own result bundle. They do
@@ -1013,12 +1019,19 @@ Run the ownership checks from the repository root:
 ```bash
 .venv/bin/python -m plm_steering.submission_ownership \
   --paper icbinb-bio \
-  --root docs/submissions/icbinb-bio
+  --root docs/submissions/icbinb-bio \
+  --ledger plm_steering/icbinb_audit_out/result_ledger.csv \
+  --ledger-root .
 
 .venv/bin/python -m plm_steering.submission_ownership \
   --paper interp4discovery \
-  --root docs/submissions/interp4discovery
+  --root docs/submissions/interp4discovery \
+  --ledger "plm_steering/interp4discovery_out/$EXPERIMENT_ID/result_ledger.csv" \
+  --ledger-root .
 ```
+
+For Interp4Discovery, `EXPERIMENT_ID` must equal the identifier in the final
+preregistration lock.
 
 ## 15. Current execution board
 
@@ -1031,15 +1044,15 @@ Run the ownership checks from the repository root:
 | Portfolio plan | Approved for execution on 2026-08-13 |
 | Subagent review record | Complete in `docs/PAPER_PORTFOLIO_REVIEW.md` |
 | Official venue-policy record | Complete, with unresolved portal fields recorded |
-| Claim registry and shared ledger schemas | Reconciled and statistically accepted; exact-commit review pending |
-| ICBINB manifest | Reconciled and statistically accepted; exact-commit review pending |
-| Interp preregistration | Statistical contract accepted for feasibility; final lock remains unresolved |
-| Independent contract reviews | Statistical review accepted with no Critical or Major findings; exact-commit consistency review pending |
+| Claim registry and shared ledger schemas | Correction candidate; exact-commit reviews pending |
+| ICBINB manifest | Earlier candidate passed statistical review; exact correction-commit review pending |
+| Interp preregistration | Cohort and discovery stage correction in progress; final lock remains unresolved |
+| Independent contract reviews | Exact review of `14baabb` held on 3 Major findings; corrected commit reviews pending |
 | Shared audit reanalysis | Not started |
 | Independent Interp experiment | Not started |
 | Manuscript restructuring | Blocked on locked result bundles |
 
-The next execution step is to commit one reconciled baseline and obtain the
-exact-commit consistency review. Isolated worktrees start only from the
-accepted contract commit.
+The next execution step is to resolve the exact-commit findings, commit the
+corrected baseline, and obtain statistical and consistency reviews of that
+exact commit. Isolated worktrees start only from the accepted contract commit.
 Manuscript rewriting starts only after the relevant result bundle is locked.
