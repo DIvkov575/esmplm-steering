@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import difflib
 import hashlib
 import json
 import math
@@ -21,13 +22,15 @@ PROHIBITED = {
             "contact-enriched": re.compile(r"contact[- ]enrich", re.IGNORECASE),
             "catalytic": re.compile(r"\bcatalytic\b|\bdlkcat\b", re.IGNORECASE),
             "excluded-study-identifier": re.compile(
-                r"(?<![A-Za-z0-9])l(?:43|48|49|54)(?=$|[^A-Za-z0-9])",
+                r"(?<![A-Za-z0-9])l\s*(?:[-\u2010-\u2015\u2212]+\s*)?"
+                r"(?:43|48|49|54)(?=$|[^A-Za-z0-9])",
                 re.IGNORECASE,
             ),
         },
         "artifact_paths": {
             "excluded-study-identifier": re.compile(
-                r"(?<![A-Za-z0-9])l(?:43|48|49|54)(?=$|[^A-Za-z0-9])",
+                r"(?<![A-Za-z0-9])l\s*(?:[-\u2010-\u2015\u2212]+\s*)?"
+                r"(?:43|48|49|54)(?=$|[^A-Za-z0-9])",
                 re.IGNORECASE,
             ),
         },
@@ -48,7 +51,8 @@ PROHIBITED = {
                 re.IGNORECASE,
             ),
             "foreign-study-identifier": re.compile(
-                r"(?<![A-Za-z0-9])l(?:42|43|51|52|53|54|55|56|57|58)"
+                r"(?<![A-Za-z0-9])l\s*(?:[-\u2010-\u2015\u2212]+\s*)?"
+                r"(?:42|43|51|52|53|54|55|56|57|58)"
                 r"(?=$|[^A-Za-z0-9])",
                 re.IGNORECASE,
             ),
@@ -59,7 +63,8 @@ PROHIBITED = {
                 re.IGNORECASE,
             ),
             "foreign-study-identifier": re.compile(
-                r"(?<![A-Za-z0-9])l(?:42|43|51|52|53|54|55|56|57|58)"
+                r"(?<![A-Za-z0-9])l\s*(?:[-\u2010-\u2015\u2212]+\s*)?"
+                r"(?:42|43|51|52|53|54|55|56|57|58)"
                 r"(?=$|[^A-Za-z0-9])",
                 re.IGNORECASE,
             ),
@@ -115,6 +120,191 @@ TEXT_SOURCE_SUFFIXES = {
     ".txt",
     ".typ",
     ".xml",
+}
+
+MANUSCRIPT_SOURCE_PATHS = {
+    PurePosixPath("neurips_2026.sty"),
+    PurePosixPath("paper.bbl"),
+    PurePosixPath("paper.tex"),
+    PurePosixPath("reference.bib"),
+}
+
+ICBINB_CLAIM_PATTERNS = {
+    "actor": re.compile(
+        r"\b(?:steer(?:s|ed|ing)?|intervention|model|method|approach|direction"
+        r"|protein design|sequence design|generated? sequences?|generation"
+        r"|treatment|manipulation|perturbation|mutation|we|our|it|they)\b",
+        re.IGNORECASE,
+    ),
+    "improvement": re.compile(
+        r"\b(?:improv(?:e|es|ed|ing|ement)|enhanc(?:e|es|ed|ing|ement)"
+        r"|increas(?:e|es|ed|ing)|optimi[sz](?:e|es|ed|ing|ation)"
+        r"|control(?:s|led|ling)?|gain(?:s|ed|ing)?|higher|better"
+        r"|greater|more|less|rais(?:e|es|ed|ing)|reduc(?:e|es|ed|ing)"
+        r"|lower|boost(?:s|ed|ing)?|outperform(?:s|ed|ing)?"
+        r"|ris(?:e|es|ing)|rose|safer)\b",
+        re.IGNORECASE,
+    ),
+    "property": re.compile(
+        r"\b(?:thermostab(?:le|ility|ilities)|thermal stability|stability"
+        r"|stable|solubility|expression|yield|immunogenic(?:ity)?"
+        r"|catalys(?:is|tic)|activity|safe(?:r|ty)|toxicity|toxic"
+        r"|affinity|binding|folding|function|fitness|disorder"
+        r"|biological propert(?:y|ies)|phenotyp(?:e|ic))\b",
+        re.IGNORECASE,
+    ),
+    "surrogate": re.compile(
+        r"\b(?:scor(?:e|es|ed|ing)|surrogate|proxy)\b",
+        re.IGNORECASE,
+    ),
+    "proof": re.compile(
+        r"\b(?:prov(?:e|es|ed|ing)|demonstrat(?:e|es|ed|ing)"
+        r"|establish(?:es|ed|ing)?|confirm(?:s|ed|ing)?|shows?"
+        r"|validat(?:e|es|ed|ing|ion)|proof)\b",
+        re.IGNORECASE,
+    ),
+    "property_control": re.compile(
+        r"\b(?:biological propert(?:y|ies)|phenotyp(?:e|ic))\b"
+        r"(?:\W+\w+){0,4}\W+\bcontrol(?:s|led|ling)?\b"
+        r"|\bcontrol(?:s|led|ling)?\b"
+        r"(?:\W+\w+){0,4}\W+"
+        r"\b(?:biological propert(?:y|ies)|phenotyp(?:e|ic))\b",
+        re.IGNORECASE,
+    ),
+    "l58": re.compile(
+        r"(?<![A-Za-z0-9])l\s*(?:[-\u2010-\u2015\u2212]+\s*)?"
+        r"58(?![A-Za-z0-9])",
+        re.IGNORECASE,
+    ),
+    "l55_or_l57": re.compile(
+        r"(?<![A-Za-z0-9])l\s*(?:[-\u2010-\u2015\u2212]+\s*)?"
+        r"(?:55|57)(?![A-Za-z0-9])",
+        re.IGNORECASE,
+    ),
+    "causal_or_same": re.compile(
+        r"\b(?:caus(?:e|es|ed|al|ally|ation)|explain(?:s|ed|ing)?"
+        r"|identical directions?|equivalent directions?|same directions?"
+        r"|shared directions?|identical vectors?|equivalent vectors?"
+        r"|same vectors?|directions?\s+(?:are|is|were)\s+equivalent"
+        r"|attribut(?:e|es|ed|ing|ion)"
+        r"|independent(?:ly)? validat(?:e|es|ed|ion))\b",
+        re.IGNORECASE,
+    ),
+    "l55": re.compile(
+        r"(?<![A-Za-z0-9])l\s*(?:[-\u2010-\u2015\u2212]+\s*)?"
+        r"55(?![A-Za-z0-9])",
+        re.IGNORECASE,
+    ),
+    "l56_or_l57": re.compile(
+        r"(?<![A-Za-z0-9])l\s*(?:[-\u2010-\u2015\u2212]+\s*)?"
+        r"(?:56|57)(?![A-Za-z0-9])",
+        re.IGNORECASE,
+    ),
+    "composition_score": re.compile(
+        r"\b(?:sequence[- ]composition|composition(?:al)?)[- ]"
+        r"(?:scores?|metrics?)\b",
+        re.IGNORECASE,
+    ),
+    "mhc": re.compile(
+        r"\bmhc(?:[- ]?ii|\s+class\s+ii)\b",
+        re.IGNORECASE,
+    ),
+    "organism_grouping": re.compile(
+        r"\b(?:organism[- ]grouped|grouped by organism"
+        r"|grouped (?:by|on) (?:source )?organism"
+        r"|organism grouping)\b",
+        re.IGNORECASE,
+    ),
+    "source_organism_confounding": re.compile(
+        r"\b(?:source[- ]organism confound(?:s|ed|ing)?"
+        r"|confound(?:s|ed|ing)? (?:by|from) source organism)\b",
+        re.IGNORECASE,
+    ),
+    "dominant_residue": re.compile(
+        r"\b(?:dominant|most common)[- ]residue\b",
+        re.IGNORECASE,
+    ),
+    "seed_or_disorder_score": re.compile(
+        r"\b(?:seeds?|replicate runs?|disorder[- ]scores?"
+        r"|disorder contrast)\b",
+        re.IGNORECASE,
+    ),
+    "isolate": re.compile(r"\bisolat(?:e|es|ed|ing)\b", re.IGNORECASE),
+    "direction_sensitivity": re.compile(
+        r"\bdirection(?:[- ]build)? sensitivity\b",
+        re.IGNORECASE,
+    ),
+    "universal_negative": re.compile(
+        r"\b(?:no|none|not|cannot|can't|impossible|unpredictable"
+        r"|insufficient|inadequate|unknowable|not enough|too little"
+        r"|lack(?:s|ed|ing)?\s+(?:enough|sufficient))\b",
+        re.IGNORECASE,
+    ),
+    "immune_endpoint": re.compile(
+        r"\b(?:immune(?:\\?[-\u2010-\u2015\u2212]|\s)+"
+        r"end(?:\\?[-\u2010-\u2015\u2212]|\s)*points?"
+        r"|immune responses?|immunity"
+        r"|t[- ]cell responses?)\b",
+        re.IGNORECASE,
+    ),
+    "prediction": re.compile(
+        r"\b(?:predict(?:s|ed|ing|ion|able|ability)?"
+        r"|infer(?:s|red|ring|ence)?)\b",
+        re.IGNORECASE,
+    ),
+    "non_significant": re.compile(
+        r"\b(?:non[- ]?significant|not statistically significant"
+        r"|lack of statistical significance|failed to reach significance"
+        r"|failure to reject the null|(?:do|does|did)\s+not\s+reject the null"
+        r"|null result)\b"
+        r"|(?<![A-Za-z0-9])p"
+        r"(?:\s*_\s*(?:\{[^{}\n]{1,32}\}|[A-Za-z]+))?"
+        r"(?:[- ]?value)?(?![A-Za-z0-9])",
+        re.IGNORECASE,
+    ),
+    "no_effect": re.compile(
+        r"\b(?:no effect|zero effect|absence of (?:an? )?effect)\b",
+        re.IGNORECASE,
+    ),
+}
+
+ICBINB_CANONICAL_BOUNDARY_STATEMENTS = {
+    "The audit does not establish that steering improves a biological property.",
+    "A scoring-surrogate change does not establish biological property control.",
+    "L58 does not establish causation, direction identity, or independent "
+    "validation.",
+    "The L55 runs do not isolate direction-build sensitivity.",
+    "This analysis does not support a universal claim about immune-endpoint "
+    "predictability.",
+    "A non-significant result does not establish no effect.",
+}
+
+ICBINB_REGISTERED_CLAIM_STATEMENTS = {
+    "Survivor-only score comparisons can make a steering method appear useful "
+    "after low-complexity outputs have removed most or all of a comparison arm "
+    "from the historical-filter denominator.",
+    "In the saved L56 cohorts, sequence-composition scores that were associated "
+    "with peptide MHC-II binding had weaker validation performance for observed "
+    "T-cell response.",
+    "In the saved full-length cohort, validation performance fell under "
+    "organism-grouped evaluation, a pattern consistent with source-organism "
+    "confounding.",
+    "Across three legacy whole-run seeds, the conditional disorder-score "
+    "contrast is positive, but the dominant-residue exclusion decision changes "
+    "across those seeds.",
+    "The saved L57 analysis met its positive rule before dominant E and L "
+    "substitutions were excluded, but the E/L-excluded analysis did not meet "
+    "that rule.",
+    "In the saved one-seed analysis, the L55 and L57 steering directions have "
+    "positive cosine overlap overall and in layers 30 through 32.",
+}
+
+ICBINB_ADDITIONAL_ALLOWED_STATEMENTS = {
+    "A staged audit catches distinct steering evaluation failures.",
+    "In this package, the relevant checks detect decoder instability, endpoint "
+    "mismatch, a performance pattern consistent with source-organism "
+    "confounding, composition-sensitive conclusions, and a seed-sensitive "
+    "robustness verdict.",
 }
 
 RESULT_LEDGER_COLUMNS = {
@@ -463,6 +653,7 @@ def _load_claim_registry(
         paper = "icbinb-bio" if claim_id.startswith("ICB-") else "interp4discovery"
         claims[claim_id] = {
             "paper_id": paper,
+            "claim_text": claim_text,
             "claim_text_sha256": hashlib.sha256(
                 claim_text.encode("utf-8")
             ).hexdigest(),
@@ -2212,18 +2403,248 @@ def _scan_text(
             violations.append(f"{relative}:{line}: prohibited {name} evidence")
 
 
-def _has_figure_signature(path: Path) -> bool:
-    try:
-        with path.open("rb") as handle:
-            prefix = handle.read(16)
-    except OSError:
-        return False
-    return (
-        prefix.startswith(b"%PDF")
-        or prefix.startswith(b"\x89PNG\r\n\x1a\n")
-        or prefix.startswith(b"\xff\xd8\xff")
-        or prefix.startswith((b"GIF87a", b"GIF89a", b"II*\x00", b"MM\x00*"))
+def _all_claim_terms(
+    sentence: str,
+    *names: str,
+) -> dict[str, re.Match[str]] | None:
+    matches: dict[str, re.Match[str]] = {}
+    for name in names:
+        match = ICBINB_CLAIM_PATTERNS[name].search(sentence)
+        if match is None:
+            return None
+        matches[name] = match
+    return matches
+
+
+def _claim_key(sentence: str) -> str:
+    normalized = re.sub(r"\s+", " ", sentence).strip()
+    return re.sub(r"(?<=\w)-(?=\w)", "", normalized)
+
+
+def _claim_lexical_key(sentence: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", sentence.lower())
+
+
+def _near_registered_claim_key(
+    sentence: str,
+    registered_keys_by_lexical_key: dict[str, str],
+) -> str | None:
+    key = _claim_key(sentence)
+    lexical_key = _claim_lexical_key(sentence)
+    exact = registered_keys_by_lexical_key.get(lexical_key)
+    if exact is not None:
+        return exact
+    for registered_lexical_key, registered_key in (
+        registered_keys_by_lexical_key.items()
+    ):
+        if key.startswith(registered_key.removesuffix(".")):
+            return registered_key
+        similarity = difflib.SequenceMatcher(
+            None,
+            lexical_key,
+            registered_lexical_key,
+            autojunk=False,
+        ).ratio()
+        if similarity >= 0.8:
+            return registered_key
+    return None
+
+
+def _allowed_icbinb_claim_keys(
+    confirmed_claim_keys: set[str],
+) -> set[str]:
+    statements = (
+        ICBINB_CANONICAL_BOUNDARY_STATEMENTS
+        | ICBINB_ADDITIONAL_ALLOWED_STATEMENTS
     )
+    return {
+        *(_claim_key(statement) for statement in statements),
+        *confirmed_claim_keys,
+    }
+
+
+def _confirmed_registry_claim_keys(
+    ledger: Path | None,
+    claim_registry: Path | None,
+) -> set[str]:
+    if (
+        ledger is None
+        or claim_registry is None
+        or not ledger.is_file()
+        or not claim_registry.is_file()
+    ):
+        return set()
+    parse_violations: list[str] = []
+    rows = _load_csv(ledger, "result ledger", parse_violations)
+    claims = _load_claim_registry(claim_registry, parse_violations)
+    if rows is None or parse_violations:
+        return set()
+    confirmed_ids = {
+        row.get("claim_id")
+        for row in rows
+        if row.get("claim_status") == "confirmed"
+    }
+    return {
+        _claim_key(claim["claim_text"])
+        for claim_id, claim in claims.items()
+        if claim_id in confirmed_ids and claim["paper_id"] == "icbinb-bio"
+    }
+
+
+def _claim_segments(text: str) -> list[tuple[int, str]]:
+    segments: list[tuple[int, str]] = []
+    cursor = 0
+    for paragraph in re.split(r"\n\s*\n", text):
+        start = text.find(paragraph, cursor)
+        if start < 0:
+            start = cursor
+        cursor = start + len(paragraph)
+        normalized = re.sub(r"(?<=\w)-\s+(?=\w)", "", paragraph)
+        normalized = normalized.replace("~", " ")
+        normalized = re.sub(r"\bi\.e\.", "that is", normalized, flags=re.IGNORECASE)
+        normalized = re.sub(
+            r"\be\.g\.",
+            "for example",
+            normalized,
+            flags=re.IGNORECASE,
+        )
+        normalized = re.sub(r"\s+", " ", normalized).strip()
+        if not normalized:
+            continue
+        sentences = re.split(
+            r"(?<=[!?])\s+|(?<=\.)\s+(?=[A-Z\\])",
+            normalized,
+        )
+        line = text.count("\n", 0, start) + 1
+        segments.extend((line, sentence) for sentence in sentences if sentence)
+    return segments
+
+
+def _scan_icbinb_claim_boundaries(
+    text: str,
+    relative: Path,
+    violations: list[str],
+    confirmed_claim_keys: set[str],
+) -> None:
+    allowed_keys = _allowed_icbinb_claim_keys(confirmed_claim_keys)
+    registered_keys_by_lexical_key = {
+        _claim_lexical_key(statement): _claim_key(statement)
+        for statement in ICBINB_REGISTERED_CLAIM_STATEMENTS
+    }
+    for line, sentence in _claim_segments(text):
+        key = _claim_key(sentence)
+        registered_key = _near_registered_claim_key(
+            sentence,
+            registered_keys_by_lexical_key,
+        )
+        if registered_key is not None:
+            if key != registered_key:
+                violations.append(
+                    f"{relative}:{line}: noncanonical registered ICBINB claim"
+                )
+                continue
+            if key in confirmed_claim_keys:
+                continue
+            violations.append(
+                f"{relative}:{line}: unconfirmed registered ICBINB claim"
+            )
+            continue
+        if key in allowed_keys:
+            continue
+
+        registered_anchor = (
+            ICBINB_CLAIM_PATTERNS["l56_or_l57"].search(sentence) is not None
+            or _all_claim_terms(
+                sentence,
+                "composition_score",
+                "mhc",
+                "immune_endpoint",
+            )
+            is not None
+            or _all_claim_terms(
+                sentence,
+                "organism_grouping",
+                "source_organism_confounding",
+            )
+            is not None
+            or _all_claim_terms(
+                sentence,
+                "dominant_residue",
+                "seed_or_disorder_score",
+            )
+            is not None
+        )
+        if registered_anchor:
+            violations.append(
+                f"{relative}:{line}: noncanonical registered ICBINB claim"
+            )
+
+        steering = re.search(r"\bsteer(?:s|ed|ing)?\b", sentence, re.IGNORECASE)
+        actor_property = _all_claim_terms(sentence, "actor", "property")
+        if steering is not None or actor_property is not None:
+            violations.append(
+                f"{relative}:{line}: prohibited "
+                "biological-property-improvement evidence"
+            )
+
+        matches = _all_claim_terms(
+            sentence,
+            "surrogate",
+            "property_control",
+        )
+        if matches is not None:
+            violations.append(
+                f"{relative}:{line}: prohibited surrogate-proves-control evidence"
+            )
+
+        if ICBINB_CLAIM_PATTERNS["l58"].search(sentence) is not None:
+            violations.append(
+                f"{relative}:{line}: prohibited l58-causal-explanation evidence"
+            )
+
+        if ICBINB_CLAIM_PATTERNS["l55"].search(sentence) is not None:
+            violations.append(
+                f"{relative}:{line}: prohibited "
+                "l55-isolated-direction-sensitivity evidence"
+            )
+
+        matches = _all_claim_terms(
+            sentence,
+            "universal_negative",
+            "immune_endpoint",
+        )
+        if matches is not None:
+            violations.append(
+                f"{relative}:{line}: prohibited "
+                "universal-immune-unpredictability evidence"
+            )
+
+        matches = _all_claim_terms(
+            sentence,
+            "non_significant",
+            "no_effect",
+        )
+        if matches is not None:
+            violations.append(
+                f"{relative}:{line}: prohibited null-result-as-no-effect evidence"
+            )
+
+
+def _scan_manuscript_text(
+    paper: str,
+    text: str,
+    relative: Path,
+    violations: list[str],
+    confirmed_claim_keys: set[str],
+) -> None:
+    _scan_text(text, relative, PROHIBITED[paper], violations)
+    if paper == "icbinb-bio":
+        _scan_icbinb_claim_boundaries(
+            text,
+            relative,
+            violations,
+            confirmed_claim_keys,
+        )
 
 
 def _package_evidence_paths(
@@ -2248,12 +2669,10 @@ def _package_evidence_paths(
             continue
         if path.name == MANUSCRIPT_PDF and path.parent == root:
             continue
-        if _has_figure_signature(path):
-            evidence.add(path.relative_to(root).as_posix())
+        relative = PurePosixPath(path.relative_to(root).as_posix())
+        if relative in MANUSCRIPT_SOURCE_PATHS:
             continue
-        if path.suffix.lower() in TEXT_SOURCE_SUFFIXES:
-            continue
-        evidence.add(path.relative_to(root).as_posix())
+        evidence.add(relative.as_posix())
     return evidence
 
 
@@ -2287,7 +2706,10 @@ def _scan_package_sources(
     paper: str,
     root: Path,
     violations: list[str],
+    confirmed_claim_keys: set[str] | None = None,
 ) -> None:
+    if confirmed_claim_keys is None:
+        confirmed_claim_keys = set()
     rules = PROHIBITED[paper]
     resolved_root = root.resolve()
     for path in sorted(root.rglob("*")):
@@ -2315,7 +2737,13 @@ def _scan_package_sources(
                     f"{relative}: cannot extract compiled PDF text: {error}"
                 )
             else:
-                _scan_text(pdf_text, relative, rules, violations)
+                _scan_manuscript_text(
+                    paper,
+                    pdf_text,
+                    relative,
+                    violations,
+                    confirmed_claim_keys,
+                )
             continue
         if path.suffix.lower() not in TEXT_SOURCE_SUFFIXES:
             continue
@@ -2324,7 +2752,13 @@ def _scan_package_sources(
         except (OSError, UnicodeDecodeError) as error:
             violations.append(f"{relative}: cannot scan UTF-8 text source: {error}")
             continue
-        _scan_text(text, relative, rules, violations)
+        _scan_manuscript_text(
+            paper,
+            text,
+            relative,
+            violations,
+            confirmed_claim_keys,
+        )
 
 
 def find_violations(
@@ -2399,7 +2833,9 @@ def find_violations(
     evidence_paths.update(
         _known_hash_evidence_paths(root, metadata_paths, trusted_catalog)
     )
+    confirmed_claim_keys: set[str] = set()
     if evidence_paths or allowlist_path is not None or ledger_path is not None:
+        validation_start = len(violations)
         _validate_ownership_allowlist(
             paper,
             root,
@@ -2410,7 +2846,17 @@ def find_violations(
             claim_registry_path,
             violations,
         )
-    _scan_package_sources(paper, root, violations)
+        if not violations and len(violations) == validation_start:
+            confirmed_claim_keys = _confirmed_registry_claim_keys(
+                ledger_path,
+                claim_registry_path,
+            )
+    _scan_package_sources(
+        paper,
+        root,
+        violations,
+        confirmed_claim_keys,
+    )
     return violations
 
 

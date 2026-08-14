@@ -69,12 +69,12 @@ experiment, manuscript, or submission as complete.
 | Codex orchestrator | `019ffc96-17fe-70b0-b7ed-c8d499598db5` | Program controls, integration, and gates | In progress |
 | Turing | `019ffd1c-1ea6-7763-9237-cdb0b291111d` | Official ICBINB-BIO and Interp4Discovery venue policy | Complete and accepted |
 | Leibniz | `019ffd1c-24a4-7460-a6ff-47348bfd1dc6` | Artifact provenance inventory | Complete and accepted |
-| Pauli | `019ffd1c-2bc4-7412-8740-2ad6648f8fb1` | ICBINB experiment manifest | ICB-03 control accepted at `f0c6440`; third correction integration in progress |
+| Pauli | `019ffd1c-2bc4-7412-8740-2ad6648f8fb1` | ICBINB experiment manifest | Exact statistical review accepted at `5c9e90c`; execution remains blocked |
 | Ramanujan | `019ffd1c-33df-75c1-94d8-ef3244927a5b` | Interp4Discovery preregistration | Five-role barrier accepted at the contract level; final lock remains blocked |
-| Hume | `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Independent statistical contract review | Exact review of `f0c6440` accepted with no finding |
-| Maxwell | `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Independent cross-document contract review | Exact review of `f0c6440` held on 3 Major findings |
+| Hume | `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Independent statistical contract review | Exact review of `5c9e90c` accepted with no finding |
+| Maxwell | `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Independent cross-document contract review | Exact review of `5c9e90c` held on 2 Major and 1 Minor findings |
 | Huygens | `019ffd75-3142-74c3-8b51-1391723775e6` | Ownership checker correction and bypass tests | Third correction complete; 101 focused and 219 full tests pass |
-| Harvey | `019ffdab-e21f-7391-8b8d-1fad24066957` | Independent ownership correctness review | Final dirty-candidate pass accepted with no Critical, Major, or Minor finding |
+| Harvey | `019ffdab-e21f-7391-8b8d-1fad24066957` | Independent ownership correctness review | Final fourth-candidate pass accepted with no Critical, Major, or Minor finding |
 
 These workers have separate file ownership. They may not serve as final
 reviewers of the artifacts they create.

@@ -655,6 +655,338 @@ def _mutate_lineage(
     [
         ("icbinb-bio", "The L54 result supports this.", "excluded-study"),
         ("icbinb-bio", "Use l54_repro_out here.", "excluded-study"),
+        (
+            "icbinb-bio",
+            "Steering improves thermostability and biological property control.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "A scoring-surrogate change proves biological property control.",
+            "surrogate-proves-control",
+        ),
+        (
+            "icbinb-bio",
+            "The non-significant result proves that there is no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "L58 proves that L57 is caused by L55.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "The three L55 runs isolate direction-build sensitivity.",
+            "l55-isolated-direction-sensitivity",
+        ),
+        (
+            "icbinb-bio",
+            "L56 shows that no immune endpoint can be predicted from sequence.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "Steering improves\nthermostability.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "Expression yield was higher after steering.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "The lack of statistical significance means zero effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "A causal relationship between L55 and L57 is established by L58.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "The L55 and L57 vectors encode an identical direction according "
+            "to L58.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "Our intervention produced proteins with greater thermostability.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "A proxy shift is proof of phenotype control.",
+            "surrogate-proves-control",
+        ),
+        (
+            "icbinb-bio",
+            "The method did not reduce decoder failures, but it improved "
+            "thermostability.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "Without changing composition, steering improves thermostability.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "Steering was applied; consequently, thermostability improved.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "L58, i.e. the geometry diagnostic, establishes that L55 caused "
+            "L57.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "The pilot was not significant and does not establish an effect, "
+            "but the confirmatory non-significant result means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "The steered proteins were more thermostable.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "Steered sequences had less disorder.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "Steering made proteins safer.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "Score changes validate control over a phenotype.",
+            "surrogate-proves-control",
+        ),
+        (
+            "icbinb-bio",
+            "L58 shows that L55 and L57 encode equivalent directions.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "No immune response is predictable from sequence.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "Failure to reject the null establishes an absence of effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "Steering did not improve calibration but improved thermostability.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "The surrogate did not prove calibration but established "
+            "biological property control.",
+            "surrogate-proves-control",
+        ),
+        (
+            "icbinb-bio",
+            "L58 did not explain L55 alone but established that L57 was caused "
+            "by L55.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "The L55 runs did not isolate cohort sensitivity but isolated "
+            "direction-build sensitivity.",
+            "l55-isolated-direction-sensitivity",
+        ),
+        (
+            "icbinb-bio",
+            "The non-significant result does not imply no effect but means "
+            "zero effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "We do not claim calibration; no immune endpoint can be predicted "
+            "from sequence.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "Thermal stability was higher after treatment.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "L58 shows that the L55 and L57 directions are equivalent.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "Sequence scores are insufficient to predict any immune endpoint.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "The p-value exceeded 0.05, so there was no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "Steering confers thermostability.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "Steering yields thermostable proteins.",
+            "biological-property-improvement",
+        ),
+        (
+            "icbinb-bio",
+            "L58 shows that the L55 and L57 vectors are collinear.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "L55 attributes the observed sensitivity solely to direction "
+            "construction.",
+            "l55-isolated-direction-sensitivity",
+        ),
+        (
+            "icbinb-bio",
+            "Immune endpoints cannot be inferred from sequence.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "The test did not reject the null, therefore there is no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "A p-value of 0.08 means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "L58 cannot establish causation, direction identity, or "
+            "independent validation.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "Immune endpoints are unknowable from sequence.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "Sequence contains insufficient information to recover immune "
+            "endpoints.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "p > 0.05 means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "p >= .05 means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "The p-value > 0.05 means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "The p-value was 0.08, so there was no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "L - 58 proves that L - 57 was caused by L - 55.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "p \u2265 0.05 means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "$p \\geq 0.05$ means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "The p-value was at least 0.08, so there was no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "No immune-endpoint can be predicted from sequence.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "L\u201358 proves that L\u201357 was caused by L\u201355.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "A value of 0.08 for p means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "p = 5e-2 means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "Sequence lacks enough information to infer immune endpoints.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "No immune end points can be predicted from sequence.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "L\u221258 proves that L\u221257 was caused by L\u221255.",
+            "l58-causal-explanation",
+        ),
+        (
+            "icbinb-bio",
+            "$p_{\\mathrm{adj}} = 0.08$ means no effect.",
+            "null-result-as-no-effect",
+        ),
+        (
+            "icbinb-bio",
+            "Sequence provides inadequate information to infer immune endpoints.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "No immune end\\-points can be predicted from sequence.",
+            "universal-immune-unpredictability",
+        ),
+        (
+            "icbinb-bio",
+            "L--58 proves that L--57 was caused by L--55.",
+            "l58-causal-explanation",
+        ),
         ("interp4discovery", "Steering improves this.", "steering"),
         ("interp4discovery", "The steered sequence changed.", "steering"),
     ],
@@ -672,6 +1004,347 @@ def test_prohibited_text_is_rejected(
     assert any(rule in item for item in violations)
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The audit does not establish that steering improves a biological "
+        "property.",
+        "A scoring-surrogate change does not establish biological property "
+        "control.",
+        "L58 does not establish causation, direction identity, or independent "
+        "validation.",
+        "The L55 runs do not isolate direction-build sensitivity.",
+        "This analysis does not support a universal claim about immune-endpoint "
+        "predictability.",
+        "A non-significant result does not establish no effect.",
+    ],
+)
+def test_canonical_claim_boundaries_are_not_rejected(
+    tmp_path: Path,
+    text: str,
+):
+    (tmp_path / "paper.tex").write_text(text, encoding="utf-8")
+
+    assert find_violations("icbinb-bio", tmp_path) == []
+
+
+def test_canonical_claim_boundaries_match_manifest():
+    repository = Path(__file__).resolve().parents[1]
+    manifest = (
+        repository / "docs" / "ICBINB_EXPERIMENT_MANIFEST.md"
+    ).read_text(encoding="utf-8")
+    start = manifest.index("corresponding sentence exactly:")
+    end = manifest.index("The six boundary sentences above are always", start)
+    statements: list[str] = []
+    for line in manifest[start:end].splitlines():
+        if line.startswith("- "):
+            statements.append(line[2:])
+        elif statements and line.startswith("  "):
+            statements[-1] += " " + line.strip()
+    documented = {
+        submission_ownership._claim_key(statement) for statement in statements
+    }
+
+    assert documented == {
+        submission_ownership._claim_key(statement)
+        for statement in submission_ownership.ICBINB_CANONICAL_BOUNDARY_STATEMENTS
+    }
+
+
+def test_allowed_claim_statements_match_registry():
+    repository = Path(__file__).resolve().parents[1]
+    violations: list[str] = []
+    claims = submission_ownership._load_claim_registry(
+        repository / "docs" / "CLAIM_REGISTRY.md",
+        violations,
+    )
+    registered = {
+        claim["claim_text"]
+        for claim_id, claim in claims.items()
+        if claim_id.startswith("ICB-")
+    }
+
+    assert violations == []
+    assert registered == submission_ownership.ICBINB_REGISTERED_CLAIM_STATEMENTS
+
+
+@pytest.mark.parametrize(
+    "text",
+    sorted(submission_ownership.ICBINB_REGISTERED_CLAIM_STATEMENTS),
+)
+def test_registered_icbinb_claim_statements_require_confirmation(
+    tmp_path: Path,
+    text: str,
+):
+    (tmp_path / "paper.tex").write_text(text, encoding="utf-8")
+
+    assert find_violations("icbinb-bio", tmp_path)
+
+
+@pytest.mark.parametrize(
+    "text",
+    sorted(submission_ownership.ICBINB_REGISTERED_CLAIM_STATEMENTS),
+)
+def test_confirmed_icbinb_claim_statements_are_allowed(
+    text: str,
+):
+    violations: list[str] = []
+    submission_ownership._scan_icbinb_claim_boundaries(
+        text,
+        Path("paper.tex"),
+        violations,
+        {submission_ownership._claim_key(text)},
+    )
+
+    assert violations == []
+
+
+def test_only_confirmed_ledger_rows_supply_claim_keys(tmp_path: Path):
+    paths = _build_package(tmp_path, paper="icbinb-bio")
+    expected = submission_ownership._claim_key(
+        "Registered claim text for ICB-01."
+    )
+
+    assert submission_ownership._confirmed_registry_claim_keys(
+        paths["ledger"],
+        paths["registry"],
+    ) == {expected}
+
+    rows = _read_csv(paths["ledger"])
+    rows[0]["claim_status"] = "conditional"
+    _write_csv(paths["ledger"], rows)
+
+    assert submission_ownership._confirmed_registry_claim_keys(
+        paths["ledger"],
+        paths["registry"],
+    ) == set()
+
+
+def test_paper_level_allowed_sentence_matches_manifest():
+    repository = Path(__file__).resolve().parents[1]
+    manifest = (
+        repository / "docs" / "ICBINB_EXPERIMENT_MANIFEST.md"
+    ).read_text(encoding="utf-8")
+    start = manifest.index("The paper-level claim is:")
+    end = manifest.index("The following claims are prohibited:", start)
+    quoted = " ".join(
+        line.removeprefix(">").strip()
+        for line in manifest[start:end].splitlines()
+        if line.startswith(">")
+    )
+    segment_keys = {
+        submission_ownership._claim_key(sentence)
+        for _, sentence in submission_ownership._claim_segments(quoted)
+    }
+
+    assert {
+        submission_ownership._claim_key(statement)
+        for statement in submission_ownership.ICBINB_ADDITIONAL_ALLOWED_STATEMENTS
+    } == segment_keys
+
+
+@pytest.mark.parametrize(
+    "text",
+    sorted(submission_ownership.ICBINB_ADDITIONAL_ALLOWED_STATEMENTS),
+)
+def test_paper_level_allowed_sentences_are_not_rejected(
+    tmp_path: Path,
+    text: str,
+):
+    (tmp_path / "paper.tex").write_text(text, encoding="utf-8")
+
+    assert find_violations("icbinb-bio", tmp_path) == []
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The surrogate does not prove biological property control.",
+        "A non-significant result does not prove that there is no effect.",
+        "L58 does not causally explain the L57 result.",
+        "We do not claim that no immune endpoint can be predicted from sequence.",
+        "Steering does not improve thermostability.",
+        "No immune endpoint was claimed to be predictable from sequence.",
+        "No improvement in thermostability was caused by steering.",
+        "L58 provides no causal explanation for L55 or L57.",
+        "L56 failed to show that no immune endpoint can be predicted from "
+        "sequence.",
+        "The non-significant result means the gate failed, not that there was "
+        "no effect.",
+        "There is no evidence that steering improves thermostability.",
+        "Steering yielded no increase in thermostability.",
+        "Steering improves calibration, not thermostability.",
+        "No immune endpoint prediction was attempted.",
+        "Not all immune endpoints are predictable from sequence.",
+        "L58 reports attribution scores for L55 and L57.",
+        "The non-significant result indicates uncertainty rather than no effect.",
+        "Our method improves statistical power for testing thermostability.",
+        "A non-significant result does not establish no effect?",
+        "A non-significant result does not establish no effect!",
+        "A non-significant result does not establish no effect.\u2713",
+    ],
+)
+def test_noncanonical_boundary_language_fails_closed(
+    tmp_path: Path,
+    text: str,
+):
+    (tmp_path / "paper.tex").write_text(text, encoding="utf-8")
+
+    assert find_violations("icbinb-bio", tmp_path)
+
+
+@pytest.mark.parametrize(
+    "suffix",
+    ["?", "!", ".\u2713"],
+)
+def test_registered_claim_punctuation_variants_fail_closed(
+    tmp_path: Path,
+    suffix: str,
+):
+    statement = sorted(
+        submission_ownership.ICBINB_REGISTERED_CLAIM_STATEMENTS
+    )[0]
+    (tmp_path / "paper.tex").write_text(
+        statement.removesuffix(".") + suffix,
+        encoding="utf-8",
+    )
+
+    assert find_violations("icbinb-bio", tmp_path)
+
+
+@pytest.mark.parametrize(
+    ("canonical_fragment", "replacement"),
+    [
+        ("observed T-cell response", "measured T-cell response"),
+        ("performance fell", "performance declined"),
+        ("analysis met its positive rule", "analysis satisfied its positive rule"),
+    ],
+)
+def test_registered_claim_word_variants_fail_closed_even_when_confirmed(
+    canonical_fragment: str,
+    replacement: str,
+):
+    statement = next(
+        item
+        for item in submission_ownership.ICBINB_REGISTERED_CLAIM_STATEMENTS
+        if canonical_fragment in item
+    )
+    variant = statement.replace(canonical_fragment, replacement)
+    violations: list[str] = []
+
+    submission_ownership._scan_icbinb_claim_boundaries(
+        variant,
+        Path("paper.tex"),
+        violations,
+        {submission_ownership._claim_key(statement)},
+    )
+
+    assert any("noncanonical registered ICBINB claim" in item for item in violations)
+
+
+@pytest.mark.parametrize(
+    ("claim_fragment", "variant"),
+    [
+        (
+            "source-organism confounding.",
+            "In the saved full-length cohort, validation performance fell under "
+            "organism-grouped evaluation, a pattern consistent with "
+            "source-organism confounding in the retained data and evaluation "
+            "setting.",
+        ),
+        (
+            "observed T-cell response.",
+            "Saved L56 sequence-composition scores linked to peptide MHC-II "
+            "binding performed worse for observed T-cell response.",
+        ),
+        (
+            "source-organism confounding.",
+            "In the saved full-length cohort, validation declined with "
+            "organism-grouped evaluation, consistent with source-organism "
+            "confounding.",
+        ),
+        (
+            "substitutions were excluded",
+            "The saved L57 analysis passed before E/L substitutions were "
+            "excluded but failed after exclusion.",
+        ),
+    ],
+)
+def test_registered_claim_restatements_fail_closed_even_when_confirmed(
+    claim_fragment: str,
+    variant: str,
+):
+    statement = next(
+        item
+        for item in submission_ownership.ICBINB_REGISTERED_CLAIM_STATEMENTS
+        if claim_fragment in item
+    )
+    violations: list[str] = []
+
+    submission_ownership._scan_icbinb_claim_boundaries(
+        variant,
+        Path("paper.tex"),
+        violations,
+        {submission_ownership._claim_key(statement)},
+    )
+
+    assert any("noncanonical registered ICBINB claim" in item for item in violations)
+
+
+@pytest.mark.parametrize(
+    ("claim_fragment", "variant"),
+    [
+        (
+            "observed T-cell response.",
+            "Composition metrics tied to MHC class II binding performed worse "
+            "for T-cell response.",
+        ),
+        (
+            "source-organism confounding.",
+            "In the full-length cohort, evaluation grouped on source organism "
+            "showed performance loss consistent with confounding by source "
+            "organism.",
+        ),
+        (
+            "dominant-residue exclusion decision changes",
+            "Across replicate runs, the most common residue exclusion decision "
+            "changed with the disorder contrast.",
+        ),
+    ],
+)
+def test_registered_claim_anchor_variants_fail_closed_even_when_confirmed(
+    claim_fragment: str,
+    variant: str,
+):
+    statement = next(
+        item
+        for item in submission_ownership.ICBINB_REGISTERED_CLAIM_STATEMENTS
+        if claim_fragment in item
+    )
+    violations: list[str] = []
+
+    submission_ownership._scan_icbinb_claim_boundaries(
+        variant,
+        Path("paper.tex"),
+        violations,
+        {submission_ownership._claim_key(statement)},
+    )
+
+    assert any("noncanonical registered ICBINB claim" in item for item in violations)
+
+
+def test_property_scanner_does_not_reject_bibliographic_word_proximity(
+    tmp_path: Path,
+):
+    (tmp_path / "reference.bib").write_text(
+        "title={DisProt in 2022: improved quality and accessibility of "
+        "protein intrinsic disorder annotation}\n",
+        encoding="utf-8",
+    )
+
+    assert find_violations("icbinb-bio", tmp_path) == []
+
+
 @pytest.mark.parametrize("suffix", [".bbl", ".bib", ".md", ".sty", ".txt", ".typ"])
 def test_package_text_sources_are_scanned(tmp_path: Path, suffix: str):
     (tmp_path / f"source{suffix}").write_text(
@@ -682,6 +1355,51 @@ def test_package_text_sources_are_scanned(tmp_path: Path, suffix: str):
     assert any(
         "prohibited steering" in item
         for item in find_violations("interp4discovery", tmp_path)
+    )
+
+
+@pytest.mark.parametrize("name", ["foreign-result.txt", "notes.md", "analysis.py"])
+def test_only_named_manuscript_sources_are_exempt_from_allowlisting(
+    tmp_path: Path,
+    name: str,
+):
+    (tmp_path / name).write_text("Clean result text.\n", encoding="utf-8")
+
+    assert (
+        f"{name}: evidence file is not ownership-allowlisted"
+        in find_violations("icbinb-bio", tmp_path)
+    )
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["paper.tex", "reference.bib", "neurips_2026.sty", "paper.bbl"],
+)
+def test_named_manuscript_sources_do_not_require_allowlisting(
+    tmp_path: Path,
+    name: str,
+):
+    (tmp_path / name).write_text("Clean manuscript text.\n", encoding="utf-8")
+
+    assert find_violations("icbinb-bio", tmp_path) == []
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["paper.tex", "reference.bib", "neurips_2026.sty", "paper.bbl"],
+)
+def test_all_exempt_manuscript_sources_receive_claim_boundary_scan(
+    tmp_path: Path,
+    name: str,
+):
+    (tmp_path / name).write_text(
+        "Steering improves thermostability.\n",
+        encoding="utf-8",
+    )
+
+    assert any(
+        "biological-property-improvement" in item
+        for item in find_violations("icbinb-bio", tmp_path)
     )
 
 
@@ -1540,6 +2258,26 @@ def test_known_foreign_bytes_renamed_as_text_are_evidence(tmp_path: Path):
 
     assert any(
         "renamed.txt: evidence file is not ownership-allowlisted" in item
+        for item in violations
+    )
+
+
+def test_modified_foreign_bytes_renamed_as_text_require_allowlisting(
+    tmp_path: Path,
+):
+    repository = Path(__file__).resolve().parents[1]
+    foreign = repository / "plm_steering" / "l54_repro_out" / "results.json"
+    assert _sha256(foreign) == L54_SHA256
+    (tmp_path / "foreign-result.txt").write_bytes(foreign.read_bytes() + b"\n")
+
+    violations = find_violations(
+        "icbinb-bio",
+        tmp_path,
+        ledger_root=repository,
+    )
+
+    assert any(
+        "foreign-result.txt: evidence file is not ownership-allowlisted" in item
         for item in violations
     )
 

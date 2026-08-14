@@ -11,7 +11,7 @@ number already present in a narrative document.
 Source plan: `docs/PAPER_PORTFOLIO_PLAN.md`
 
 Source plan SHA-256 for this contract revision:
-`fb0bb3bd46ef7afd24e05e0a5689cdb76390a520c928e5d251facfd04ad2f4e5`
+`454ba114ebd1bd65f0cff0794f8d08db9dfcb95f5f2fdd97d7e485de74eb6f8d`
 
 ## 1. Purpose and decision boundary
 
@@ -40,7 +40,9 @@ failures must never disappear through complete-case filtering.
 ## 2. Fixed claims
 
 These are the strongest claims the ICBINB paper may make from this package.
-Wording may be shortened, but its meaning may not be expanded.
+Meaning may not be expanded. A sentence that triggers the package checker's
+fail-closed claim boundary must use the exact corresponding claim text from
+`docs/CLAIM_REGISTRY.md`.
 
 | ID | Fixed claim | Evidence owner | Provenance |
 |---|---|---|---|
@@ -71,6 +73,33 @@ The following claims are prohibited:
 - L56 shows that no immune endpoint can be predicted from sequence. It only
   evaluates the listed scores, cohorts, and endpoints.
 - A non-significant result proves no effect.
+
+The package checker is a deterministic lexical guard, not a semantic
+classifier. When the manuscript must state one of these boundaries, use the
+corresponding sentence exactly:
+
+- The audit does not establish that steering improves a biological property.
+- A scoring-surrogate change does not establish biological property control.
+- L58 does not establish causation, direction identity, or independent
+  validation.
+- The L55 runs do not isolate direction-build sensitivity.
+- This analysis does not support a universal claim about immune-endpoint
+  predictability.
+- A non-significant result does not establish no effect.
+
+The six boundary sentences above are always allowlisted. An exact registered
+ICBINB claim sentence is allowlisted only when its result-ledger row is
+`confirmed` and the complete ownership and review contract validates. The
+checker also rejects documented risky lexical variants and close
+restatements. This is defense in depth, not proof that every semantic
+paraphrase is detectable.
+
+Any nonexact result claim remains unauthorized whether or not the lexical
+guard flags it. Before a package can pass final technical review, the assigned
+reviewer must inspect the complete manuscript source and rendered PDF and
+verify that every result claim is an exact registered sentence, an exact
+paper-level sentence above, or an exact boundary sentence. A clean lexical
+scan alone cannot approve manuscript prose.
 
 ## 3. Study inventory and ownership
 

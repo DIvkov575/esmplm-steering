@@ -299,7 +299,8 @@ The verifier rejects:
   written under a prohibited owner-reviewer identity;
 - ICBINB-BIO evidence owned by L43, L48, L49, or L54;
 - Interp4Discovery evidence from any steering experiment;
-- a claim broader than the registered text.
+- an exact registered claim sentence without a complete confirmed-row
+  authorization.
 
 Validation order is fixed: file shapes and paths, contract hash pins, complete
 claim set and row semantics, role assignments, manifests and lineage, known
@@ -345,3 +346,34 @@ PDF at the package root. The verifier extracts text from root PDFs with
 `pdftotext` and applies the prohibited-claim scan used for manuscript sources.
 Missing extraction support, an unreadable PDF, or an extraction error fails
 closed.
+
+Only these root manuscript-source paths are exempt from evidence
+authorization:
+
+- `paper.tex`
+- `reference.bib`
+- `neurips_2026.sty`
+- `paper.bbl`
+
+The verifier applies both fixed token checks and the broader ICBINB
+claim-boundary scan to all four exempt source paths and to `paper.pdf`. It
+treats line breaks as sentence whitespace and uses a conservative lexical
+policy. The allowlist consists of the exact six ICBINB claim sentences in
+`docs/CLAIM_REGISTRY.md` only for claims whose complete ledger rows validate
+as `confirmed`, the two paper-level audit sentences, and the six exact boundary
+sentences in `docs/ICBINB_EXPERIMENT_MANIFEST.md`. Documented risky wording,
+close registered-claim restatements, negations, and disclaimers are rejected.
+
+The lexical guard cannot prove that arbitrary prose is not a semantic
+paraphrase. A nonexact result claim is unauthorized even if the guard does not
+flag it. Before upload, the assigned final technical reviewer must inspect the
+complete source and rendered PDF, map every result claim to an exact registered
+sentence, paper-level sentence, or boundary sentence, and block any mismatch.
+A clean verifier result is necessary but does not by itself approve manuscript
+prose.
+
+Every other package file requires evidence authorization unless it is
+recognized verifier metadata. A text-like suffix does not create an
+exemption. In particular, renamed or modified evidence in `.txt`, `.md`,
+`.py`, or another source format must be allowlisted like any other packaged
+result.

@@ -4,7 +4,7 @@ Ledger version: 0.1
 
 Updated: 2026-08-13
 
-Program state: THIRD CONTRACT CORRECTION ACCEPTED; EXACT COMMIT REVIEWS PENDING
+Program state: FOURTH CONTRACT CORRECTION IN PROGRESS; `5c9e90c` HELD
 
 ## Active scope
 
@@ -24,11 +24,11 @@ Program state: THIRD CONTRACT CORRECTION ACCEPTED; EXACT COMMIT REVIEWS PENDING
 | Program orchestration and claim registry | Codex main session | `019ffc96-17fe-70b0-b7ed-c8d499598db5` | In progress | `docs/CLAIM_REGISTRY.md`, this ledger |
 | Official venue-policy verification | Turing | `019ffd1c-1ea6-7763-9237-cdb0b291111d` | Complete and accepted | `docs/VENUE_POLICY_2026.md` |
 | Artifact provenance inventory | Leibniz | `019ffd1c-24a4-7460-a6ff-47348bfd1dc6` | Complete and accepted | `docs/ARTIFACT_INVENTORY.md` |
-| ICBINB experiment manifest | Pauli | `019ffd1c-2bc4-7412-8740-2ad6648f8fb1` | ICB-03 control accepted at `f0c6440`; third correction integration in progress | `docs/ICBINB_EXPERIMENT_MANIFEST.md` |
+| ICBINB experiment manifest | Pauli | `019ffd1c-2bc4-7412-8740-2ad6648f8fb1` | Exact statistical review accepted at `5c9e90c`; experiment execution remains blocked | `docs/ICBINB_EXPERIMENT_MANIFEST.md` |
 | Interp preregistration | Ramanujan | `019ffd1c-33df-75c1-94d8-ef3244927a5b` | Five-role barrier accepted at the contract level; final lock remains blocked | `docs/INTERP4DISCOVERY_PREREGISTRATION.md` |
-| Statistical contract review | Hume | `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Exact review of `f0c6440` accepted with no finding | `docs/STATISTICAL_CONTRACT_F0C6440_REVIEW.md` |
-| Cross-document contract review | Maxwell | `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Exact review of `f0c6440` held on 3 Major findings | `docs/CONTRACT_F0C6440_REVIEW.md` |
-| Ownership correctness review | Harvey | `019ffdab-e21f-7391-8b8d-1fad24066957` | Final dirty-candidate pass accepted with no Critical, Major, or Minor finding | Read-only review decisions |
+| Statistical contract review | Hume | `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Exact review of `5c9e90c` accepted with no finding | Read-only exact-commit decision |
+| Cross-document contract review | Maxwell | `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Exact review of `5c9e90c` held on 2 Major and 1 Minor findings | Read-only exact-commit decision |
+| Ownership correctness review | Harvey | `019ffdab-e21f-7391-8b8d-1fad24066957` | Final fourth-candidate pass accepted with no Critical, Major, or Minor finding | Read-only review decisions |
 
 These agents are contract workers or independent reviewers. They are not final
 reviewers of their own outputs.
@@ -60,6 +60,16 @@ reviewers of their own outputs.
 | Exact second-correction consistency review | `docs/CONTRACT_F0C6440_REVIEW.md` | Held with 0 Critical, 3 Major, and 1 Minor findings |
 | Third correction candidate verification | Complete-row, canonical-authority, role, manifest, lineage, review, known-hash, PDF, package, and legacy-guard checks | 219 full tests and 101 ownership tests passed; operational checks passed |
 | Third correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Final dirty-candidate pass accepted with 0 Critical, 0 Major, and 0 Minor findings |
+| Third correction commit | `5c9e90c46868a1a3afc285e55172082a585824b6` | Committed and pushed to `origin/master` |
+| Exact third-correction statistical review | Hume, `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Accepted with 0 Critical, 0 Major, and 0 Minor findings |
+| Exact third-correction consistency review | Maxwell, `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Held with 0 Critical, 2 Major, and 1 Minor findings |
+| Fourth correction candidate verification | Claim-boundary regressions, explicit manuscript-source policy, historical packages, legacy guards, source-plan binding, and static checks | 354 full tests, 236 ownership tests, and 5 legacy-guard tests passed; both historical packages rejected |
+| Fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 1 Major, and 1 Minor finding; all ten reviewed bypass variants now have passing regressions |
+| Second fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 2 Major, and 0 Minor findings; all eight reviewed bypass variants now have passing regressions |
+| Third fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 2 Major, and 0 Minor findings; all nine reviewed bypass variants now have passing regressions |
+| Fourth fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 2 Major, and 0 Minor findings; all seven reviewed bypass variants now have passing regressions |
+| Fifth fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 1 Major, and 0 Minor findings; both paper-level sentences now have exact consistency and acceptance tests |
+| Final fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Accepted with 0 Critical, 0 Major, and 0 Minor findings |
 
 ## Environment baseline
 
@@ -70,7 +80,7 @@ reviewers of their own outputs.
 | Dependency source | `requirements.txt`; exact tested versions in `requirements-lock.txt` |
 | Installation command | `uv pip install --python .venv/bin/python -r requirements.txt` |
 | Test command | `.venv/bin/python -m pytest -p no:cacheprovider -q` |
-| Test result | 219 passed in 7.19 seconds |
+| Test result | 354 passed in 20.07 seconds |
 
 The default Homebrew Python 3.14 environment cannot collect the suite because
 it lacks `torch` and `scikit-learn`. Use the Python 3.11 environment for
@@ -84,18 +94,20 @@ repository work.
 - [x] Cohort, result-ledger, and citation-ledger schemas exist.
 - [x] Official venue policies are verified from current official sources.
 - [x] Artifact inventory is complete and hashes are recorded.
-- [ ] Exact third-correction ICBINB manifest is statistically accepted.
+- [x] Exact third-correction ICBINB manifest is statistically accepted.
 - [x] Interp preregistration contains an explicit complete lock-key set and
   unresolved values remain null.
 - [x] Active contract artifacts pass prose and static checks.
-- [ ] Corrected contract artifacts are committed and pushed.
+- [x] Third-correction artifacts are committed and pushed at `5c9e90c`.
+- [ ] Fourth-correction artifacts are committed and accepted by both exact
+  commit reviewers.
 - [ ] Sibling worktrees start from the exact contract commit.
 
 No experiment owner or paper owner starts before this gate closes.
 
 ## Next execution gate
 
-After the accepted third correction commit:
+After the accepted fourth correction commit:
 
 1. Create `research/shared-audit`, `paper/icbinb`, and
    `paper/interp4discovery` from the exact same commit.
@@ -113,6 +125,9 @@ After the accepted third correction commit:
 - Failed and negative runs remain in the result ledger.
 - A claim cannot exceed `docs/CLAIM_REGISTRY.md`.
 - Critical and major review findings block the affected paper.
+- A clean lexical ownership scan does not approve manuscript prose; the
+  assigned final technical reviewer must inspect the complete source and
+  rendered PDF for nonexact result claims.
 - Interp stops if its confirmatory core cannot finish by the gate date.
 - Catalytic and disorder work cannot consume workshop-critical time.
 - No manuscript rewrite starts before its result bundle is locked.
@@ -132,6 +147,9 @@ After the accepted third correction commit:
 | 2026-08-13 | Maxwell | Orchestrator | `docs/CONTRACT_COMMIT_REVIEW.md` | Exact review of `14baabb` held with 3 Major and 1 Minor findings |
 | 2026-08-13 | Hume | Orchestrator | `docs/STATISTICAL_CONTRACT_F0C6440_REVIEW.md` | Exact review of `f0c6440` accepted with no finding |
 | 2026-08-13 | Maxwell | Orchestrator | `docs/CONTRACT_F0C6440_REVIEW.md` | Exact review of `f0c6440` held with 3 Major and 1 Minor findings |
+| 2026-08-13 | Harvey | Orchestrator | Candidate that became `5c9e90c` | Ownership correctness review accepted with no finding |
+| 2026-08-13 | Hume | Orchestrator | `5c9e90c46868a1a3afc285e55172082a585824b6` | Exact statistical review accepted with no finding |
+| 2026-08-13 | Maxwell | Orchestrator | `5c9e90c46868a1a3afc285e55172082a585824b6` | Exact consistency review held with 2 Major and 1 Minor findings |
 
 Future handoffs must list inputs, changed files, supported and unsupported
 claims, checks run, unresolved blockers, and the recommended gate decision.

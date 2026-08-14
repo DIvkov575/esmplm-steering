@@ -1064,16 +1064,16 @@ unreadable root PDF scan fails closed.
 | Portfolio plan | Approved for execution on 2026-08-13 |
 | Subagent review record | Complete in `docs/PAPER_PORTFOLIO_REVIEW.md` |
 | Official venue-policy record | Complete, with unresolved portal fields recorded |
-| Claim registry and shared ledger schemas | Third correction candidate verified; exact-commit reviews pending |
-| ICBINB manifest | Exact statistical review of `f0c6440` accepted; implementation remains blocked |
+| Claim registry and shared ledger schemas | Third correction `5c9e90c` committed; Hume accepted and Maxwell held; fourth correction in progress |
+| ICBINB manifest | Exact statistical review of `5c9e90c` accepted; implementation remains blocked |
 | Interp preregistration | Five-role barrier accepted at the contract level; final lock remains unresolved |
-| Independent contract reviews | Statistical review of `f0c6440` accepted; consistency review held on 3 Major ownership findings; corrected candidate awaits exact review |
+| Independent contract reviews | Hume accepted `5c9e90c`; Maxwell held it on 2 Major and 1 Minor findings; fourth correction awaits exact review |
 | Shared audit reanalysis | Not started |
 | Independent Interp experiment | Not started |
 | Manuscript restructuring | Blocked on locked result bundles |
 
-The next execution step is to close the complete-row, review-attestation, and
-artifact-lineage findings from the exact review of `f0c6440`, commit the
-corrected baseline, and obtain statistical and consistency reviews of that
-exact commit. Isolated worktrees start only from the accepted contract commit.
+The next execution step is to close the prohibited-claim scanner and modified
+text-evidence findings from the exact review of `5c9e90c`, commit the fourth
+correction, and obtain statistical and consistency reviews of that same exact
+commit. Isolated worktrees start only from the accepted contract commit.
 Manuscript rewriting starts only after the relevant result bundle is locked.
