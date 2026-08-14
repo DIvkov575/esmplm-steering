@@ -2,14 +2,22 @@
 
 Date drafted: 2026-08-13
 
-Confirmatory core completion deadline: 2026-08-19
+Current-use note: revised 2026-08-14
 
-Submission go or no-go gate: 2026-08-20
+Historical confirmatory core completion deadline: 2026-08-19
 
-Status: Draft accepted, not frozen, and not authorized for confirmation
-execution. No confirmation-panel attention or ablation result may be computed
-until every Section 16 lock key has a validated value, the values have been
-reviewed, and the frozen manifest has been hashed.
+Historical experimental go or no-go gate: 2026-08-20
+
+Status: Historical preregistration for a possible future study. It is not an
+active execution plan. The current workshop decision is DO NOT SUBMIT.
+
+Review of the completed L48 and L49 evidence found that it does not support the
+proposed causal paper. L48 is a one-head pilot, and L49 does not calculate the
+proposed association between contact enrichment and contact-specific causal
+effect. Do not run a confirmation panel, new ablations, feasibility tooling,
+runtime benchmarks, or any command in this document. Do not resolve the former
+lock keys as a prerequisite for writing. Any future experiment or analysis
+code requires explicit author approval and is outside this paper refactor.
 
 ## 1. Confirmatory question and claim
 
@@ -40,7 +48,8 @@ ablation is exploratory and cannot rescue either confirmatory branch.
 
 ## 2. Freeze and leakage rules
 
-This study has two pre-confirmation states.
+The proposed future study had two pre-confirmation states. They are retained
+here as a record of what stronger future evidence would require.
 
 1. The non-authorizing feasibility specification permits discovery-only
    benchmarking, candidate confirmation-cohort construction from structure
@@ -528,7 +537,10 @@ One integer must not control the whole experiment.
 library version, and exact purpose. Record deterministic operations explicitly
 rather than assigning them an unused seed.
 
-## 12. Runtime benchmark and compute rule
+## 12. Archived runtime benchmark and compute rule
+
+This section is inactive. Do not benchmark or reserve compute for the current
+paper refactor.
 
 Before the full run, benchmark all 16 heads in one layer on 100 fixed eligible
 positions using the target hardware, model revision, precision, hook code, and
@@ -562,7 +574,7 @@ mean-replacement results, matched controls, resampling outputs, validation
 checks, and immutable artifacts must be complete. Grouped ablations are not
 part of this completion requirement.
 
-## 13. Artifact schema
+## 13. Archived future-study artifact schema
 
 The exact output root is:
 
@@ -766,13 +778,11 @@ lock, gate, result-ledger, verification, and result-bundle hashes, and the
 paper owner's acceptance. The paper owner receives no confirmation artifact
 before this handoff exists.
 
-### 13.10 Required commands
+### 13.10 Archived commands
 
-Run from the repository root in a clean worktree. These are target interfaces.
-They must remain unavailable until strict argument parsing, safe output-path
-checks, and focused tests are implemented. `EXPERIMENT_ID` must be selected
-once before `feasibility-init`. Every command fails if it is unset or differs
-from the identifier in its input artifact.
+These target interfaces belonged to the proposed future confirmation study.
+They are retained for historical context only. Do not implement or execute
+them during the current paper refactor.
 
 ```bash
 .venv/bin/python -m pytest -p no:cacheprovider \
@@ -876,7 +886,10 @@ Independent review and result-ledger construction follow the gate, then
 `accept-paper-handoff` then authorizes the paper owner's read access. No
 confirmation command can create an input required by the final lock.
 
-## 14. Stopping rule
+## 14. Historical stopping rule
+
+This section applies only if the author later approves the proposed future
+study.
 
 Before confirmation opens, stop if any of these conditions holds:
 
@@ -896,7 +909,12 @@ confirmatory core succeeds and only if compute remains. It uses size-matched
 controls with frozen layer composition, aggregate output norm, and
 model-output displacement. It is exploratory and cannot change the gate.
 
-## 15. August 20 go or no-go gate
+## 15. Superseded experimental go or no-go gate
+
+The current paper decision does not depend on this experimental gate. Review
+the evidence that already exists. If it does not support a coherent
+contribution, do not submit Interp4Discovery and do not run new work to rescue
+it.
 
 Record `GO` only if all conditions below pass:
 
@@ -922,12 +940,13 @@ If any condition fails on 2026-08-20, record `NO_GO`, stop the
 Interp4Discovery submission, preserve the artifacts as future work, and move
 the remaining workshop effort to ICBINB-BIO.
 
-## 16. Decisions that remain to be frozen
+## 16. Unresolved future-study decisions
 
-The canonical value carrier is
+These decisions are not active tasks. The former canonical value carrier is
 `docs/INTERP4DISCOVERY_LOCK_VALUES.json`. Every key below must contain a
 non-null value, a provenance note, an approving reviewer ID, and a validation
-result in `lock/preregistration_lock.json`.
+result in `lock/preregistration_lock.json` only if the future study is
+explicitly authorized.
 
 The carrier has two allowed pre-confirmation statuses.
 `feasibility_draft` authorizes only the discovery-only feasibility commands
@@ -959,7 +978,8 @@ not another editable carrier status, records confirmation authorization.
 | `ARTIFACT_PATHS` | Exact repository-relative output root and every expected file | No wildcard, absolute, or escaping path |
 | `ROLE_HANDOFF` | Discovery, cohort and matching, ablation, analysis, and Interp paper-owner IDs with disjoint read and write scopes | All five owners are assigned, IDs are pairwise distinct, and the paper owner is blocked before final handoff |
 
-Resolving every text marker is not enough. The experiment becomes frozen only
+If the future study is approved, resolving every text marker is not enough.
+The experiment becomes frozen only
 when all 20 keys pass validation, the feasibility stage lock verifies, the
 statistical reviewer approves the margins and precision plan, and the final
 preregistration lock authorizes opening the confirmation panel. The actual

@@ -1,27 +1,30 @@
 # Claim Registry
 
-Registry version: 0.1
+Registry version: 0.2
 
 Created: 2026-08-13
 
-State: BASELINE CANDIDATE
+State: MANUSCRIPT EVIDENCE BOUNDARY
 
-This registry controls the two active workshop papers. A candidate entry may
-guide artifact recovery and experiment design, but it may not be presented as
-a confirmed manuscript claim. The registry becomes FROZEN only when the
-reconciled contract commit passes independent review and that commit is
-recorded in `docs/EXECUTION_LEDGER.md`.
+This registry controls manuscript wording for ICBINB-BIO. The experiments are
+complete. Existing result files and study documents are the evidence base.
+Nothing in this registry authorizes a rerun, a new analysis program, an audit
+bundle, or result-lock construction. If an existing artifact does not support a
+claim, narrow or remove the claim.
+
+Interp4Discovery is not an active submission. Its proposed claims are retained
+only to explain why the completed L48 and L49 evidence is insufficient.
 
 ## Status definitions
 
 | Status | Meaning |
 |---|---|
-| Confirmed | The claim is supported by a locked result bundle and has passed independent review |
-| Conditional | Existing evidence motivates the claim, but a required audit, rerun, or confirmatory analysis remains open |
-| Rejected | The available evidence does not support the claim or the claim is outside the paper contract |
+| Supported | The saved evidence directly supports the stated manuscript wording |
+| Bounded | The saved evidence supports the claim only with the listed limitation |
+| Rejected | The available evidence does not support the claim or the claim is outside the active paper |
 | Deferred | The claim belongs to a later paper and is not active before August 29 |
 
-No active workshop claim is Confirmed at registry version 0.1.
+These statuses describe manuscript use. They are not experiment gates.
 
 ## ICBINB-BIO claims
 
@@ -40,11 +43,11 @@ Claim:
 | Narrative context | `docs/L52_LAYER_SUBSET_STEERING.md` |
 | Statistical unit | Source protein |
 | Control | Matched-norm random direction and the all-layer steering arm where both arms remain evaluable |
-| Required analysis | Technical-failure and low-complexity risks over all attempts, plus conditional score change among jointly scoring-valid and historical-filter pairs |
+| Manuscript check | Report the saved attempt counts, evaluable-pair denominators, and conditional score contrasts without treating unavailable comparisons as successes |
 | Main limitation | Low-complexity outputs can remain scoring-valid. The claim concerns the historical filter and does not call every low-complexity sequence invalid. |
 | Provenance | Retrospective correction of an earlier decision rule |
-| Status | Conditional |
-| Gate to confirm | Derived audit bundle reproduces raw counts, failure risks, conditional effects, and corrected interpretations |
+| Status | Bounded |
+| Permitted use | Retrospective low-complexity and denominator-collapse case using the counts stored in the existing result file |
 
 ### ICB-02
 
@@ -61,11 +64,11 @@ Claim:
 | Narrative context | `docs/L56_IMMUNOGENICITY_KILLED.md` |
 | Statistical unit | Peptide or labeled sequence, according to the source cohort |
 | Control | Evaluation against the biological endpoint rather than only the binding surrogate |
-| Required analysis | Reproduce every reported endpoint comparison from the saved source data, with row-level predictions and peptide-level stability analysis over the fixed deduplicated cohorts |
+| Manuscript check | Report only endpoint comparisons present in the saved summary and disclose the missing row-level predictions, fold assignments, source versions, and input hashes |
 | Main limitation | The available work evaluates the listed scores in fixed cohorts. It does not prove that sequence cannot predict T-cell response, and it does not run a steering intervention. |
 | Provenance | Retrospective endpoint audit |
-| Status | Conditional |
-| Gate to confirm | Endpoint definitions, cohort construction, and reported validation statistics pass artifact and statistical review |
+| Status | Bounded |
+| Permitted use | Endpoint-selection case before steering, not a failed steering intervention |
 
 ### ICB-03
 
@@ -82,32 +85,32 @@ Claim:
 | Narrative context | `docs/L56_IMMUNOGENICITY_KILLED.md` |
 | Statistical unit | Sequence |
 | Control | Identical random and organism-grouped folds for prespecified length-only, composition-only, and composition-plus-length models |
-| Required analysis | Reproduce the historical estimate, then fit all three fixed models with organism-level weighting and paired organism-clustered uncertainty for each grouping difference |
+| Manuscript check | Report the saved random-fold, organism-grouped, and within-organism statistics without claiming that organism identity caused the difference |
 | Main limitation | A performance drop under grouped validation is consistent with confounding but does not identify it as the sole cause |
 | Provenance | Post-hoc grouping sensitivity analysis |
-| Status | Conditional |
-| Gate to confirm | The composition-only and composition-plus-length grouping differences are positive with 95 percent intervals above zero, and the bundle reports the length-only diagnostic |
+| Status | Bounded |
+| Permitted use | Pattern consistent with source-organism confounding, with no causal attribution |
 
 ### ICB-04
 
 Claim:
 
-> Across three legacy whole-run seeds, the conditional disorder-score
+> Across three saved whole-run configurations, the conditional disorder-score
 > contrast is positive, but the dominant-residue exclusion decision changes
-> across those seeds.
+> across those configurations.
 
 | Field | Contract |
 |---|---|
 | Owner | ICBINB-BIO |
 | Empirical evidence | `plm_steering/l55_repro_out/results.json`; `plm_steering/l55_repro_out_seed1/results.json`; `plm_steering/l55_repro_out_seed2/results.json` |
 | Narrative context | `docs/L55_DISORDER_STEERING.md` |
-| Statistical unit | Source protein, nested within legacy whole-run seed |
+| Statistical unit | Source protein within each saved whole-run configuration |
 | Control | Matched-norm random direction and residue-exclusion sensitivity analysis |
-| Required analysis | Reproduce seeds 0, 1, and 2 with explicit seed and output-directory arguments and saved seed metadata |
-| Main limitation | Existing bundles do not record the seed, and the current runner hard-codes seed zero. The same integer controls the cohort split, masks, control direction, and bootstrap, so the result cannot be attributed to direction construction alone. |
+| Manuscript check | Compare the three saved result files directly and report the surviving-pair denominators with each conditional contrast |
+| Main limitation | The files do not record seeds or configurations. Cohort construction, masks, control direction, and bootstrap sampling vary together, so the differences cannot be attributed to one component. |
 | Provenance | Post-hoc sensitivity analysis |
-| Status | Conditional |
-| Gate to confirm | Parameterized clean-worktree reruns reproduce the three seed-specific interpretations by 2026-08-15 23:59 Anywhere on Earth |
+| Status | Bounded |
+| Permitted use | Three completed configurations show a positive conditional contrast, while the residue-exclusion decision is not consistent across all three |
 
 ### ICB-05
 
@@ -124,11 +127,11 @@ Claim:
 | Narrative context | `docs/L57_EXPRESSION_STEERING.md` |
 | Statistical unit | Source protein |
 | Control | Matched-norm random direction and E/L residue-exclusion analysis |
-| Required analysis | Recompute the primary, technical-failure, low-complexity, and residue-exclusion results from saved raw sequences and scores |
+| Manuscript check | Report the saved primary and E/L-excluded contrasts and intervals exactly |
 | Main limitation | An interval that includes zero is inconclusive. It does not prove that the remaining effect is zero. One direction build also cannot establish general seed sensitivity. |
 | Provenance | Post-hoc sensitivity analysis |
-| Status | Conditional |
-| Gate to confirm | Locked audit bundle verifies the raw sequences, exclusions, uncertainty, and corrected interpretation |
+| Status | Bounded |
+| Permitted use | Composition-sensitive decision case; the E/L-excluded interval is inconclusive rather than proof of zero |
 
 ### ICB-06
 
@@ -140,17 +143,23 @@ Claim:
 | Field | Contract |
 |---|---|
 | Owner | ICBINB-BIO, supporting diagnostic only |
-| Required audit evidence | `plm_steering/icbinb_audit_out/cases/l58/l55_l57_geometry.json` |
-| Exact source inputs | `plm_steering/l58_vector_geometry_out/l55_disorder_steering_vectors.npy`; `plm_steering/l58_vector_geometry_out/l57_expression_steering_vectors.npy` |
+| Existing evidence | `plm_steering/l58_vector_geometry_out/results.json` |
+| Source inputs | `plm_steering/l58_vector_geometry_out/l55_disorder_steering_vectors.npy`; `plm_steering/l58_vector_geometry_out/l57_expression_steering_vectors.npy` |
 | Statistical unit | One fixed direction pair summarized over 33 paired layer vectors; layers are not independent replicates |
 | Control | None. This is a descriptive pairwise diagnostic with no control-vector distribution. |
-| Required analysis | Verify vector hashes, layer definitions, and pairwise statistics |
+| Manuscript check | Use the values stored in the saved result file and label the comparison as descriptive |
 | Main limitation | One seed cannot support a robustness or causal claim |
 | Provenance | Post-hoc supporting diagnostic |
-| Status | Conditional |
-| Gate to confirm | The manuscript labels the analysis as one-seed evidence and uses it only to interpret ICB-04 and ICB-05 |
+| Status | Bounded |
+| Permitted use | Optional one-run context only; it cannot explain or validate ICB-04 or ICB-05 |
 
 ## Interp4Discovery claims
+
+Submission decision: DO NOT SUBMIT from the completed evidence. L48 is a
+one-head pilot. L49 does not estimate the proposed association between contact
+enrichment and contact-specific causal effect. The missing independent panel,
+row-level outcomes, protein-level uncertainty, and equivalence analysis are not
+current tasks.
 
 ### INT-01
 
@@ -167,11 +176,11 @@ Claim:
 | Statistical unit | Protein for outcome estimation; the 480 heads form one fixed finite set for the association |
 | Control | Matched non-contact positions within protein and discovery-matched control heads |
 | Primary outcome | Ablation damage on contact-bearing positions minus damage on matched non-contact positions |
-| Required analysis | Prespecified layer-adjusted finite-head association across all 480 heads on an unopened independent panel |
+| Future evidence that would be needed | Prespecified layer-adjusted finite-head association across all 480 heads on an unopened independent panel |
 | Main limitation | The independent cohort, association threshold, precision target, and analysis bundle do not yet exist |
 | Provenance | Prospective confirmatory claim |
-| Status | Conditional |
-| Gate to confirm | The positive branch and every intervention, matching, precision, and replication check pass by August 20 |
+| Status | Rejected for the current submission |
+| Current action | Do not run new work to rescue the paper |
 
 ### INT-02
 
@@ -186,11 +195,11 @@ Claim:
 | Supporting files | None yet |
 | Statistical unit | Protein-level head-control contrast |
 | Control | At least two same-layer controls matched on discovery-only measurements |
-| Required analysis | Head-by-head equivalence under zero and mean replacement with familywise correction |
+| Future evidence that would be needed | Head-by-head equivalence under zero and mean replacement with familywise correction |
 | Main limitation | Equivalence is not supported by a non-significant difference, and no margin is frozen yet |
 | Provenance | Prospective fallback branch after the global association does not pass |
-| Status | Conditional |
-| Gate to confirm | Every adjusted confidence interval lies within the frozen equivalence margin under both replacement methods |
+| Status | Rejected for the current submission |
+| Current action | Do not run new work to rescue the paper |
 
 ### INT-03
 
@@ -205,11 +214,11 @@ Claim:
 | Supporting files | None yet; `plm_steering/l48_replication_out.json` is discovery and pilot evidence |
 | Statistical unit | Protein |
 | Control | Frozen top-five set selected only from the discovery panel |
-| Required analysis | Apply one frozen group-level replication rule without reranking heads on the independent panel |
+| Future evidence that would be needed | Apply one frozen group-level replication rule without reranking heads on the independent panel |
 | Main limitation | The group result does not establish that every selected head replicates, and correlational replication does not establish causal importance |
 | Provenance | Prospective prerequisite |
-| Status | Conditional |
-| Gate to confirm | The independent-panel replication statistic and confidence interval pass the frozen rule |
+| Status | Rejected for the current submission |
+| Current action | Do not run new work to rescue the paper |
 
 ## Rejected and deferred claims
 
@@ -226,5 +235,5 @@ Claim:
 
 Each change must record the claim ID, old text, new text, evidence added or
 removed, reviewer, and date. A manuscript owner may narrow a claim without
-approval. Expanding a claim requires an updated manifest, supporting locked
-artifacts, and independent review.
+approval. Expanding a claim requires author approval, supporting evidence, and
+independent review. It is not part of the current paper refactor.

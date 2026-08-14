@@ -1,21 +1,24 @@
 # Submission Package Status
 
-Status date: 2026-08-13
+Status date: 2026-08-14
 
-The current `icbinb-bio` and `interp4discovery` directories are historical
-pre-portfolio drafts. They are not fallback packages, active manuscript
-inputs, or submission evidence.
+The `icbinb-bio` directory contains the active anonymous ICBINB-BIO manuscript
+and its six-page review PDF. It uses only completed experiment artifacts.
+Independent citation and argument reviews are integrated. The PDF has passed
+page-by-page visual, anonymity, citation, prose, and layout checks.
 
-The current ICBINB-BIO package contains attention-head and L54 material that
-the active claim contract prohibits. The current Interp4Discovery package
-contains steering text and figures that its claim contract prohibits.
+The `interp4discovery` directory is an inactive historical draft.
+Interp4Discovery will not be submitted in the current cycle because completed
+L48 and L49 evidence does not support the proposed causal contribution.
 
-Clean packages may be built in these directories only after:
+Completed package checks:
 
-1. the relevant result ledger is locked;
-2. the old source and figures are removed from the active branch;
-3. the new paper is written only from its owning result bundle;
-4. a package verifier rejects cross-paper claims and evidence;
-5. independent technical and anonymity reviews pass.
+1. The independent citation and argument reviews are integrated.
+2. All claims match the existing evidence map.
+3. The anonymous source and PDF pass identity scans.
+4. The final PDF was inspected page by page.
+5. The final LaTeX build and layout checks pass.
 
-Until then, no file in either directory is upload-ready.
+The manuscript package is ready for author inspection and submission-form
+preparation. No rerun, Python research script, new audit bundle, or result lock
+is required.

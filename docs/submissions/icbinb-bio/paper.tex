@@ -6,7 +6,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{url}
 \usepackage{booktabs}
 \usepackage{array}
@@ -17,8 +17,8 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 
-\title{Failure Modes in Causal Steering of Protein Language Models: \\
-Why Proxy Accuracy Does Not Guarantee Steering Success}
+\title{When Protein Language Model Steering Appears to Work: \\
+Retrospective Checks Across Four Case Studies}
 
 \author{Anonymous Authors}
 
@@ -27,373 +27,373 @@ Why Proxy Accuracy Does Not Guarantee Steering Success}
 \maketitle
 
 \begin{abstract}
-Difference-of-means activation steering has reproduced a known
-thermostability effect in ESM2-650M. We test whether the same method
-transfers to five new protein properties and whether a more accurate
-scoring proxy provides a better steering target. The binding-affinity
-proxy has the highest held-out correlation in the study ($r=0.80$), but
-its steering direction has no measurable effect. A weaker
-catalytic-activity proxy ($r=0.22$) produces a consistent effect across
-three random seeds. An immunogenicity proxy that initially appears
-predictive is explained by source-organism confounding, so that target
-does not reach the steering stage. An expression-yield effect fails a
-residue-exclusion check and overlaps with the steering direction for
-intrinsic disorder. The evaluation also exposes two problems in our own
-analysis. One comparison used an intervention strength at which a
-baseline had already collapsed, while one robustness criterion changed
-its verdict across seeds. These cases show why proxy validation and a
-single successful run are not sufficient evidence for a reliable
-steering intervention.
+Activation steering can change a protein language model's output without
+retraining the model, but a higher sequence score does not by itself establish
+control of a biological property. We retrospectively examine four completed
+ESM2-650M case studies using checks for endpoint validity, output
+low-complexity and denominator adequacy, composition sensitivity, and
+whole-run consistency. First, a composition score correlated with peptide
+MHC-II binding ($r=0.427$) but weakly with measured T-cell response
+($r=0.100$). Its full-length correlation changed from $0.379$ under random
+folds to $-0.323$ under organism-grouped folds. Second, an all-layer
+thermostability intervention retained 57 to 58 evaluable pairs in a shared
+low-strength range, but only 5 and 0 pairs at two higher strengths. The
+five-layer intervention appeared favorable where the all-layer comparison was
+no longer estimable. Third, an eSol soluble-fraction score contrast changed
+from $0.0125$ to $0.00035$ after dominant residues were excluded, and the
+resulting interval included zero. Fourth, a disorder-score contrast was
+positive in three stored configurations, but a residue-exclusion interval
+excluded zero in only two. These cases motivate a staged reporting sequence.
+They do not validate a general audit or establish improved biological
+properties.
 \end{abstract}
 
 \section{Problem}
 \label{sec:problem}
 
-\subsection{Research question and setting}
+\subsection{Why apparent steering success needs staged checks}
 
-Difference-of-means activation steering adds a direction to a protein
-language model's residual stream during generation. The direction is
-formed from the difference between mean activations for examples with
-high and low values of a target property. The method has reproduced a
-known thermostability effect in ESM2-650M
-\citep{huang2025steering}.
+Protein language models learn statistical structure from large sequence
+collections and can support prediction and generation
+\citep{lin2023esm}. Activation steering modifies their internal
+representations at inference time. A direction is usually estimated from the
+difference between activations for high-label and low-label examples, then
+added to the residual stream during generation. Prior work applied this
+method to protein generation and optimization \citep{huang2025steering}.
 
-Applying the method to a new property raises two separate questions. A
-scoring proxy may agree with experimental labels, but the steering
-direction built for that property may still be ineffective. A result may
-also depend on the train-test split, random control direction, or
-intervention strength. We therefore evaluate both the steering direction
-and the stability of the evidence used to support it.
+The intervention and its evaluation create distinct sources of error. A
+generated sequence may receive a higher score because it repeatedly inserts
+residues that occur directly in the scoring rule. A conditional score can also
+look favorable after low-complexity outputs have been removed from the
+comparison. Even before steering, a sequence score may perform well on one
+endpoint but poorly on the endpoint named in the claim. These problems concern
+the interpretation of the evidence, not only the strength of the intervention.
 
-\subsection{Targets and measurements}
+This paper asks which checks changed the conclusions of completed ESM2-650M
+studies. We synthesize the evidence as four retrospective case studies rather
+than a catalog of attempted protein properties. The contribution is a proposed
+reporting sequence that separates four questions:
 
-The study covers five properties that were not part of the original
-thermostability experiment: binding affinity, catalytic activity,
-intrinsic disorder, immunogenicity, and expression yield. For each
-property, we first measure the Pearson correlation between a
-compositional proxy and experimental labels on held-out data. If the
-proxy passes this check, we compare the property-derived steering
-direction with a random direction of the same norm.
+\begin{enumerate}
+\item Does the score measure the endpoint named in the claim?
+\item Do all arms produce comparable outputs, and are the denominators
+reported?
+\item Does the result remain after dominant residue contributions are
+removed?
+\item Does the full decision remain consistent across completed run
+configurations?
+\end{enumerate}
 
-The main outcome is the score difference between the learned and random
-directions. We also test whether the effect changes monotonically with
-intervention strength, remains after dominant residue substitutions are
-excluded from scoring, and repeats across random seeds. If proxy
-accuracy were a useful way to select steering targets, properties with
-stronger held-out correlations would also have larger or more consistent
-steering effects. We do not observe that pattern.
+\subsection{Evidence scope}
+
+The synthesis uses four completed studies. L52 compares a five-layer
+thermostability intervention with an all-layer intervention. L56 evaluates
+sequence-composition scores against several immune endpoints. L55 tests
+intrinsic-disorder steering across three stored whole-run configurations.
+L57 tests an eSol soluble-fraction score before and after excluding dominant
+residues. All steering studies use ESM2-650M, matched-norm random directions,
+and single-shot masked filling.
+
+The analyses are retrospective. Some checks were added after the original
+result had been inspected. We therefore use the studies to show how a check
+changes an interpretation, not to estimate the frequency of each failure
+mode in protein language model research.
 
 \section{Proposed Approach}
 \label{sec:approach}
 
-\subsection{Steering procedure}
+\subsection{A staged reporting sequence}
 
-For each target, we divide real protein sequences into high-property and
-low-property groups. We compute the mean activation for each group at
-every layer of ESM2-650M and subtract the two means. During generation,
-we add a scaled version of this direction to the residual stream. The
-same code handles vector construction, random controls, sequence
-generation, bootstrap testing, and output filtering for every target.
-Using one implementation allows us to change the dataset and scoring
-proxy without changing the intervention or evaluation procedure.
+Figure~\ref{fig:audit} shows the proposed order of the checks. Each stage
+limits the claim that can be carried into the next stage. A future evaluation
+should stop at the first unsupported inference. Later checks cannot repair an
+earlier failure.
 
-\subsection{Six evaluation requirements}
+\begin{figure}[t]
+\centering
+\small
+\fbox{\parbox[c][2.0cm][c]{0.20\linewidth}{\centering
+Endpoint\\
+Does the score match the claimed outcome?}}
+\hfill
+\fbox{\parbox[c][2.0cm][c]{0.20\linewidth}{\centering
+Output validity\\
+Are outputs comparable and denominators reported?}}
+\hfill
+\fbox{\parbox[c][2.0cm][c]{0.20\linewidth}{\centering
+Composition\\
+Does the result survive residue exclusion?}}
+\hfill
+\fbox{\parbox[c][2.0cm][c]{0.20\linewidth}{\centering
+Whole run\\
+Does the full decision repeat?}}
+\caption{A staged reporting sequence derived from the completed case studies.
+A favorable downstream score does not override a failure at an earlier stage.}
+\label{fig:audit}
+\end{figure}
 
-We fix the following requirements before testing the new properties:
+The endpoint check compares the scoring surrogate with the endpoint named in
+the claim. The output check records low-complexity output counts and the number
+of source proteins that remain jointly evaluable in every compared arm. The
+composition check removes the dominant substituted residues from the score and
+repeats the comparison. The whole-run check compares the final decision,
+including the composition check, across stored configurations.
 
-\begin{enumerate}
-\item The property-derived direction must outperform a random direction
-  of the same norm in a paired bootstrap test with 10,000 resamples.
-\item The effect must increase monotonically across at least three
-  intervention strengths in a range where generation remains stable.
-\item The effect must remain after the most frequently substituted
-  residues are excluded from the score.
-\item The scoring proxy must agree with experimental labels on held-out
-  data before steering is attempted.
-\item The method must outperform an existing baseline when a suitable
-  baseline is available.
-\item An evaluation of a new property must contain at least 150 held-out
-  sequences.
-\end{enumerate}
+\subsection{Case-specific measurements}
 
-The third requirement checks for compositional collapse. A steering
-direction can appear successful if it repeatedly inserts one residue
-that directly increases the proxy score. Excluding the dominant
-substitutions tests whether the effect extends beyond that narrow change.
-We use three assessment outcomes. If proxy validation fails, we reject
-the proxy and do not attempt steering. If the main steering test
-succeeds but residue exclusion fails or changes across seeds, we
-classify the evidence as inconclusive. We call a result supported only
-when it satisfies every applicable requirement.
+L52 evaluated 60 held-out source proteins at five intervention strengths.
+Both the five-layer and all-layer interventions used the same per-layer
+directions and the same source proteins. The saved analysis compared each
+intervention with a matched random direction using 10,000 paired bootstrap
+resamples. We inspect the jointly evaluable denominator before interpreting a
+conditional score.
 
-\subsection{Attention-head comparison}
+L56 used records from the Immune Epitope Database
+\citep{vita2019iedb}. It compared fixed motif scores and a fitted
+composition score with peptide MHC-II binding, peptide presentation, measured
+T-cell response, and a full-length antigen label. For the full-length cohort,
+it also compared random-fold cross-validation with organism-grouped folds.
+No steering intervention was run because the endpoint check failed.
 
-We also examine whether the same problem appears at the level of
-individual attention heads. Following \citet{vig2021bertology}, we
-measure contact enrichment in their protein language model and select
-the most enriched head in our data. We ablate that head and compare the
-change in masked-residue prediction with a low-correlation control head.
-We then repeat the ablation for all 480 heads in the model.
+L55 used DisProt annotations \citep{quaglia2022disprot} and the published
+TOP-IDP amino-acid scale \citep{campen2008topidp}. L57 used eSol
+measurements \citep{niwa2009esol} and an absolute-charge score motivated by
+a published recombinant-solubility model
+\citep{wilkinson1991solubility}. Each steering study compared the learned
+direction with a matched random direction over 150 held-out proteins. The
+saved decision used a 95\% paired bootstrap interval over source proteins and
+then repeated the score after excluding the two most frequent substituted
+residues.
+
+\subsection{Interpretation rules}
+
+We report a conditional score only beside its evaluable denominator. An
+interval that includes zero is described as inconclusive, not as evidence of
+no effect. A drop under organism-grouped validation is described as
+consistent with confounding because grouping does not identify a unique
+cause. The three L55 artifacts are treated as completed whole-run
+configurations. Their files do not store seed metadata, and one legacy
+integer controlled several random processes. Differences among the runs
+therefore cannot be attributed to direction construction alone.
 
 \section{Observed Outcome}
 \label{sec:outcome}
 
-\subsection{Proxy accuracy does not predict steering effects}
-
-Table~\ref{tab:sweep} summarizes the five target properties. Binding
-affinity has the strongest proxy validation but no measurable steering
-effect. Catalytic activity has the weakest proxy among the four runnable
-targets but passes every requirement on three random seeds.
+Table~\ref{tab:cases} summarizes the three failure classes and the corrected
+interpretation of each case.
 
 \begin{table}[t]
 \centering
-\caption{Results for the five target properties. Proxy $r$ is the
-Pearson correlation with experimental labels on held-out data, measured
-before steering.}
-\label{tab:sweep}
+\caption{Completed evidence used in the retrospective synthesis. The metrics
+differ because each check addresses a different inference.}
+\label{tab:cases}
 \small
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.4cm}
-                    >{\raggedright\arraybackslash}p{2.7cm}
-                    >{\raggedright\arraybackslash}p{1.2cm}
-                    >{\raggedright\arraybackslash}p{3.4cm}
-                    >{\raggedright\arraybackslash}p{2.3cm}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.0cm}
+                    >{\raggedright\arraybackslash}p{3.2cm}
+                    >{\raggedright\arraybackslash}p{4.0cm}
+                    >{\raggedright\arraybackslash}p{3.5cm}@{}}
 \toprule
-Target & Dataset & Proxy $r$ & Steering result & Assessment \\
+Case & Apparent result & Failed or unstable check & Corrected interpretation \\
 \midrule
-Binding affinity & ProteinGym DMS (KRAS/DARPin) & 0.80 & no measurable effect & Unsupported \\
-Catalytic activity & DLKcat (cross-protein) & 0.22 & repeats across 3 seeds & Supported \\
-Intrinsic disorder & DisProt & 0.45 & main effect 3/3; check 2/3 & Inconclusive \\
-Immunogenicity & IEDB (4-tier) & $\leq0.10$ & steering not attempted & Proxy rejected \\
-Expression yield & eSol & 0.31 & fails residue-exclusion check & Inconclusive \\
+L56 & A composition score predicted a convenient immune surrogate &
+Held-out $r$ fell from 0.427 for binding to 0.100 for T-cell response;
+organism-grouped $r=-0.323$ &
+Validate the endpoint named in the claim and group by source organism \\
+\addlinespace
+L52 & Five-layer steering appeared favorable at high strength &
+All-layer evaluable pairs fell from 57 to 58 in the shared range to 5 and 0 &
+Compare methods only where both arms remain evaluable \\
+\addlinespace
+L55 and L57 & Learned directions increased their sequence scores &
+L55 residue exclusion passed in two of three stored runs; the L57 excluded
+interval crossed zero &
+Report composition and whole-run sensitivity with the main score \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.68\linewidth]{figures/fig2_proxy_vs_effect.pdf}
-\caption{Proxy correlation and steering effect size for the four targets
-that reach the steering stage. Effect size is Cohen's $d$ at
-$\alpha=0.5$ for the learned direction relative to the matched random
-direction. The four points show no positive relation between the two
-measurements.}
-\label{fig:proxy-vs-effect}
-\end{figure}
+\subsection{Endpoint choice changed the L56 conclusion}
 
-\subsection{Binding affinity}
+The fitted composition score had held-out correlation $r=0.427$ for peptide
+MHC-II binding. Its held-out correlation was $r=0.100$ for measured T-cell
+response. Fixed motif scores showed the same broad loss of performance as the
+endpoint moved from binding toward response. A score that was useful for
+binding therefore did not justify a claim about immunogenicity.
 
-We use a ProteinGym deep-mutational-scanning assay
-\citep{notin2023proteingym} of KRAS binding to a DARPin. The proxy uses
-position-specific mutational-sensitivity weights learned on the training
-split and reaches $r=0.80$ on held-out data. A weight-shuffle control
-gives $r=-0.001$. The proxy also generalizes to positions excluded from
-weight fitting ($r=0.54$) and from single to double mutants ($r=0.70$).
+The full-length cohort exposed a second problem. The composition model had
+$r=0.379$ under random five-fold validation. When proteins from the same
+organism were kept in the same fold, the correlation was $-0.323$. The mean
+within-organism correlation was $0.056$. This pattern is consistent with the
+model learning organism-associated composition rather than the intended
+endpoint. The evidence does not show that organism is the only cause, and it
+does not support a universal claim about sequence-based immune prediction.
+It was sufficient to stop this steering target before generation.
 
-The steering direction nevertheless has no detectable effect at any
-tested strength. Because generation remains stable and produces no
-degenerate sequences at those strengths, output collapse does not
-explain the result.
+\subsection{Low-complexity outputs made the L52 comparison unavailable}
 
-\subsection{Catalytic activity}
+The original L52 decision selected an intervention strength from the full
+tested range. All 60 generated outputs retained numerical scores, but the
+historical low-complexity filter removed most all-layer outputs at high
+strength. At $\alpha=1.0$, the all-layer arm retained only 5 jointly evaluable
+pairs. At $\alpha=2.0$, it retained none. The five-layer arm retained 58 and 57
+pairs at those strengths. A favorable conditional score for the five-layer arm
+therefore did not establish that it was as effective as the all-layer
+intervention. The comparison was unavailable under the historical filter.
 
-For catalytic activity, we use a cross-protein enzyme turnover dataset
-from DLKcat \citep{li2022dlkcat}. The proxy measures the fraction of
-glycine minus the fraction of arginine. Its held-out correlation is
-$r=0.22$, the weakest among the four targets that reach the steering
-stage. Even so, the steering effect is significant and monotonic,
-remains after residue exclusion, and repeats across three random seeds.
+Restricting the interpretation to the shared low-strength range changed the
+result. At $\alpha=0.5$, the five-layer contrast against its random control was
+$0.0236$ with a 95\% bootstrap interval of $[0.0202, 0.0270]$. The all-layer
+contrast was $0.0498$ with interval $[0.0435, 0.0563]$. Across
+$\alpha=0.1$ to $0.5$, the five-layer intervention retained 43\% to 59\% of
+the all-layer effect. It produced a score change in this experiment, but the
+saved evidence does not support equivalence with all-layer steering.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/fig1_dose_response.pdf}
-\caption{Dose-response curves for catalytic activity and intrinsic
-disorder. Both effects increase monotonically across the tested
-intervention strengths. Error bars show 95\% bootstrap confidence
-intervals.}
-\label{fig:dose-response}
-\end{figure}
+\subsection{Composition checks changed the L55 and L57 decisions}
 
-\subsection{Intrinsic disorder}
-\label{sec:disorder}
+At $\alpha=0.5$, the L55 learned-versus-random contrasts were $0.0497$,
+$0.0373$, and $0.0435$ in the three stored whole-run configurations. The
+historical low-complexity threshold flagged 34, 47, and 33 of 150 learned-arm
+outputs, compared with 7, 8, and 13 of 150 random-control outputs. The reported
+contrasts used 116, 102, and 113 surviving pairs. The main TOP-IDP contrast was
+positive in all three configurations. After E and S were excluded, the
+corresponding contrasts were $0.0178$, $0.0039$, and $0.0181$. The bootstrap
+interval included zero only in the middle configuration. The positive
+conditional contrast repeated, but the residue-exclusion decision did not
+repeat in every configuration.
 
-We use DisProt annotations \citep{quaglia2022disprot}. The
-intrinsic-disorder proxy uses the published TOP-IDP amino-acid scale
-\citep{campen2008topidp}. It reaches held-out $r=0.45$ and per-residue
-AUC $0.71$. The main steering effect is significant and monotonic on all
-three random seeds. The residue-exclusion check passes on two seeds but
-fails on the third. The effect is repeatable, but the evidence against a
-simple compositional artifact is not equally strong on every seed.
+L57 showed a stronger form of composition sensitivity. Its eSol
+soluble-fraction score contrast at $\alpha=0.5$ was $0.0125$ with interval
+$[0.0086, 0.0166]$. After excluding E and L, the two most frequent
+substitutions, the contrast was $0.00035$ with interval
+$[-0.0028, 0.0035]$. This does not prove that the remaining effect is
+exactly zero. It shows that the original positive decision did not survive
+the stated composition check.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.7\linewidth]{figures/fig3_seed_robustness.pdf}
-\caption{Intrinsic-disorder effects before and after residue exclusion
-for three random seeds. The main effect is stable, but the confidence
-interval for the residue-excluded score crosses zero on seed 1.}
-\label{fig:seed-robustness}
-\end{figure}
-
-\subsection{Immunogenicity}
-
-For immunogenicity, we use records from the Immune Epitope Database
-\citep{vita2019iedb}. Candidate proxies correlate with a surrogate
-binding-affinity endpoint but fall to $r\leq0.10$ on the measured
-T-cell-response endpoint. One proxy for full-length antigens initially
-reaches $r=0.38$. Further testing shows that organism identity explains
-58\% of this signal. When organism identity is held out during
-cross-validation, the correlation changes to $-0.32$. Because no proxy
-passes the validation requirement, we do not run a steering experiment.
-
-\subsection{Expression yield}
-
-We use expression-yield measurements from eSol
-\citep{niwa2009esol}. The proxy reaches $r=0.31$--$0.34$ and produces a
-significant dose response. The effect disappears when the dominant
-residue substitutions are excluded. The main result is therefore
-inconclusive under the fixed protocol.
-
-\subsection{Attention-head ablation}
-
-In our replication of \citet{vig2021bertology}, the most
-contact-enriched head has 12.9-fold enrichment over background. Ablating
-it produces a change that is statistically indistinguishable from
-ablating a low-correlation control head. The full sweep does not provide
-a precise rank because the evaluation uses 104 sampled positions and
-many heads have identical measured effects. The selected head shares its
-value with 131 other heads, forming a tied block that spans ranks
-286--417. At the same resolution, 166 heads show no measurable ablation
-effect. Strong contact correlation therefore does not imply a large or
-unique contribution to masked-residue prediction.
+The saved one-run geometry result provides limited supporting context. The
+L55 and L57 directions had cosine similarity $0.376$ overall and
+$0.556$ to $0.666$ in layers 30 to 32. This descriptive overlap has no
+control-vector distribution and does not establish a causal relationship
+between the two results.
 
 \section{Reason for Failure}
 \label{sec:failure}
 
-\subsection{The binding-affinity groups differ at few residues}
+\subsection{Conditional scores hid denominator loss}
 
-The binding-affinity sequences are point mutants of one 188-residue
-reference protein. The high- and low-binding groups differ by only one
-or two residues per sequence. Their mean per-residue compositional
-distance is $0.003$, compared with $0.02$--$0.05$ for the three
-cross-protein datasets.
+A score computed only on surviving outputs answers a narrow question: how do
+the arms differ among source proteins for which both outputs remain
+evaluable? It does not describe the intervention over all attempted
+generations. In L52, the outputs remained scoreable, but a historical
+low-complexity rule left too few all-layer outputs for the high-strength
+comparison. Selecting strength by the conditional score allowed the five-layer
+method to look favorable where its comparison was unavailable. A steering
+report should place output counts, the evaluable denominator, and the
+conditional score beside each other, then limit method comparisons to a shared
+range.
 
-This difference offers a possible explanation for the failed
-intervention. The proxy uses position-specific weights, so it can predict
-binding labels from a small number of mutations. In contrast, the
-steering direction averages activations over groups of nearly identical
-sequences. The few mutations that distinguish the groups may contribute
-too little to that average. Our evidence supports this explanation as a
-possibility, not as a demonstrated mechanism.
+\subsection{The convenient endpoint was not the claimed endpoint}
 
-\subsection{The expression-yield direction overlaps with disorder}
+The L56 target claim concerned measured T-cell response, but the composition
+score performed better on the separate MHC-II binding endpoint. Performance on
+one endpoint did not validate the other. Random folds also allowed
+organism-associated sequence composition to appear in both training and test
+sets. The resulting correlation may partly reflect source identity rather than
+the target endpoint. Endpoint definitions and grouping rules must therefore be
+fixed before a score is used to justify steering.
 
-We compare the expression-yield steering vector with every other target
-vector. Its cosine similarity with the intrinsic-disorder direction is
-$+0.38$ across all 33 layers and rises to $+0.56$--$0.67$ in the three
-deepest layers. This overlap shows that the directions are not orthogonal
-and may capture some of the same compositional variation. It does not
-show that disorder causes the expression-yield result. Because the
-expression-yield result also fails residue exclusion, we do not count it
-as separate evidence for a new steering effect. Vector similarity is
-inexpensive to compute and is useful when several related targets are
-studied in the same model.
+\subsection{The scoring rule rewarded the dominant substitutions}
 
-\subsection{Unstable generation made five-layer steering look stronger}
+Both TOP-IDP and the L57 eSol score are direct functions of amino-acid
+composition. Steering can raise such a score by repeatedly inserting residues
+that receive favorable weights. Residue exclusion is intentionally strict: it
+asks whether the decision survives after the largest direct contribution is
+removed. L55 showed that this decision can vary across whole runs even when
+the main score change remains positive. L57 showed that a favorable main
+interval can change to an interval that includes zero under the same check.
 
-In a follow-up thermostability experiment, we compared steering all 33
-layers with steering only five layers previously identified as
-important. An early analysis selected the best intervention strength
-from the full tested range. At that strength, generation under the
-33-layer intervention had already collapsed, while generation under the
-5-layer intervention had not. The 5-layer version appeared better only
-because it failed at a higher strength.
+\subsection{Practical reporting procedure}
 
-We restricted the comparison to a range where both interventions
-produced stable sequences and reran the experiment. The 5-layer
-intervention then retained 43--59\% of the full effect. This is a useful
-partial result, but it does not support the original claim that five
-layers perform as well as all 33.
+The cases suggest a concrete order for future evaluations. First, validate
+the scoring rule against the endpoint named in the claim and use grouped
+splits when source identity may leak. Second, report low-complexity output
+counts, evaluable denominators, and conditional scores as separate quantities.
+Third, test whether dominant residue substitutions account for the decision.
+Finally, repeat the complete decision process across run configurations.
+Repeating only the favorable main score is insufficient when an artifact check
+carries the conclusion.
 
-\subsection{A robustness criterion changed across seeds}
+\section{Discussion and Limitations}
+\label{sec:limitations}
 
-The intrinsic-disorder effect repeats across all three seeds, but its
-residue-exclusion check passes on only two. A single run could therefore
-support either a pass or a failure for that criterion. Repeating only
-the main effect is not enough when a separate artifact check is used to
-justify the result.
+The retrospective synthesis identified different limits because the checks
+protect different inferences. L52 concerns denominator loss under a
+low-complexity rule. L56 concerns whether a score represents the claimed
+endpoint. L55 and L57 concern direct dependence on amino-acid composition and
+sensitivity of the final decision. Together, they show why one
+successful-looking scalar is not a complete steering evaluation.
 
-\subsection{Practical recommendations}
+The evidence has important limits. Every steering result uses ESM2-650M, one
+masked-fill decoder, and one intervention family. The generation studies use
+a historical low-complexity threshold and conditional complete-case
+comparisons. Their saved files omit exact model revisions, source revisions,
+and some run metadata. The three L55 files do not record seed identity, so we
+treat them as legacy whole-run configurations. The L56 endpoint analyses use
+observational cohorts with different biological contexts and class
+structures. The grouped-validation change is consistent with confounding but
+does not identify a unique mechanism.
 
-Before steering, researchers should measure how much the high- and
-low-property groups differ, not only how well the scoring proxy predicts
-labels. Comparisons between methods or layer sets should use a range in
-which every intervention produces stable output. Artifact checks should
-be repeated across seeds when they support an important claim. When
-several properties are studied together, similarities between their
-steering vectors can reveal that two apparent effects may not be
-independent.
-
-\section{Related Work}
-
-\citet{huang2025steering} introduced difference-of-means activation
-steering for protein language models and validated the method on
-thermostability. We apply the same intervention to five new properties
-under one fixed evaluation protocol.
-
-\citet{vig2021bertology} identified attention heads whose attention
-patterns correlate with 3D protein contacts. We reproduce their analysis,
-test the most enriched head in our data by causal ablation, and extend
-the analysis to all heads in the model.
-
-\citet{adams2025mechanistic} used linear probes to identify biological
-information in sparse-autoencoder features from ESM-2. Their steering
-experiment tested sequence coherence rather than agreement with an
-experimental property label. Our study asks whether correlational
-evidence predicts the outcome of a downstream intervention.
-
-\section{Limitations}
-
-All experiments use ESM2-650M at one model scale. The proxies are
-compositional heuristics rather than learned predictors. A stronger
-non-compositional proxy could behave differently. We selected each final
-proxy from several candidates using the same held-out split on which we
-report its correlation, so the reported correlations are likely
-optimistic.
-
-We ran multiple significance tests without a formal correction.
-Agreement across intervention strengths and seeds reduces this risk but
-does not remove it. Seed robustness was checked for only two targets. We
-also did not evaluate generated sequences with a wet-lab assay or a
-structural plausibility model. A successful protocol result means that
-the intervention changes a validated proxy. It does not establish that
-the generated protein has the intended biological property.
+Several checks were selected or clarified after the corresponding outcomes
+were known. The bootstrap intervals describe stability over the fixed source
+proteins and should not be read as population-wide guarantees. The studies
+also contain multiple comparisons without a common familywise correction and
+use one matched random direction per saved run. No common audit was applied
+prospectively to every case, and no positive controls establish the specificity
+of the proposed reporting sequence. Most importantly, every reported endpoint
+is computational. No wet-lab assay establishes that a generated sequence has
+improved thermostability, intrinsic disorder, soluble fraction,
+immunogenicity, or another biological property.
 
 \section{Conclusion}
 
-Across these experiments, higher proxy accuracy does not guarantee more
-successful steering. The binding-affinity result shows that a
-well-validated score can still produce an ineffective
-difference-of-means direction. The seed and intervention-range checks
-also show how a plausible result can receive the wrong interpretation.
-Reliable steering claims require direct tests of the intervention, its
-artifacts, and its stability.
+The completed case studies motivate evaluating protein language model
+steering as a sequence of validity checks rather than by one favorable score.
+A method comparison can become unavailable when one arm loses most evaluable
+outputs. A scoring surrogate may perform differently on the claimed endpoint
+or reflect source identity. A positive score can also depend on the residues
+that define the score and on the full run configuration. These retrospective
+cases do not show that the sequence is a validated audit. They show that
+reporting the checks together produces a narrower and better-supported claim.
 
 \section*{LLM usage disclosure}
-Claude (Anthropic) assisted with code writing, experiment scripts,
-literature searches, and manuscript drafting. We chose the study design,
-ran and checked the experiments, and verified each numerical claim
-against committed outputs.
+OpenAI Codex assisted with manuscript restructuring, prose editing, and source
+checks. Earlier project work used Claude (Anthropic) for code and manuscript
+drafting. The authors made the scientific decisions and checked the numerical
+claims against the saved artifacts.
 
 \section*{Code and data availability}
-Code, data-processing scripts, and saved results will be released after
-the double-blind review period. The submission does not link to an
+The study uses public protein and immunology resources together with saved
+model outputs. An anonymized artifact package will be provided if the
+submission system supports it. The review manuscript does not link to an
 identifying repository.
 
+\section*{Ethics declaration}
+This computational study used public protein sequences and aggregated public
+annotations. It involved no new human participants, clinical intervention, or
+collection of personal data.
+
+\section*{Author contributions}
+The authors designed the study, conducted the analyses, interpreted the
+results, and wrote the manuscript.
+
+\section*{Funding and competing interests}
+Funding and competing-interest information is withheld for double-blind
+review and will be completed in the final version.
+
 \section*{Reproducibility statement}
-All five targets use the same implementation for steering-vector
-construction, matched-norm random controls, paired bootstrap testing,
-and output filtering. The multi-seed experiments rerun the complete
-pipeline rather than resampling one run's output. Saved result files
-support the numerical claims reported in the paper.
+The manuscript reports completed artifacts already stored with the project.
+The evidence map identifies the source file for every numerical claim and
+records known provenance limits. No experiment rerun is part of the remaining
+manuscript work.
 
 \bibliographystyle{plainnat}
 \bibliography{reference}

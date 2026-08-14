@@ -1,155 +1,117 @@
 # Paper Portfolio Execution Ledger
 
-Ledger version: 0.1
+Ledger version: 0.2
 
-Updated: 2026-08-13
+Updated: 2026-08-14
 
-Program state: FOURTH CONTRACT CORRECTION IN PROGRESS; `5c9e90c` HELD
+Program state: PAPER REFACTOR ACTIVE; EXPERIMENT EXECUTION COMPLETE
+
+## Author directive
+
+The experiments have already been run. Existing result files, figures, paper
+drafts, and study documents are the evidence source for this phase.
+
+Do not rerun experiment scripts, patch runners, build audit infrastructure,
+benchmark compute, create new result locks, or collect new data. A missing or
+insufficient result causes a claim to be narrowed or removed. It does not
+create an experiment task.
+
+No new experiment, analysis program, or research code may begin without
+explicit author approval.
 
 ## Active scope
 
 | Paper | Decision | Current gate |
 |---|---|---|
-| ICBINB-BIO | Protected primary submission | Freeze claims, artifact inventory, and minimum experiment manifest |
-| Interp4Discovery | Conditional submission | Freeze preregistration and verify compute feasibility |
-| Catalytic steering | Deferred until after August 29 | Not active |
-| Disorder steering | Deferred until after August 29 | Not active |
-| arXiv | Out of scope for this program | Do not work |
-| XAI4Science | Out of scope for this program | Do not work |
+| ICBINB-BIO | Protected primary submission | Refactor from existing evidence |
+| Interp4Discovery | Do not submit | Existing L48 and L49 evidence does not support the proposed causal paper |
+| Catalytic steering | Deferred mini-paper | No active work |
+| Disorder steering | Deferred and conditional mini-paper | No active work |
+| arXiv | Out of scope | Do not work |
+| XAI4Science | Out of scope | Do not work |
 
-## Current work
+## Final manuscript work
 
-| Work item | Owner | Agent ID | Status | Expected artifact |
-|---|---|---|---|---|
-| Program orchestration and claim registry | Codex main session | `019ffc96-17fe-70b0-b7ed-c8d499598db5` | In progress | `docs/CLAIM_REGISTRY.md`, this ledger |
-| Official venue-policy verification | Turing | `019ffd1c-1ea6-7763-9237-cdb0b291111d` | Complete and accepted | `docs/VENUE_POLICY_2026.md` |
-| Artifact provenance inventory | Leibniz | `019ffd1c-24a4-7460-a6ff-47348bfd1dc6` | Complete and accepted | `docs/ARTIFACT_INVENTORY.md` |
-| ICBINB experiment manifest | Pauli | `019ffd1c-2bc4-7412-8740-2ad6648f8fb1` | Exact statistical review accepted at `5c9e90c`; experiment execution remains blocked | `docs/ICBINB_EXPERIMENT_MANIFEST.md` |
-| Interp preregistration | Ramanujan | `019ffd1c-33df-75c1-94d8-ef3244927a5b` | Five-role barrier accepted at the contract level; final lock remains blocked | `docs/INTERP4DISCOVERY_PREREGISTRATION.md` |
-| Statistical contract review | Hume | `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Exact review of `5c9e90c` accepted with no finding | Read-only exact-commit decision |
-| Cross-document contract review | Maxwell | `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Exact review of `5c9e90c` held on 2 Major and 1 Minor findings | Read-only exact-commit decision |
-| Ownership correctness review | Harvey | `019ffdab-e21f-7391-8b8d-1fad24066957` | Final fourth-candidate pass accepted with no Critical, Major, or Minor finding | Read-only review decisions |
-
-These agents are contract workers or independent reviewers. They are not final
-reviewers of their own outputs.
+| Work item | Status | Output |
+|---|---|---|
+| Integrate independent ICBINB reviews | Complete | Revised retrospective case-study argument |
+| Verify ICBINB claims and citations | Complete | `docs/submissions/icbinb-bio/EVIDENCE_MAP.md` |
+| Inspect anonymous ICBINB PDF | Complete | Six-page visual review |
+| Final manuscript checks | Complete | LaTeX, citation, anonymity, prose, and layout checks |
 
 ## Completed work
 
 | Work item | Evidence | Status |
 |---|---|---|
-| Portfolio strategy | `docs/PAPER_PORTFOLIO_PLAN.md` | Author directed execution on 2026-08-13 |
+| Experiment program | Existing repository artifacts and author confirmation | Complete; no reruns authorized |
+| Portfolio strategy | `docs/PAPER_PORTFOLIO_PLAN.md` | Revised for paper-only execution |
+| Official venue-policy verification | `docs/VENUE_POLICY_2026.md` | Complete |
+| Artifact inventory | `docs/ARTIFACT_INVENTORY.md` | Available as a source map |
+| Claim registry | `docs/CLAIM_REGISTRY.md` | Available as a claim-boundary reference |
 | ICBINB planning review | Locke, `019ffd08-69d5-7420-9efa-a84e11d63bba` | Complete |
-| Interp planning review | Dewey, `019ffd08-71b2-7381-9dbb-1f20571bf212` | Complete, two passes |
+| Interp planning review | Dewey, `019ffd08-71b2-7381-9dbb-1f20571bf212` | Complete |
 | Later-paper planning review | Bernoulli, `019ffd08-741e-7f60-81f3-5840a3b7943f` | Complete |
-| Program planning review | Erdos, `019ffd08-8ccd-72f0-aef6-ecb35843b227` | Complete, two passes |
-| Repository test baseline | `.venv/bin/python -m pytest -p no:cacheprovider -q` | 123 passed on 2026-08-13 |
-| Legacy runner overwrite check | Five direct module commands plus evidence-file hashes | All commands failed closed; all five hashes were unchanged; no requested output path was created |
-| Historical package ownership check | `plm_steering.submission_ownership` for both papers | Both packages rejected as expected; neither is a submission input |
-| Contract static checks | JSON, ASCII, em dash, formatting, and `git diff --check` scans | Passed for the active contract set |
-| Final statistical contract review | `docs/STATISTICAL_CONTRACT_ACCEPTANCE.md` | Accepted with 0 Critical and 0 Major findings |
-| Baseline commit | `14baabb2435835b345946b065f5268f067cc0d3b` | Committed and pushed; superseded as an execution candidate by open review corrections |
-| Exact baseline consistency review | `docs/CONTRACT_COMMIT_REVIEW.md` | Held with 0 Critical, 3 Major, and 1 Minor findings |
-| Ownership checker correction | Huygens, `019ffd75-3142-74c3-8b51-1391723775e6` | CSV-ledger binding and bypass tests integrated |
-| Correction candidate verification | Full suite, ownership bypass suite, static scans, package rejection, and legacy-runner guards | 152 full tests and 34 ownership tests passed; operational checks passed |
-| First correction commit | `0a9ace04d7e718723aa3fb69aba6320b02eb2f55` | Committed and pushed; exact reviews held on four Major findings |
-| Exact first-correction statistical review | `docs/STATISTICAL_CONTRACT_COMMIT_REVIEW.md` | Held with 0 Critical, 1 Major, and 0 Minor findings |
-| Exact first-correction consistency review | `docs/CONTRACT_CORRECTION_REVIEW.md` | Held with 0 Critical, 3 Major, and 1 Minor findings |
-| Second correction candidate verification | Full suite, semantic ownership bypasses, extracted-PDF scans, static scans, and legacy-runner guards | 165 full tests and 47 ownership tests passed; operational checks passed |
-| Second correction commit | `f0c6440263cf18de0138fb02302b4a8a1bf99832` | Committed and pushed; exact statistical review accepted and consistency review held on 3 Major findings |
-| Exact second-correction statistical review | `docs/STATISTICAL_CONTRACT_F0C6440_REVIEW.md` | Accepted with 0 Critical, 0 Major, and 0 Minor findings |
-| Exact second-correction consistency review | `docs/CONTRACT_F0C6440_REVIEW.md` | Held with 0 Critical, 3 Major, and 1 Minor findings |
-| Third correction candidate verification | Complete-row, canonical-authority, role, manifest, lineage, review, known-hash, PDF, package, and legacy-guard checks | 219 full tests and 101 ownership tests passed; operational checks passed |
-| Third correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Final dirty-candidate pass accepted with 0 Critical, 0 Major, and 0 Minor findings |
-| Third correction commit | `5c9e90c46868a1a3afc285e55172082a585824b6` | Committed and pushed to `origin/master` |
-| Exact third-correction statistical review | Hume, `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Accepted with 0 Critical, 0 Major, and 0 Minor findings |
-| Exact third-correction consistency review | Maxwell, `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Held with 0 Critical, 2 Major, and 1 Minor findings |
-| Fourth correction candidate verification | Claim-boundary regressions, explicit manuscript-source policy, historical packages, legacy guards, source-plan binding, and static checks | 354 full tests, 236 ownership tests, and 5 legacy-guard tests passed; both historical packages rejected |
-| Fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 1 Major, and 1 Minor finding; all ten reviewed bypass variants now have passing regressions |
-| Second fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 2 Major, and 0 Minor findings; all eight reviewed bypass variants now have passing regressions |
-| Third fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 2 Major, and 0 Minor findings; all nine reviewed bypass variants now have passing regressions |
-| Fourth fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 2 Major, and 0 Minor findings; all seven reviewed bypass variants now have passing regressions |
-| Fifth fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Held with 0 Critical, 1 Major, and 0 Minor findings; both paper-level sentences now have exact consistency and acceptance tests |
-| Final fourth correction ownership review | Harvey, `019ffdab-e21f-7391-8b8d-1fad24066957` | Accepted with 0 Critical, 0 Major, and 0 Minor findings |
+| Program planning review | Erdos, `019ffd08-8ccd-72f0-aef6-ecb35843b227` | Complete |
+| Manuscript source and result inventory | `docs/submissions/icbinb-bio/EVIDENCE_MAP.md` | Complete |
+| ICBINB structure refactor | `docs/submissions/icbinb-bio/paper.tex` | Complete |
+| ICBINB prose and formatting rewrite | `docs/submissions/icbinb-bio/paper.tex` | Complete; final review edits remain |
+| Anonymous ICBINB PDF build | `docs/submissions/icbinb-bio/paper.pdf` | Complete; visual inspection remains |
+| Interp suitability review | Completed L48 and L49 evidence review | Complete; do not submit |
+| ICBINB citation audit | Kierkegaard, `019ffe87-d8fc-7f22-85a4-1b94f5ea182c` | Complete and integrated |
+| ICBINB adversarial argument review | Franklin, `019ffe87-dd12-70a3-90e2-0dd2f0f01f07` | Complete and integrated |
 
-## Environment baseline
+The ICBINB experiment manifest and Interp preregistration are retained as
+historical scientific specifications. They are not active execution
+checklists.
 
-| Field | Value |
+## Stopped work
+
+The following work began because the previous plan incorrectly treated
+completed experiments as unfinished. It is stopped and is not part of the
+paper critical path.
+
+| Work item | Status |
 |---|---|
-| Environment path | `.venv`, ignored by git |
-| Python | CPython 3.11.15 |
-| Dependency source | `requirements.txt`; exact tested versions in `requirements-lock.txt` |
-| Installation command | `uv pip install --python .venv/bin/python -r requirements.txt` |
-| Test command | `.venv/bin/python -m pytest -p no:cacheprovider -q` |
-| Test result | 354 passed in 20.07 seconds |
+| L55 seed reruns | Stopped; existing seeds 0, 1, and 2 are the evidence |
+| L42 or L51 recovery reruns | Canceled |
+| Shared ICBINB audit module | Stopped |
+| L52, L56, L57, and L58 audit staging | Stopped |
+| Interp feasibility and compute tooling | Stopped |
+| New result-lock construction | Canceled |
+| Contract implementation and ownership-code expansion | Canceled as an active prerequisite |
 
-The default Homebrew Python 3.14 environment cannot collect the suite because
-it lacks `torch` and `scikit-learn`. Use the Python 3.11 environment for
-repository work.
+Local implementation commits and uncommitted staging files in sibling
+worktrees are not active paper inputs. Do not finish, integrate, delete, or
+revert them without explicit author direction.
 
-## Contract-freeze gate
+## Paper rules
 
-- [x] Author directed execution of the portfolio plan.
-- [x] Paper ownership and prohibited claims are recorded.
-- [x] Initial sentence-level claim registry exists.
-- [x] Cohort, result-ledger, and citation-ledger schemas exist.
-- [x] Official venue policies are verified from current official sources.
-- [x] Artifact inventory is complete and hashes are recorded.
-- [x] Exact third-correction ICBINB manifest is statistically accepted.
-- [x] Interp preregistration contains an explicit complete lock-key set and
-  unresolved values remain null.
-- [x] Active contract artifacts pass prose and static checks.
-- [x] Third-correction artifacts are committed and pushed at `5c9e90c`.
-- [ ] Fourth-correction artifacts are committed and accepted by both exact
-  commit reviewers.
-- [ ] Sibling worktrees start from the exact contract commit.
+- Work from the existing artifacts.
+- Do not execute Python research scripts.
+- Do not modify experiment code.
+- Do not wait for a result lock before editing the manuscript.
+- Remove or narrow unsupported claims.
+- Keep ICBINB separate from attention-head and catalytic results.
+- Do not develop or submit Interp from the current evidence.
+- Use simple technical English.
+- Remove em dashes, excessive parentheticals, decorative italics, and
+  excessive bolding.
+- Preserve venue anonymity. Named versions use Dmitriy Ivkov,
+  divkov@umich.edu, and University of Michigan, Ann Arbor.
+- Verify citations and inspect final PDFs before submission.
 
-No experiment owner or paper owner starts before this gate closes.
+## Todo
 
-## Next execution gate
+- [x] Inventory current paper sources and figures.
+- [x] Map ICBINB claims to existing results and sources.
+- [x] Reorder the ICBINB manuscript.
+- [x] Rewrite unclear or overcompressed prose.
+- [x] Remove unnecessary emphasis and parenthetical asides.
+- [x] Verify the anonymous author block.
+- [x] Verify citations and bibliography entries.
+- [x] Inspect the built ICBINB PDF page by page.
+- [x] Decide whether existing Interp evidence supports submission: it does not.
+- [x] Cancel Interp manuscript work for this submission cycle.
 
-After the accepted fourth correction commit:
-
-1. Create `research/shared-audit`, `paper/icbinb`, and
-   `paper/interp4discovery` from the exact same commit.
-2. Assign fresh implementation owners with disjoint write scopes.
-3. Patch and reproduce L55 seeds 0, 1, and 2.
-4. Recover L42 or L51 only if a complete raw audit bundle can be produced by
-   the cutoff.
-5. Benchmark the Interp confirmatory core before spending the protected
-   ICBINB compute allocation.
-6. Lock the minimum ICBINB audit bundle before manuscript restructuring.
-
-## Blocking rules
-
-- Missing raw evidence removes a case; narrative text does not replace data.
-- Failed and negative runs remain in the result ledger.
-- A claim cannot exceed `docs/CLAIM_REGISTRY.md`.
-- Critical and major review findings block the affected paper.
-- A clean lexical ownership scan does not approve manuscript prose; the
-  assigned final technical reviewer must inspect the complete source and
-  rendered PDF for nonexact result claims.
-- Interp stops if its confirmatory core cannot finish by the gate date.
-- Catalytic and disorder work cannot consume workshop-critical time.
-- No manuscript rewrite starts before its result bundle is locked.
-
-## Handoff log
-
-| Date | From | To | Artifact | Acceptance |
-|---|---|---|---|---|
-| 2026-08-13 | Planning reviewers | Orchestrator | `docs/PAPER_PORTFOLIO_PLAN.md`, `docs/PAPER_PORTFOLIO_REVIEW.md` | Accepted for contract implementation |
-| 2026-08-13 | Ramanujan | Orchestrator | `docs/INTERP4DISCOVERY_PREREGISTRATION.md` | Draft accepted; freeze blocked on listed numerical, cohort, and compute decisions |
-| 2026-08-13 | Turing | Orchestrator | `docs/VENUE_POLICY_2026.md` | Accepted; earlier Interp OpenReview deadline is operational until resolved |
-| 2026-08-13 | Leibniz | Orchestrator | `docs/ARTIFACT_INVENTORY.md` | Accepted after registry conflicts were corrected |
-| 2026-08-13 | Hume | Orchestrator | `docs/STATISTICAL_CONTRACT_REVIEW.md` | First pass accepted; blockers require correction and re-review |
-| 2026-08-13 | Hume | Orchestrator | `docs/STATISTICAL_CONTRACT_REREVIEW.md` | Rereview found five Major contract findings; corrections applied; final blocker-only review pending |
-| 2026-08-13 | Hume | Orchestrator | `docs/STATISTICAL_CONTRACT_ACCEPTANCE.md` | Statistical contract accepted; 0 Critical and 0 Major findings remain |
-| 2026-08-13 | Maxwell | Orchestrator | `docs/CONTRACT_CONSISTENCY_REVIEW.md` | First pass accepted; blockers require correction and committed-revision re-review |
-| 2026-08-13 | Maxwell | Orchestrator | `docs/CONTRACT_COMMIT_REVIEW.md` | Exact review of `14baabb` held with 3 Major and 1 Minor findings |
-| 2026-08-13 | Hume | Orchestrator | `docs/STATISTICAL_CONTRACT_F0C6440_REVIEW.md` | Exact review of `f0c6440` accepted with no finding |
-| 2026-08-13 | Maxwell | Orchestrator | `docs/CONTRACT_F0C6440_REVIEW.md` | Exact review of `f0c6440` held with 3 Major and 1 Minor findings |
-| 2026-08-13 | Harvey | Orchestrator | Candidate that became `5c9e90c` | Ownership correctness review accepted with no finding |
-| 2026-08-13 | Hume | Orchestrator | `5c9e90c46868a1a3afc285e55172082a585824b6` | Exact statistical review accepted with no finding |
-| 2026-08-13 | Maxwell | Orchestrator | `5c9e90c46868a1a3afc285e55172082a585824b6` | Exact consistency review held with 2 Major and 1 Minor findings |
-
-Future handoffs must list inputs, changed files, supported and unsupported
-claims, checks run, unresolved blockers, and the recommended gate decision.
+The paper refactor and manuscript checks are complete. No experiment, code,
+compute, or lock gate was used.

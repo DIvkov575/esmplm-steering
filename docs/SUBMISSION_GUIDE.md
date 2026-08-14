@@ -2,16 +2,15 @@
 
 ## Which versions are active
 
-Two workshop submissions are planned, but neither current package is active:
+One workshop submission is active:
 
 | Version | Identity | Structure |
 |---|---|---|
 | ICBINB-BIO | Anonymous | Venue-specific failure-report structure |
-| Interp4Discovery | Anonymous | Standard short research paper |
 
-The files currently under `docs/submissions/icbinb-bio/` and
-`docs/submissions/interp4discovery/` are historical pre-portfolio drafts.
-They violate the new claim ownership boundaries and are not upload-ready.
+The files under `docs/submissions/icbinb-bio/` are the active manuscript
+package. The files under `docs/submissions/interp4discovery/` are historical
+and inactive. Interp4Discovery will not be submitted from the current evidence.
 See `docs/submissions/STATUS.md`.
 
 The XAI4Science draft is archived under `docs/archive/xai4science/` and
@@ -27,9 +26,8 @@ prepared or posted during the workshop work. Any later named version uses:
 
 ## Why the structures differ
 
-The arXiv and Interp4Discovery manuscripts follow a conventional research
-paper order: Introduction, Related Work, Methods, Results, Failure
-Analysis, Discussion, Limitations, and Conclusion.
+The inactive arXiv and Interp4Discovery manuscripts used a conventional
+research-paper order.
 
 ICBINB-BIO requires failure reports to contain four elements: Problem,
 Proposed Approach, Observed Outcome, and Reason for Failure. The official
@@ -48,8 +46,8 @@ official workshop template and should remain in the review PDF.
 
 ## Later preprints and anonymous review
 
-Both workshop policies permit preprints, but a public version with the same
-title and text can reveal the author of a double-blind submission. The current
+The workshop policy permits preprints, but a public version with the same title
+and text can reveal the author of a double-blind submission. The current
 program therefore does not prepare or post a named preprint. Any later release
 starts only after the workshop submission work is complete.
 
