@@ -109,18 +109,22 @@ paper requires new evidence and must answer a different question.
 ## 5. Shared research controls
 
 Before any new experiment, the orchestrator freezes the claim registry, the
-shared cohort-manifest schema, the paper-specific experiment manifest, the
-empty result-ledger schema, and the empty citation-ledger schema. Each actual
-cohort manifest is frozen before the run that uses that cohort. The result and
-citation ledgers are populated after results and sources exist, then locked
-before manuscript drafting. ICBINB-BIO does not wait for an Interp manifest,
-and neither workshop paper waits for later catalytic or disorder contracts.
+machine-readable submission contract and artifact-ownership catalog, the
+shared cohort, role-assignment, result-ledger, and citation-ledger schemas, and
+the paper-specific experiment manifest. Each actual role assignment and cohort
+manifest is frozen before the work that uses it. The result and citation
+ledgers are populated after results and sources exist, then locked before
+manuscript drafting. ICBINB-BIO does not wait for an Interp manifest, and
+neither workshop paper waits for later catalytic or disorder contracts.
 
 The shared schema files are:
 
 - `docs/COHORT_MANIFEST_SCHEMA.md`
+- `docs/ROLE_ASSIGNMENT_SCHEMA.md`
 - `docs/RESULT_LEDGER_SCHEMA.md`
 - `docs/CITATION_LEDGER_SCHEMA.md`
+- `docs/SUBMISSION_CONTRACT.json`
+- `docs/ARTIFACT_OWNERSHIP.json`
 
 ### 5.1 Claim registry
 
@@ -138,6 +142,12 @@ For every planned claim, record:
 
 No manuscript owner may expand a claim beyond this registry without an
 explicit review.
+
+The machine-readable submission contract fixes the complete claim set and the
+exact provenance, estimand, unit, control, limitation, source-study ownership,
+and typed result requirements for each claim. The artifact-ownership catalog
+records known result hashes and their permitted papers and claims. Both files
+are hash-locked before execution.
 
 ### 5.2 Cohort manifest
 
@@ -982,7 +992,13 @@ freeze.
 - focused result reproduced from a clean worktree;
 - focused tests pass;
 - result ledger updated;
+- complete claim set and typed ledger semantics pass the ownership verifier;
+- every result artifact has a locked lineage manifest and accepted parent
+  hashes;
+- role assignments separate experiment, paper, and review identities;
 - independent statistical review completed;
+- the machine-readable review decision binds the exact row, manifests, and
+  artifacts;
 - zero unresolved critical or major findings;
 - orchestrator sign-off recorded.
 
@@ -1048,15 +1064,16 @@ unreadable root PDF scan fails closed.
 | Portfolio plan | Approved for execution on 2026-08-13 |
 | Subagent review record | Complete in `docs/PAPER_PORTFOLIO_REVIEW.md` |
 | Official venue-policy record | Complete, with unresolved portal fields recorded |
-| Claim registry and shared ledger schemas | Second correction candidate; exact-commit re-reviews pending |
-| ICBINB manifest | ICB-03 control correction in progress; exact re-review pending |
-| Interp preregistration | Role-barrier correction in progress; final lock remains unresolved |
-| Independent contract reviews | Exact reviews of `0a9ace0` held on 4 total Major findings; second correction reviews pending |
+| Claim registry and shared ledger schemas | Third correction candidate verified; exact-commit reviews pending |
+| ICBINB manifest | Exact statistical review of `f0c6440` accepted; implementation remains blocked |
+| Interp preregistration | Five-role barrier accepted at the contract level; final lock remains unresolved |
+| Independent contract reviews | Statistical review of `f0c6440` accepted; consistency review held on 3 Major ownership findings; corrected candidate awaits exact review |
 | Shared audit reanalysis | Not started |
 | Independent Interp experiment | Not started |
 | Manuscript restructuring | Blocked on locked result bundles |
 
-The next execution step is to resolve the exact-commit findings, commit the
+The next execution step is to close the complete-row, review-attestation, and
+artifact-lineage findings from the exact review of `f0c6440`, commit the
 corrected baseline, and obtain statistical and consistency reviews of that
 exact commit. Isolated worktrees start only from the accepted contract commit.
 Manuscript rewriting starts only after the relevant result bundle is locked.

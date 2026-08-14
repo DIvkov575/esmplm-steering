@@ -132,6 +132,12 @@ No tracked `docs/L43_*.md` or `docs/L58_*.md` file exists.
 
 ## Saved research outputs
 
+`docs/ARTIFACT_OWNERSHIP.json` is the machine-readable ownership authority for
+the known saved result hashes below. The submission contract binds its exact
+SHA-256. The package verifier checks artifact and lineage-ancestor hashes
+against that catalog, so renaming a foreign file does not change its
+ownership.
+
 | Path | State | Type, size, SHA-256 | Raw or narrative | Ownership | Evidentiary status and action |
 |---|---|---|---|---|---|
 | `plm_steering/l48_replication_out.json` | Tracked | JSON, 29,271, `82f5bb8b8e3af1b15f72c0f32ce8257502449639d76ab8cf02b1b65fc308cf4d` | Derived numeric output | Interp4Discovery | Contains pooled 30 by 16 fraction and enrichment matrices and eight structure summaries. No per-residue attention values, model revision, source revision, or exclusions are saved. Pilot only. |

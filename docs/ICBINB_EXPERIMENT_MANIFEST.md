@@ -11,7 +11,7 @@ number already present in a narrative document.
 Source plan: `docs/PAPER_PORTFOLIO_PLAN.md`
 
 Source plan SHA-256 for this contract revision:
-`9a43ed00b7ac5143209fc2a8383c2e53eb906415a88a6cf2939d6cfa2153fa31`
+`fb0bb3bd46ef7afd24e05e0a5689cdb76390a520c928e5d251facfd04ad2f4e5`
 
 ## 1. Purpose and decision boundary
 
@@ -835,6 +835,8 @@ Every `run_metadata.json` must contain:
 - input paths, byte sizes, row counts, and SHA-256 values;
 - parent result paths and SHA-256 values;
 - code file paths and SHA-256 values;
+- submission-contract, claim-registry, artifact-ownership, and role-assignment
+  paths and SHA-256 values;
 - model repository ID and immutable model revision;
 - tokenizer repository ID and immutable revision;
 - Python, operating system, torch, transformers, numpy, pandas, scipy, and
@@ -856,15 +858,25 @@ Dependency lower bounds in `requirements.txt` are not an environment lock.
 The completed audit root must contain:
 
 - `plm_steering/icbinb_audit_out/claim_registry.json`
+- `plm_steering/icbinb_audit_out/role_assignments.json`
 - `plm_steering/icbinb_audit_out/cohort_manifest.json`
 - `plm_steering/icbinb_audit_out/failure_stage_table.csv`
 - `plm_steering/icbinb_audit_out/result_ledger.csv`
+- one locked
+  `plm_steering/icbinb_audit_out/lineage/<claim-id>.json` per claim;
+- one machine-readable
+  `plm_steering/icbinb_audit_out/reviews/<claim-id>.review.json` per confirmed
+  claim;
 - `plm_steering/icbinb_audit_out/run_metadata.json`
 - `plm_steering/icbinb_audit_out/checksums.sha256`
 
 `result_ledger.csv` has one row per fixed claim and must link every numeric
 field to a case summary path and source artifact hash. Negative and failed
-runs remain in the ledger.
+runs remain in the ledger. Each row exactly follows
+`docs/RESULT_LEDGER_SCHEMA.md`. A confirmed row must bind its complete typed
+semantics, cohort and experiment manifests, artifact lineage, assigned
+producer, and accepted independent review decision. Nonconfirmed rows remain
+present but cannot authorize submission evidence.
 
 ## 13. Required commands
 
@@ -1010,7 +1022,10 @@ The required audit module interface is:
 
 `verify` must return nonzero if an expected row, denominator, seed, provenance
 field, policy result, or checksum is missing. It must also reject any L54,
-L43, L48, or L49 evidence in the ICBINB result ledger.
+L43, L48, or L49 evidence in the ICBINB result ledger. It validates the exact
+six-claim set, role separation, typed result objects, lineage parent hashes,
+known artifact ownership, and machine-readable review bindings before a
+confirmed row can authorize evidence.
 
 ## 14. Confounds and limitations
 
@@ -1105,8 +1120,10 @@ These gaps are unresolved at manifest creation and block final execution:
    counts, source versions, and input hashes.
 7. L58 has no focused test and its current script always computes and saves
    L54 artifacts alongside L55 and L57.
-8. No current test covers the two-part generation analysis, the 0.05 failure
-   margin, policy replay, provenance schema, or ownership exclusions.
+8. No current audit-interface test covers the two-part generation analysis,
+   the 0.05 failure margin, policy replay, complete typed ledger semantics,
+   role assignments, lineage parents, review decisions, or ownership
+   exclusions.
 9. `requirements-lock.txt` records the tested package versions, but the
    runtime platform, model revision, and tokenizer revision are not pinned.
 

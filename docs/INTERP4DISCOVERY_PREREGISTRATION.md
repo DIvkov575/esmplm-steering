@@ -582,6 +582,12 @@ Artifacts produced after the final lock record `preregistration_sha256` and
 `preregistration_lock_sha256`. JSON files use `null` plus an explicit reason
 for missing values. They must not contain unlabelled `NaN` or infinity values.
 
+Before `feasibility-init`, the orchestrator writes
+`role_assignments.json` under the output root. It follows
+`docs/ROLE_ASSIGNMENT_SCHEMA.md`, names all five distinct Interp owners plus
+the independent reviewers, and binds the source commit. Every later stage and
+review decision records its exact hash.
+
 ### 13.0 Feasibility artifacts
 
 Before the final lock, discovery-only feasibility work writes:
@@ -744,6 +750,16 @@ and negative analyses remain in the ledger. Artifact-list cells follow
 to the output root and becomes immutable when the submission evidence
 allowlist records its SHA-256.
 
+The orchestrator also writes one
+`lineage/<claim-id>.json` for every claim and one
+`reviews/<claim-id>.review.json` for every confirmed claim. Each lineage file
+binds the complete claim artifact set, accepted parent locks, producer ID,
+source studies, claim registry, submission contract, cohort, and final
+preregistration lock. Each review decision binds the canonical row payload,
+the role file, all three manifests, and the exact artifacts. Only confirmed
+rows with accepted machine-readable review decisions can authorize submission
+evidence.
+
 After `verify` passes, the orchestrator and the named Interp paper owner write
 `handoff/paper_handoff.json`. It records all five distinct role IDs, the final
 lock, gate, result-ledger, verification, and result-bundle hashes, and the
@@ -844,7 +860,10 @@ from the identifier in its input artifact.
 
 Every command rejects unknown arguments and existing output files. `verify`
 returns nonzero for a missing lock key, field, hash, head, position, control,
-replacement result, or gate condition.
+replacement result, or gate condition. It also rejects an incomplete
+three-claim ledger, a role conflict, malformed typed result, missing lineage
+parent, known foreign artifact hash, stale review decision, or artifact set
+that differs across the row, lineage, and review decision.
 
 The command order is fixed. Discovery-only work runs from
 `feasibility-init` through `feasibility-lock`. The final `lock` command then

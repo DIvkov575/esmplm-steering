@@ -72,3 +72,31 @@ experiment or submission phase.
 | Contract M-02, compiled PDF bypass | The checker extracts and scans root PDF text with `pdftotext`. Missing or failed extraction is a violation. | Corrected; focused bypass tests pass |
 | Contract M-03, Interp role read barriers incomplete | Discovery, cohort and matching, ablation, analysis, and paper ownership now require five distinct IDs. A verified paper handoff controls result-bundle access. | Contract corrected; owner assignment blocked |
 | Contract N-01, status boards behind commit state | Boards now record the `0a9ace0` HOLD reviews and this second correction state. | Corrected |
+
+## Exact reviews of `f0c6440`
+
+| Finding | Resolution | State |
+|---|---|---|
+| Statistical review | The exact ICBINB statistical contract, including ICB-03, was accepted with no Critical, Major, or Minor finding. | Accepted at `f0c6440`; exact third-correction review pending |
+| Contract M-01, incomplete ledger semantics | `docs/SUBMISSION_CONTRACT.json` fixes the complete claim set and exact per-claim semantics. Ledger schema 1.1 retains every nonconfirmed row, validates typed results and all supplied hashes, and limits evidence authorization to complete confirmed rows. | Corrected in candidate; 101 focused tests pass |
+| Contract M-02, self-reported independent review | Confirmed rows point to machine-readable review decisions that bind assigned reviewer identity, canonical row payload, source commit, contract files, manifests, lineage, and exact artifacts. Blocking findings are derived from the decision file. | Corrected in candidate; adversarial review tests pass |
+| Contract M-03, renamed foreign bytes | `docs/ARTIFACT_OWNERSHIP.json` records known result hashes and permitted ownership. Every artifact and lineage ancestor is checked by hash, and each claim has a locked parent-bound lineage manifest. | Corrected in candidate; renamed L43, L54, and L55 checks pass |
+| Contract N-01, status boards behind commit state | Boards now record the `f0c6440` statistical ACCEPT, consistency HOLD, and third-correction state. | Corrected in candidate; exact re-review pending |
+
+## Dirty-candidate correctness review
+
+| Finding | Resolution | State |
+|---|---|---|
+| Major, historical L43 bytes were absent from the known-hash catalog | Added a nonauthorizing historical-only L43 hash and verified that the exact historical bytes are rejected after a text-file rename. | Corrected; re-review pending |
+| Major, directory and broken symlinks were skipped | Prohibited every package symlink before any signature, hash, text, or PDF read. Added file, directory, and broken-link tests. | Corrected; re-review pending |
+| Major, every root PDF was exempted as a manuscript | Limited the exemption to root `paper.pdf`. Every other PDF now requires evidence authorization. | Corrected; re-review pending |
+| Minor, very large JSON integers could raise `ValueError` | JSON loaders now convert both decode errors and integer-limit errors into violations. | Corrected; re-review pending |
+| Minor, several rejection paths lacked direct tests | Added tests for malformed hash-matched manifests, canonical contract path, catalog hash, and an existing undeclared lineage parent. | Corrected; re-review pending |
+| Major, a default allowlist symlink was read before the later package scan | Default and explicit allowlist, ledger, and claim-registry symlinks are now rejected before metadata discovery or parsing. | Corrected after second pass; re-review pending |
+| Minor, deeply nested JSON could raise `RecursionError` | All three JSON parsing boundaries now convert parser recursion failures into violations. | Corrected after second pass; re-review pending |
+| Major, metadata beneath a symlinked directory was read before rejection | Metadata paths are now checked component by component. Package and repository metadata roots containing symlinks also fail before content reads. | Corrected after third pass; re-review pending |
+| Minor, medium-depth numeric payloads could recurse after JSON decoding | Numeric payload, interval-bound, and lineage-cycle validation now use iterative traversal. | Corrected after third pass; re-review pending |
+| Adjacent read-order case, an allowlisted artifact symlink could resolve before the package scan | Package-entry paths now receive the same component-wise symlink check before containment or hashing. | Corrected during final local audit; re-review pending |
+| Major, repository-relative paths still followed symlink components | The shared contained-file resolver now rejects every symlink component before resolution. This covers authorities, roles, manifests, artifacts, parents, locks, and reviews. | Corrected after fourth pass; re-review pending |
+| Minor, direct exact-byte L43 test was absent | Added a direct test that recovers the historical blob when Git history is available, verifies its hash, renames it to text, and requires allowlisting. | Corrected after fourth pass; re-review pending |
+| Final ownership correctness re-review | Harvey found no Critical, Major, or Minor issue. Focused ownership and exact L43 checks passed. | Accepted; exact commit reviews pending |
