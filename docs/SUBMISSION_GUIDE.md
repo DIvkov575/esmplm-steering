@@ -11,18 +11,13 @@ One workshop submission is active:
 The files under `docs/submissions/icbinb-bio/` are the active manuscript
 package. The files under `docs/submissions/interp4discovery/` are historical
 and inactive. Interp4Discovery will not be submitted from the current evidence.
-See `docs/submissions/STATUS.md`.
 
 The XAI4Science draft is archived under `docs/archive/xai4science/` and
 is not planned for submission because the 2026 workshop is focused on
 weather and climate foundation models.
 
-The existing arXiv manuscript is outside the current program and will not be
-prepared or posted during the workshop work. Any later named version uses:
-
-- Dmitriy Ivkov
-- University of Michigan, Ann Arbor
-- `divkov@umich.edu`
+The existing arXiv manuscript is outside the current submission work and will
+not be prepared or posted during workshop review.
 
 ## Why the structures differ
 

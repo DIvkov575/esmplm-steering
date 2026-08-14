@@ -16,6 +16,7 @@
 \usepackage{microtype}
 \usepackage{xcolor}
 \usepackage{graphicx}
+\usepackage{placeins}
 
 \title{When Protein Language Model Steering Appears to Work: \\
 Three Steering Studies and One Endpoint Analysis}
@@ -110,7 +111,8 @@ limits the claim that can be carried into the next stage. A future evaluation
 should stop at the first unsupported inference. Later checks cannot repair an
 earlier failure.
 
-\begin{figure}[t]
+\FloatBarrier
+\begin{figure}[htbp]
 \centering
 \small
 \fbox{\parbox[c][2.0cm][c]{0.20\linewidth}{\centering
@@ -132,6 +134,7 @@ Does the full decision repeat?}}
 A favorable downstream score does not override a failure at an earlier stage.}
 \label{fig:audit}
 \end{figure}
+\FloatBarrier
 
 The endpoint check compares the sequence score with the endpoint named in
 the claim. The output check records low-complexity output counts and the number
@@ -188,7 +191,8 @@ therefore cannot be attributed to direction construction alone.
 Table~\ref{tab:cases} summarizes the three failure classes and the corrected
 interpretation of each case.
 
-\begin{table}[t]
+\FloatBarrier
+\begin{table}[htbp]
 \centering
 \caption{Completed evidence used in the retrospective synthesis. The metrics
 differ because each check addresses a different inference.}
@@ -217,6 +221,7 @@ Report composition and whole-run sensitivity with the main score \\
 \bottomrule
 \end{tabular}
 \end{table}
+\FloatBarrier
 
 \subsection{Endpoint choice changed the L56 conclusion}
 
