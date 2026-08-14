@@ -24,9 +24,36 @@ For example, a two-file path cell is
 match by array position. A plain string, delimiter-separated list, JSON
 object, or `null` is invalid for these four columns.
 
+`source_study_ids` also uses JSON array encoding. It must exactly match the
+study ownership fixed for the claim: L52 for ICB-01, L56 for ICB-02 and
+ICB-03, L55 for ICB-04, L57 for ICB-05, L55 plus L57 for ICB-06, and
+`INTERP4DISCOVERY-CONFIRMATORY` for INT-01 through INT-03.
+
 The CSV has no editable top-level lock field. A submission package locks the
 exact ledger bytes by recording the ledger SHA-256 in
 `ownership_allowlist.json`.
+
+`claim_text_sha256` is the SHA-256 of the UTF-8 registered claim text. Form
+that text by joining the nonempty block-quote lines under the claim's `Claim:`
+field with one ASCII space. The ownership verifier recomputes this value from
+`docs/CLAIM_REGISTRY.md`.
+
+`review_status` is a JSON object inside its CSV cell:
+
+```json
+{
+  "reviewer_id": "independent-reviewer-id",
+  "critical_findings": 0,
+  "major_findings": 0,
+  "decision": "accepted",
+  "report_path": "reviews/independent_review.md",
+  "report_sha256": "64 hexadecimal characters"
+}
+```
+
+A confirmed row requires a nonempty reviewer ID, zero Critical findings, zero
+Major findings, decision `accepted`, and a verified repository-relative review
+report.
 
 ## Required columns
 
@@ -35,6 +62,7 @@ exact ledger bytes by recording the ledger SHA-256 in
 | `claim_id` | Exact registry ID |
 | `paper_id` | Owning paper |
 | `claim_text_sha256` | Hash of the registered claim text |
+| `source_study_ids` | JSON array of the exact studies allowed for this claim |
 | `claim_status` | `conditional`, `confirmed`, `rejected`, `deferred`, or `stopped` |
 | `provenance` | `prospective`, `retrospective`, or `post_hoc_sensitivity` |
 | `estimand` | Exact quantity and conditioning event |
@@ -90,6 +118,7 @@ must include `ownership_allowlist.json`. The file has this structure:
 ```json
 {
   "paper_id": "interp4discovery",
+  "claim_registry_sha256": "64 hexadecimal characters",
   "result_ledger_sha256": "64 hexadecimal characters",
   "artifacts": [
     {
@@ -108,3 +137,15 @@ same claim. Both files must exist and have the same SHA-256. Paths must use
 POSIX separators and cannot be absolute, contain wildcards, or escape their
 respective roots. Every packaged evidence file must have exactly one allowlist
 entry.
+
+The allowlist binds both `docs/CLAIM_REGISTRY.md` and `result_ledger.csv`.
+Before an entry can authorize evidence, the verifier requires an exact active
+claim ID, matching claim-text hash and paper ID, `claim_status = confirmed`,
+the exact claim-owned study IDs, `gate_result = pass`, and an accepted
+independent review with no Critical or Major findings. It also rejects
+paper-prohibited study identifiers in artifact paths.
+
+The root manuscript PDF is not treated as a result artifact. The verifier
+extracts its text with `pdftotext` and applies the same prohibited-claim scan
+used for manuscript sources. Missing extraction support, an unreadable PDF, or
+an extraction error fails closed.

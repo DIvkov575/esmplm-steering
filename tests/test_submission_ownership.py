@@ -6,6 +6,7 @@ from typing import Any
 
 import pytest
 
+from plm_steering import submission_ownership
 from plm_steering.submission_ownership import find_violations
 
 
@@ -21,6 +22,7 @@ LEDGER_COLUMNS = [
     "claim_id",
     "paper_id",
     "claim_text_sha256",
+    "source_study_ids",
     "claim_status",
     "provenance",
     "estimand",
@@ -59,20 +61,37 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
 def _ledger_row(
     paper: str,
     claim_id: str,
+    claim_text_sha256: str,
     artifact_path: str,
     artifact_sha256: str,
+    review_path: str,
+    review_sha256: str,
 ) -> dict[str, str]:
     row = dict.fromkeys(LEDGER_COLUMNS, "")
     row.update(
         {
             "claim_id": claim_id,
             "paper_id": paper,
+            "claim_text_sha256": claim_text_sha256,
+            "source_study_ids": json.dumps(
+                sorted(submission_ownership.CLAIM_STUDY_IDS[claim_id])
+            ),
             "claim_status": "confirmed",
             "raw_artifact_paths": "[]",
             "raw_artifact_sha256": "[]",
             "derived_artifact_paths": json.dumps([artifact_path]),
             "derived_artifact_sha256": json.dumps([artifact_sha256]),
             "gate_result": "pass",
+            "review_status": json.dumps(
+                {
+                    "reviewer_id": "independent-reviewer",
+                    "critical_findings": 0,
+                    "major_findings": 0,
+                    "decision": "accepted",
+                    "report_path": review_path,
+                    "report_sha256": review_sha256,
+                }
+            ),
         }
     )
     return row
@@ -98,6 +117,24 @@ def _owned_package(
     ledger_artifact.parent.mkdir(parents=True)
     ledger_artifact.write_bytes(package_artifact.read_bytes())
 
+    claim_text = f"Registered claim text for {claim_id}."
+    claim_text_sha256 = hashlib.sha256(claim_text.encode("utf-8")).hexdigest()
+    claim_registry = ledger_root / "docs" / "CLAIM_REGISTRY.md"
+    claim_registry.parent.mkdir(parents=True)
+    claim_registry.write_text(
+        f"# Claim Registry\n\n### {claim_id}\n\n"
+        f"Claim:\n\n> {claim_text}\n",
+        encoding="utf-8",
+    )
+
+    review_report = ledger_root / "reviews" / "independent_review.md"
+    review_report.parent.mkdir(parents=True)
+    review_report.write_text(
+        "# Independent Review\n\nDecision: accepted\n",
+        encoding="utf-8",
+    )
+    review_relative = review_report.relative_to(ledger_root).as_posix()
+
     ledger = tmp_path / "result_ledger.csv"
     _write_csv(
         ledger,
@@ -105,8 +142,11 @@ def _owned_package(
             _ledger_row(
                 paper,
                 claim_id,
+                claim_text_sha256,
                 "results/locked_figure.pdf",
                 _sha256(ledger_artifact),
+                review_relative,
+                _sha256(review_report),
             )
         ],
     )
@@ -116,6 +156,7 @@ def _owned_package(
         allowlist,
         {
             "paper_id": paper,
+            "claim_registry_sha256": _sha256(claim_registry),
             "result_ledger_sha256": _sha256(ledger),
             "artifacts": [
                 {
@@ -134,11 +175,32 @@ def _owned_package(
         "ledger": ledger,
         "ledger_root": ledger_root,
         "ledger_artifact": ledger_artifact,
+        "claim_registry": claim_registry,
+        "review_report": review_report,
     }
 
 
 def _rewrite_allowlist_ledger_hash(paths: dict[str, Path]) -> None:
     allowlist = json.loads(paths["allowlist"].read_text(encoding="utf-8"))
+    allowlist["result_ledger_sha256"] = _sha256(paths["ledger"])
+    _write_json(paths["allowlist"], allowlist)
+
+
+def _retarget_ledger_artifact(
+    paths: dict[str, Path],
+    artifact_path: str,
+) -> None:
+    target = paths["ledger_root"] / artifact_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(paths["package_artifact"].read_bytes())
+
+    rows = _read_csv(paths["ledger"])
+    rows[0]["derived_artifact_paths"] = json.dumps([artifact_path])
+    rows[0]["derived_artifact_sha256"] = json.dumps([_sha256(target)])
+    _write_csv(paths["ledger"], rows)
+
+    allowlist = json.loads(paths["allowlist"].read_text(encoding="utf-8"))
+    allowlist["artifacts"][0]["ledger_artifact_path"] = artifact_path
     allowlist["result_ledger_sha256"] = _sha256(paths["ledger"])
     _write_json(paths["allowlist"], allowlist)
 
@@ -169,11 +231,15 @@ def test_icbinb_rejects_attention_and_catalytic_evidence(tmp_path: Path):
 @pytest.mark.parametrize(
     ("paper", "text", "rule"),
     [
-        ("icbinb-bio", "The L54 result supports the paper.", "l54-identifier"),
+        (
+            "icbinb-bio",
+            "The L54 result supports the paper.",
+            "excluded-study-identifier",
+        ),
         (
             "icbinb-bio",
             "The l54_repro_out result supports the paper.",
-            "l54-identifier",
+            "excluded-study-identifier",
         ),
         (
             "interp4discovery",
@@ -255,14 +321,76 @@ def test_figure_signature_cannot_be_hidden_by_generated_suffix(tmp_path: Path):
     ]
 
 
-def test_compiled_root_manuscript_is_not_an_evidence_file(tmp_path: Path):
+def test_clean_compiled_root_manuscript_is_scanned(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
     (tmp_path / "paper.tex").write_text(
         "\\documentclass{article}\nContact ablation result.\n",
         encoding="utf-8",
     )
     (tmp_path / "paper.pdf").write_bytes(b"%PDF-1.4")
+    monkeypatch.setattr(
+        submission_ownership,
+        "_extract_pdf_text",
+        lambda path: "Contact ablation result.",
+    )
 
     assert find_violations("interp4discovery", tmp_path) == []
+
+
+@pytest.mark.parametrize(
+    ("paper", "pdf_text", "rule"),
+    [
+        (
+            "icbinb-bio",
+            "The L54 catalytic result supports the paper.",
+            "excluded-study-identifier",
+        ),
+        (
+            "interp4discovery",
+            "The steered sequence changed the result.",
+            "steering",
+        ),
+    ],
+)
+def test_compiled_root_manuscript_prohibited_text_is_rejected(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    paper: str,
+    pdf_text: str,
+    rule: str,
+):
+    (tmp_path / "paper.tex").write_text(
+        "\\documentclass{article}\nClean source text.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "paper.pdf").write_bytes(b"%PDF-1.4")
+    monkeypatch.setattr(
+        submission_ownership,
+        "_extract_pdf_text",
+        lambda path: pdf_text,
+    )
+
+    violations = find_violations(paper, tmp_path)
+
+    assert any(f"paper.pdf:1: prohibited {rule} evidence" in item for item in violations)
+
+
+def test_unreadable_root_pdf_fails_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    (tmp_path / "paper.pdf").write_bytes(b"%PDF-1.4")
+
+    def fail_extract(path: Path) -> str:
+        raise RuntimeError("invalid PDF")
+
+    monkeypatch.setattr(submission_ownership, "_extract_pdf_text", fail_extract)
+
+    violations = find_violations("interp4discovery", tmp_path)
+
+    assert any("cannot extract compiled PDF text" in item for item in violations)
 
 
 def test_valid_allowlisted_package_passes(tmp_path: Path):
@@ -320,6 +448,43 @@ def test_result_ledger_hash_mismatch_is_rejected(tmp_path: Path):
             "results/locked_figure.pdf",
             "must contain a JSON array",
         ),
+        (
+            "claim_id",
+            "INT-999",
+            "claim_id is absent from the claim registry",
+        ),
+        (
+            "claim_text_sha256",
+            "0" * 64,
+            "claim_text_sha256 does not match the claim registry",
+        ),
+        (
+            "claim_status",
+            "stopped",
+            "claim_status must be 'confirmed'",
+        ),
+        (
+            "source_study_ids",
+            json.dumps(["L54"]),
+            "source_study_ids do not match claim ownership",
+        ),
+        (
+            "gate_result",
+            "fail",
+            "gate_result must be 'pass'",
+        ),
+        (
+            "review_status",
+            json.dumps(
+                {
+                    "reviewer_id": "reviewer",
+                    "critical_findings": 0,
+                    "major_findings": 1,
+                    "decision": "hold",
+                }
+            ),
+            "unresolved major_findings",
+        ),
     ],
 )
 def test_wrong_result_ledgers_are_rejected(
@@ -337,6 +502,62 @@ def test_wrong_result_ledgers_are_rejected(
     violations = _find_owned_violations("interp4discovery", paths)
 
     assert any(expected in item for item in violations)
+
+
+@pytest.mark.parametrize(
+    ("paper", "claim_id", "artifact_path", "rule"),
+    [
+        (
+            "icbinb-bio",
+            "ICB-01",
+            "results/l54_catalytic_result.pdf",
+            "excluded-study-identifier",
+        ),
+        (
+            "interp4discovery",
+            "INT-01",
+            "results/l55_disorder_steering_result.pdf",
+            "steering",
+        ),
+    ],
+)
+def test_prohibited_ledger_artifact_is_rejected(
+    tmp_path: Path,
+    paper: str,
+    claim_id: str,
+    artifact_path: str,
+    rule: str,
+):
+    paths = _owned_package(tmp_path, paper=paper, claim_id=claim_id)
+    _retarget_ledger_artifact(paths, artifact_path)
+
+    violations = _find_owned_violations(paper, paths)
+
+    assert any(f"prohibited {rule} evidence" in item for item in violations)
+
+
+def test_claim_registry_hash_mismatch_is_rejected(tmp_path: Path):
+    paths = _owned_package(tmp_path)
+    paths["claim_registry"].write_text(
+        paths["claim_registry"].read_text(encoding="utf-8") + "\nChanged.\n",
+        encoding="utf-8",
+    )
+
+    violations = _find_owned_violations("interp4discovery", paths)
+
+    assert any("claim registry sha256 does not match" in item for item in violations)
+
+
+def test_review_report_hash_mismatch_is_rejected(tmp_path: Path):
+    paths = _owned_package(tmp_path)
+    paths["review_report"].write_text(
+        "# Independent Review\n\nDecision: changed\n",
+        encoding="utf-8",
+    )
+
+    violations = _find_owned_violations("interp4discovery", paths)
+
+    assert any("review_status report sha256 does not match" in item for item in violations)
 
 
 @pytest.mark.parametrize(

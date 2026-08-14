@@ -11,7 +11,7 @@ number already present in a narrative document.
 Source plan: `docs/PAPER_PORTFOLIO_PLAN.md`
 
 Source plan SHA-256 for this contract revision:
-`f8b06e8f2ebd1d6e7324ed5f56b9ba507d70aaf5e5583f9b2d089e2eb820986f`
+`9a43ed00b7ac5143209fc2a8383c2e53eb906415a88a6cf2939d6cfa2153fa31`
 
 ## 1. Purpose and decision boundary
 
@@ -349,9 +349,9 @@ No sequence generation or steering run is allowed for L56.
 | 4 | Full-length antigen response fraction | Canonical 50 to 400 residue antigen with a mapped sequence and at least eight tested peptides in the cached cohort | Random-fold and organism-grouped out-of-fold correlation |
 | Secondary | Allergen cross-check | 800 cached allergens and 2,423 cached lineage-and-length-matched nonallergens | Descriptive held-out AUC only |
 
-Independent variables are endpoint tier, scoring function, and cross-validation
-split policy. The source organism is the grouping variable in the decisive
-confound analysis.
+Independent variables are endpoint tier, scoring function, model
+specification, and cross-validation split policy. The source organism is the
+grouping variable in the decisive confound analysis.
 
 The target of each estimate is its fixed cached cohort. Tier 1 through Tier 3
 weight each unique peptide equally after the frozen assay-aggregation rule.
@@ -360,6 +360,27 @@ recorded antigens do not dominate the correlation. Before execution, recover
 and freeze the exact rule that combines repeated assays into one peptide
 label, the handling of conflicting assays, every split identifier, and every
 model-fitting step. If these cannot be reconstructed, H2 is not auditable.
+
+The Tier 4 confound analysis has three fixed linear model specifications:
+
+1. `length_only`: training-fold-standardized log sequence length and an
+   intercept;
+2. `composition_only`: the historical 20 normalized residue frequencies and
+   an intercept;
+3. `composition_plus_length`: the same 20 residue frequencies,
+   training-fold-standardized log sequence length, and an intercept.
+
+Use `numpy.linalg.lstsq` with `rcond=None` for the historical minimum-norm
+composition design. Estimate the length mean and standard deviation from the
+training fold only, using its inverse organism-frequency weights. Implement
+weighted least squares by multiplying each training row and outcome by the
+square root of its weight before calling `lstsq`. Use the same random-fold
+assignment and the same organism-group assignment for all three
+specifications. Save the design columns, training-only scaling values,
+coefficients, weights, and row-level predictions for every fold. The
+historical unweighted composition estimate is reproduced for provenance. The
+audited estimates use inverse organism-frequency weights in model fitting and
+in the reported correlation, so each organism has equal total weight.
 
 For H2a, the analysis unit is one unique peptide after the frozen
 deduplication and assay-aggregation rule. Use one singleton cluster identifier
@@ -372,16 +393,22 @@ an empirical stability summary for these fixed deduplicated cohorts, not an
 absence or equivalence test. It may understate dependence among related
 peptides and cannot support a broader peptide-population claim.
 
-For H2b, save one out-of-fold prediction per antigen under both the frozen
-random-fold and organism-grouped pipelines. Bootstrap organisms as clusters,
-retain all sampled antigens for each organism, refit any statistic that
-depends on organism weighting, and compute:
+For H2b, save one out-of-fold prediction per antigen, model specification, and
+split policy under both the frozen random-fold and organism-grouped pipelines.
+Bootstrap organisms as clusters, retain all sampled antigens for each sampled
+organism, preserve each row's frozen fold assignment, rebuild
+inverse-frequency weights, refit all three models, and compute for each model
+`m`:
 
-`delta_grouping = r_random_fold - r_organism_grouped`
+`delta_grouping[m] = r_random_fold[m] - r_organism_grouped[m]`
 
-The paired cluster bootstrap must preserve the two predictions for each
-antigen. A fall in performance is consistent with source-organism confounding
-but does not identify confounding as the sole cause.
+The paired cluster bootstrap must preserve all six predictions for each
+antigen. `length_only` is a required diagnostic with no directional pass rule.
+The composition-only difference is the primary source-organism sensitivity
+estimate. The joint model checks whether that difference remains after
+including sequence length. A fall in performance under both composition
+models is consistent with source-organism confounding but does not identify
+confounding as the sole cause.
 
 The allergen result is not an immunogenicity endpoint and cannot change the
 L56 stop decision.
@@ -395,20 +422,25 @@ H2 is accepted only if all conditions hold:
 - The Tier 1 train-fit composition association exceeds the maximum absolute
   Tier 3 association, and the 95 percent bootstrap stability interval for
   that difference is wholly above zero.
-- `delta_grouping` is positive, and its 95 percent organism-clustered
-  bootstrap stability interval is wholly above zero.
+- `delta_grouping["composition_only"]` and
+  `delta_grouping["composition_plus_length"]` are positive, and both 95
+  percent organism-clustered bootstrap stability intervals are wholly above
+  zero.
+- The length-only random-fold estimate, grouped estimate, grouping difference,
+  and 95 percent interval are reported regardless of direction.
 - Random-fold and organism-grouped point estimates, organism-level estimates,
-  fold assignments, row-level predictions, cohort counts, and exclusion
-  counts are all saved.
+  all three model specifications, fold assignments, row-level predictions,
+  training-fold length scalers, cohort counts, and exclusion counts are all
+  saved.
 - The manuscript uses observed-performance language. It does not claim that
   sequence scores cannot predict T-cell response or that organism
   confounding is proven to be the only cause.
 
 H2 fails if the endpoint performance ordering does not reproduce, if grouped
-validation does not reduce the observed full-length performance, or if the
-assay aggregation, organism identifiers, split assignments, or row-level
-predictions are missing. A failed H2 blocks the endpoint-mismatch claim and
-triggers the paper-level stop rule.
+validation does not reduce both composition-model estimates, or if the assay
+aggregation, organism identifiers, model specifications, split assignments,
+or row-level predictions are missing. A failed H2 blocks the endpoint-mismatch
+claim and triggers the paper-level stop rule.
 
 ### 6.4 Inputs and outputs
 
@@ -736,7 +768,9 @@ estimate, interval when available, and endpoint meaning.
 Tier 3 uses the maximum absolute held-out correlation across all reported
 scores as its gate statistic. This avoids selecting a convenient weak score.
 The organism analysis must report random-fold, organism-grouped, and
-within-organism results together.
+within-organism results together. It must show the length-only,
+composition-only, and composition-plus-length results in one table with their
+paired grouping differences and organism-clustered intervals.
 
 ### 11.3 Multiplicity and interpretation
 

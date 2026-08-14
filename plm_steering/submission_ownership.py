@@ -7,6 +7,8 @@ import csv
 import hashlib
 import json
 import re
+import shutil
+import subprocess
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -17,8 +19,14 @@ PROHIBITED = {
             "attention-head": re.compile(r"attention[- ]head", re.IGNORECASE),
             "contact-enriched": re.compile(r"contact[- ]enrich", re.IGNORECASE),
             "catalytic": re.compile(r"\bcatalytic\b|\bdlkcat\b", re.IGNORECASE),
-            "l54-identifier": re.compile(
-                r"(?<![A-Za-z0-9])l54(?=$|[^A-Za-z0-9])",
+            "excluded-study-identifier": re.compile(
+                r"(?<![A-Za-z0-9])l(?:43|48|49|54)(?=$|[^A-Za-z0-9])",
+                re.IGNORECASE,
+            ),
+        },
+        "artifact_paths": {
+            "excluded-study-identifier": re.compile(
+                r"(?<![A-Za-z0-9])l(?:43|48|49|54)(?=$|[^A-Za-z0-9])",
                 re.IGNORECASE,
             ),
         },
@@ -30,9 +38,28 @@ PROHIBITED = {
     },
     "interp4discovery": {
         "text": {
-            "steering": re.compile(r"\bsteer(?:s|ed|ing)?\b", re.IGNORECASE),
+            "steering": re.compile(
+                r"(?<![A-Za-z0-9])steer(?:s|ed|ing)?(?=$|[^A-Za-z0-9])",
+                re.IGNORECASE,
+            ),
             "steering-targets": re.compile(
                 r"\bcatalytic\b|\bdisorder steering\b|\bexpression[- ]yield\b",
+                re.IGNORECASE,
+            ),
+            "foreign-study-identifier": re.compile(
+                r"(?<![A-Za-z0-9])l(?:42|43|51|52|53|54|55|56|57|58)"
+                r"(?=$|[^A-Za-z0-9])",
+                re.IGNORECASE,
+            ),
+        },
+        "artifact_paths": {
+            "steering": re.compile(
+                r"(?<![A-Za-z0-9])steer(?:s|ed|ing)?(?=$|[^A-Za-z0-9])",
+                re.IGNORECASE,
+            ),
+            "foreign-study-identifier": re.compile(
+                r"(?<![A-Za-z0-9])l(?:42|43|51|52|53|54|55|56|57|58)"
+                r"(?=$|[^A-Za-z0-9])",
                 re.IGNORECASE,
             ),
         },
@@ -49,7 +76,20 @@ CLAIM_PREFIX = {
     "interp4discovery": "INT-",
 }
 
+CLAIM_STUDY_IDS = {
+    "ICB-01": {"L52"},
+    "ICB-02": {"L56"},
+    "ICB-03": {"L56"},
+    "ICB-04": {"L55"},
+    "ICB-05": {"L57"},
+    "ICB-06": {"L55", "L57"},
+    "INT-01": {"INTERP4DISCOVERY-CONFIRMATORY"},
+    "INT-02": {"INTERP4DISCOVERY-CONFIRMATORY"},
+    "INT-03": {"INTERP4DISCOVERY-CONFIRMATORY"},
+}
+
 DEFAULT_ALLOWLIST = "ownership_allowlist.json"
+DEFAULT_CLAIM_REGISTRY = "docs/CLAIM_REGISTRY.md"
 
 TEXT_SOURCE_SUFFIXES = {
     ".bbl",
@@ -76,10 +116,12 @@ TEXT_SOURCE_SUFFIXES = {
 }
 
 SHA256_PATTERN = re.compile(r"[0-9a-fA-F]{64}")
+CLAIM_HEADING_PATTERN = re.compile(r"^### ((?:ICB|INT)-\d+)$")
 RESULT_LEDGER_COLUMNS = {
     "claim_id",
     "paper_id",
     "claim_text_sha256",
+    "source_study_ids",
     "claim_status",
     "provenance",
     "estimand",
@@ -202,6 +244,152 @@ def _decode_json_array(
     return decoded
 
 
+def _load_claim_registry(
+    path: Path,
+    violations: list[str],
+) -> dict[str, dict[str, str]]:
+    if not path.is_file():
+        violations.append(f"claim registry: file does not exist: {path}")
+        return {}
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError) as error:
+        violations.append(f"claim registry: cannot read valid UTF-8: {error}")
+        return {}
+
+    headings: list[tuple[int, str]] = []
+    for index, line in enumerate(lines):
+        match = CLAIM_HEADING_PATTERN.fullmatch(line)
+        if match is not None:
+            headings.append((index, match.group(1)))
+
+    claims: dict[str, dict[str, str]] = {}
+    for heading_index, (start, claim_id) in enumerate(headings):
+        end = headings[heading_index + 1][0] if heading_index + 1 < len(headings) else len(lines)
+        block = lines[start + 1 : end]
+        try:
+            claim_marker = block.index("Claim:")
+        except ValueError:
+            violations.append(f"claim registry: {claim_id} has no Claim field")
+            continue
+        quote_lines = [
+            line.removeprefix(">").strip()
+            for line in block[claim_marker + 1 :]
+            if line.startswith(">")
+        ]
+        claim_text = " ".join(part for part in quote_lines if part)
+        if not claim_text:
+            violations.append(f"claim registry: {claim_id} has no quoted claim text")
+            continue
+        if claim_id in claims:
+            violations.append(f"claim registry: duplicate claim ID {claim_id!r}")
+            continue
+        paper = "icbinb-bio" if claim_id.startswith("ICB-") else "interp4discovery"
+        claims[claim_id] = {
+            "paper_id": paper,
+            "claim_text_sha256": hashlib.sha256(
+                claim_text.encode("utf-8")
+            ).hexdigest(),
+        }
+    return claims
+
+
+def _review_is_accepted(
+    value: Any,
+    label: str,
+    ledger_root: Path,
+    violations: list[str],
+) -> bool:
+    try:
+        review = json.loads(value) if isinstance(value, str) else None
+    except json.JSONDecodeError as error:
+        violations.append(
+            f"{label}: review_status must contain a JSON object: {error.msg}"
+        )
+        return False
+    if not isinstance(review, dict):
+        violations.append(f"{label}: review_status must contain a JSON object")
+        return False
+
+    valid = True
+    reviewer_id = review.get("reviewer_id")
+    if not isinstance(reviewer_id, str) or not reviewer_id.strip():
+        violations.append(f"{label}: review_status requires a reviewer_id")
+        valid = False
+    for field in ("critical_findings", "major_findings"):
+        count = review.get(field)
+        if not isinstance(count, int) or isinstance(count, bool) or count < 0:
+            violations.append(
+                f"{label}: review_status {field} must be a nonnegative integer"
+            )
+            valid = False
+        elif count != 0:
+            violations.append(f"{label}: review_status has unresolved {field}")
+            valid = False
+    if review.get("decision") != "accepted":
+        violations.append(f"{label}: review_status decision must be 'accepted'")
+        valid = False
+    report_relative = _safe_relative_path(review.get("report_path"))
+    if report_relative is None:
+        violations.append(
+            f"{label}: review_status report_path must be a safe relative POSIX path"
+        )
+        valid = False
+    report_hash = review.get("report_sha256")
+    if not _valid_sha256(report_hash):
+        violations.append(
+            f"{label}: review_status report_sha256 must be "
+            "64 hexadecimal characters"
+        )
+        valid = False
+    if report_relative is not None and _valid_sha256(report_hash):
+        report_file = _contained_file(ledger_root, report_relative)
+        if report_file is None:
+            violations.append(f"{label}: review_status report file does not exist")
+            valid = False
+        elif _sha256(report_file) != report_hash.lower():
+            violations.append(
+                f"{label}: review_status report sha256 does not match"
+            )
+            valid = False
+    return valid
+
+
+def _extract_pdf_text(path: Path) -> str:
+    executable = shutil.which("pdftotext")
+    if executable is None:
+        raise RuntimeError("pdftotext is not installed")
+    try:
+        completed = subprocess.run(
+            [executable, "-enc", "UTF-8", str(path), "-"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=30,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError("pdftotext timed out") from error
+    if completed.returncode != 0:
+        detail = completed.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(detail or f"pdftotext exited {completed.returncode}")
+    text = completed.stdout.decode("utf-8")
+    if not text.strip():
+        raise RuntimeError("pdftotext returned no text")
+    return text
+
+
+def _scan_text(
+    text: str,
+    relative: Path,
+    rules: dict[str, Any],
+    violations: list[str],
+) -> None:
+    for name, pattern in rules["text"].items():
+        for match in pattern.finditer(text):
+            line = text.count("\n", 0, match.start()) + 1
+            violations.append(f"{relative}:{line}: prohibited {name} evidence")
+
+
 def _is_compiled_manuscript(path: Path, root: Path) -> bool:
     if path.suffix.lower() != ".pdf" or path.parent != root:
         return False
@@ -256,6 +444,7 @@ def _ledger_artifacts(
     paper: str,
     rows: list[dict[str, str]],
     ledger_root: Path,
+    registry_claims: dict[str, dict[str, str]],
     violations: list[str],
 ) -> dict[tuple[str, str], str]:
     prefix = CLAIM_PREFIX[paper]
@@ -276,6 +465,58 @@ def _ledger_artifacts(
             seen_claims.add(claim_id)
         if row_paper != paper:
             violations.append(f"{label}: paper_id must be {paper!r}")
+            row_valid = False
+        registry_claim = registry_claims.get(claim_id)
+        if registry_claim is None:
+            violations.append(f"{label}: claim_id is absent from the claim registry")
+            row_valid = False
+        else:
+            if registry_claim["paper_id"] != paper:
+                violations.append(
+                    f"{label}: claim registry assigns claim to "
+                    f"{registry_claim['paper_id']!r}"
+                )
+                row_valid = False
+            claim_text_hash = row.get("claim_text_sha256")
+            if claim_text_hash != registry_claim["claim_text_sha256"]:
+                violations.append(
+                    f"{label}: claim_text_sha256 does not match the claim registry"
+                )
+                row_valid = False
+        if row.get("claim_status") != "confirmed":
+            violations.append(f"{label}: claim_status must be 'confirmed'")
+            row_valid = False
+        if row.get("gate_result") != "pass":
+            violations.append(f"{label}: gate_result must be 'pass'")
+            row_valid = False
+        if not _review_is_accepted(
+            row.get("review_status"),
+            label,
+            ledger_root,
+            violations,
+        ):
+            row_valid = False
+        source_study_ids = _decode_json_array(
+            row,
+            "source_study_ids",
+            label,
+            violations,
+        )
+        allowed_study_ids = CLAIM_STUDY_IDS.get(claim_id)
+        if (
+            source_study_ids is None
+            or not all(isinstance(item, str) for item in source_study_ids)
+            or len(source_study_ids) != len(set(source_study_ids))
+        ):
+            if source_study_ids is not None:
+                violations.append(
+                    f"{label}: source_study_ids must contain unique strings"
+                )
+            row_valid = False
+        elif allowed_study_ids is None or set(source_study_ids) != allowed_study_ids:
+            violations.append(
+                f"{label}: source_study_ids do not match claim ownership"
+            )
             row_valid = False
 
         for artifact_kind in ("raw", "derived"):
@@ -312,6 +553,15 @@ def _ledger_artifacts(
                         f"{artifact_label}: path must be a safe relative POSIX path"
                     )
                     continue
+                path_valid = True
+                for rule_name, pattern in PROHIBITED[paper][
+                    "artifact_paths"
+                ].items():
+                    if pattern.search(relative.as_posix()) is not None:
+                        violations.append(
+                            f"{artifact_label}: prohibited {rule_name} evidence"
+                        )
+                        path_valid = False
                 if not _valid_sha256(expected_hash):
                     violations.append(
                         f"{artifact_label}: sha256 must be 64 hexadecimal characters"
@@ -330,7 +580,7 @@ def _ledger_artifacts(
                         f"{artifact_label}: file sha256 does not match result ledger"
                     )
                     continue
-                if not row_valid:
+                if not row_valid or not path_valid:
                     continue
 
                 key = (claim_id, relative.as_posix())
@@ -350,6 +600,7 @@ def _validate_ownership_allowlist(
     allowlist_path: Path | None,
     ledger_path: Path | None,
     ledger_root: Path | None,
+    claim_registry_path: Path | None,
     violations: list[str],
 ) -> None:
     if allowlist_path is None:
@@ -364,6 +615,28 @@ def _validate_ownership_allowlist(
         return
     if allowlist_data.get("paper_id") != paper:
         violations.append(f"ownership allowlist: paper_id must be {paper!r}")
+
+    expected_registry_hash = allowlist_data.get("claim_registry_sha256")
+    if not _valid_sha256(expected_registry_hash):
+        violations.append(
+            "ownership allowlist: claim_registry_sha256 must be "
+            "64 hexadecimal characters"
+        )
+    registry_claims: dict[str, dict[str, str]] = {}
+    if claim_registry_path is None:
+        violations.append("ownership allowlist: a claim registry is required")
+    elif not claim_registry_path.is_file():
+        violations.append(
+            f"claim registry: file does not exist: {claim_registry_path}"
+        )
+    else:
+        actual_registry_hash = _sha256(claim_registry_path)
+        if _valid_sha256(expected_registry_hash):
+            if actual_registry_hash != expected_registry_hash.lower():
+                violations.append(
+                    "ownership allowlist: claim registry sha256 does not match"
+                )
+        registry_claims = _load_claim_registry(claim_registry_path, violations)
 
     expected_ledger_hash = allowlist_data.get("result_ledger_sha256")
     if not _valid_sha256(expected_ledger_hash):
@@ -388,6 +661,7 @@ def _validate_ownership_allowlist(
                 paper,
                 ledger_rows,
                 ledger_root or Path.cwd(),
+                registry_claims,
                 violations,
             )
 
@@ -462,6 +736,7 @@ def find_violations(
     allowlist: Path | None = None,
     ledger: Path | None = None,
     ledger_root: Path | None = None,
+    claim_registry: Path | None = None,
 ) -> list[str]:
     if paper not in PROHIBITED:
         raise ValueError(f"unknown paper: {paper}")
@@ -481,6 +756,16 @@ def find_violations(
             continue
         if path.name in rules["filenames"]:
             violations.append(f"{relative}: prohibited historical figure")
+        if path.suffix.lower() == ".pdf" and path.parent == root:
+            try:
+                pdf_text = _extract_pdf_text(path)
+            except (OSError, UnicodeDecodeError, RuntimeError) as error:
+                violations.append(
+                    f"{relative}: cannot extract compiled PDF text: {error}"
+                )
+            else:
+                _scan_text(pdf_text, relative, rules, violations)
+            continue
         if path.suffix.lower() not in TEXT_SOURCE_SUFFIXES:
             continue
         try:
@@ -488,10 +773,7 @@ def find_violations(
         except (OSError, UnicodeDecodeError) as error:
             violations.append(f"{relative}: cannot scan UTF-8 text source: {error}")
             continue
-        for name, pattern in rules["text"].items():
-            for match in pattern.finditer(text):
-                line = text.count("\n", 0, match.start()) + 1
-                violations.append(f"{relative}:{line}: prohibited {name} evidence")
+        _scan_text(text, relative, rules, violations)
 
     allowlist_path = Path(allowlist) if allowlist is not None else None
     default_allowlist = root / DEFAULT_ALLOWLIST
@@ -499,6 +781,13 @@ def find_violations(
         allowlist_path = default_allowlist
     ledger_path = Path(ledger) if ledger is not None else None
     ledger_root_path = Path(ledger_root) if ledger_root is not None else None
+    claim_registry_path = (
+        Path(claim_registry) if claim_registry is not None else None
+    )
+    if claim_registry_path is None and allowlist_path is not None:
+        claim_registry_path = (
+            ledger_root_path or Path.cwd()
+        ) / DEFAULT_CLAIM_REGISTRY
     metadata_paths = {
         path
         for path in (allowlist_path, ledger_path)
@@ -513,6 +802,7 @@ def find_violations(
             allowlist_path,
             ledger_path,
             ledger_root_path,
+            claim_registry_path,
             violations,
         )
     return violations
@@ -536,6 +826,14 @@ def main() -> int:
             "(default: current directory)"
         ),
     )
+    parser.add_argument(
+        "--claim-registry",
+        type=Path,
+        help=(
+            "claim registry Markdown "
+            f"(default: LEDGER_ROOT/{DEFAULT_CLAIM_REGISTRY})"
+        ),
+    )
     args = parser.parse_args()
 
     violations = find_violations(
@@ -544,6 +842,7 @@ def main() -> int:
         allowlist=args.allowlist,
         ledger=args.ledger,
         ledger_root=args.ledger_root,
+        claim_registry=args.claim_registry,
     )
     for violation in violations:
         print(violation)

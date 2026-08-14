@@ -62,3 +62,13 @@ experiment or submission phase.
 | M-02, ownership checker boundary incomplete | The checker rejects exact study identifiers, generic steering results, and unlisted or hash-mismatched evidence files. Its allowlist is bound to the contracted CSV result ledger. | Corrected; focused bypass tests pass |
 | M-03, Interp cohort and discovery stages incomplete | The preregistration now defines candidate-to-final cohort materialization, discovery materialization, exact stage locks, owners, parent-lock sets, and command inputs. | Contract corrected; implementation blocked |
 | N-01, status boards described a pre-commit state | The boards record commit `14baabb`, its HOLD decision, and the correction state. | Corrected |
+
+## Exact reviews of `0a9ace0`
+
+| Finding | Resolution | State |
+|---|---|---|
+| Statistical M1, ICB-03 length and composition controls undefined | ICB-03 now prespecifies length-only, composition-only, and composition-plus-length models under identical folds, organism weighting, and paired clustered uncertainty. Both composition-model grouping differences must pass. | Contract corrected; exact re-review pending |
+| Contract M-01, ledger rows lacked semantic validation | The ownership checker now binds the claim registry and validates exact claim membership, claim text, confirmed status, passing gate, accepted independent review, and paper-prohibited artifact paths. | Corrected; focused bypass tests pass |
+| Contract M-02, compiled PDF bypass | The checker extracts and scans root PDF text with `pdftotext`. Missing or failed extraction is a violation. | Corrected; focused bypass tests pass |
+| Contract M-03, Interp role read barriers incomplete | Discovery, cohort and matching, ablation, analysis, and paper ownership now require five distinct IDs. A verified paper handoff controls result-bundle access. | Contract corrected; owner assignment blocked |
+| Contract N-01, status boards behind commit state | Boards now record the `0a9ace0` HOLD reviews and this second correction state. | Corrected |

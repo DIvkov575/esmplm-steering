@@ -83,7 +83,8 @@ The following items must be part of the final preregistration lock:
 - the expected artifact list.
 
 The `ROLE_HANDOFF` lock key records the discovery, cohort and matching,
-ablation, and analysis owner identities and their disjoint write scopes.
+ablation, analysis, and Interp paper-owner identities and their disjoint write
+and read scopes. All five agent IDs must be distinct.
 After actual matching closes, `matching/handoff.json` records the accepted
 cohort, discovery, and matching stage hashes. The ablation command requires
 that separate handoff artifact.
@@ -743,6 +744,12 @@ and negative analyses remain in the ledger. Artifact-list cells follow
 to the output root and becomes immutable when the submission evidence
 allowlist records its SHA-256.
 
+After `verify` passes, the orchestrator and the named Interp paper owner write
+`handoff/paper_handoff.json`. It records all five distinct role IDs, the final
+lock, gate, result-ledger, verification, and result-bundle hashes, and the
+paper owner's acceptance. The paper owner receives no confirmation artifact
+before this handoff exists.
+
 ### 13.10 Required commands
 
 Run from the repository root in a clean worktree. These are target interfaces.
@@ -826,6 +833,13 @@ from the identifier in its input artifact.
   --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json" \
   --gate "plm_steering/interp4discovery_out/$EXPERIMENT_ID/gate/gate_decision.json" \
   --ledger "plm_steering/interp4discovery_out/$EXPERIMENT_ID/result_ledger.csv"
+
+.venv/bin/python -m plm_steering.interp4discovery accept-paper-handoff \
+  --lock "plm_steering/interp4discovery_out/$EXPERIMENT_ID/lock/preregistration_lock.json" \
+  --gate "plm_steering/interp4discovery_out/$EXPERIMENT_ID/gate/gate_decision.json" \
+  --ledger "plm_steering/interp4discovery_out/$EXPERIMENT_ID/result_ledger.csv" \
+  --verification "plm_steering/interp4discovery_out/$EXPERIMENT_ID/verification/verification.json" \
+  --paper-owner "$INTERP_PAPER_OWNER_ID"
 ```
 
 Every command rejects unknown arguments and existing output files. `verify`
@@ -839,8 +853,9 @@ Only that final lock authorizes `build-cohort` and `build-discovery`. Those
 two independent stages may run in either order. Both must close before
 `match`, followed by `accept-matching`, `ablate`, `analyze`, and `gate`.
 Independent review and result-ledger construction follow the gate, then
-`verify` closes the artifact set. No confirmation command can create an input
-required by the final lock.
+`verify` writes `verification/verification.json` and closes the artifact set.
+`accept-paper-handoff` then authorizes the paper owner's read access. No
+confirmation command can create an input required by the final lock.
 
 ## 14. Stopping rule
 
@@ -923,7 +938,7 @@ not another editable carrier status, records confirmation authorization.
 | `PERTURBATION_CALIBRATION` | Zero and mean magnitude thresholds and required calibration result | Frozen thresholds pass |
 | `METHOD_SENSITIVITY` | Positive-branch sign-reversal rule and any additional method threshold | Claim wording matches zero replacement |
 | `ARTIFACT_PATHS` | Exact repository-relative output root and every expected file | No wildcard, absolute, or escaping path |
-| `ROLE_HANDOFF` | Discovery owner, cohort and matching owner, ablation owner, analysis owner, and disjoint write scopes | Owners are assigned and prohibited role combinations are absent |
+| `ROLE_HANDOFF` | Discovery, cohort and matching, ablation, analysis, and Interp paper-owner IDs with disjoint read and write scopes | All five owners are assigned, IDs are pairwise distinct, and the paper owner is blocked before final handoff |
 
 Resolving every text marker is not enough. The experiment becomes frozen only
 when all 20 keys pass validation, the feasibility stage lock verifies, the

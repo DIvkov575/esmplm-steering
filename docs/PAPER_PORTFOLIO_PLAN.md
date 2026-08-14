@@ -869,9 +869,8 @@ The following role combinations are prohibited:
 - paper owner and final technical reviewer for the same paper;
 - either paper owner and cross-paper reviewer;
 - submission-package owner and final anonymity reviewer;
-- Interp discovery owner and Interp cohort and matching owner;
-- Interp discovery owner and Interp analysis owner;
-- Interp cohort and matching owner and Interp ablation owner.
+- any shared identity among the Interp discovery, cohort and matching,
+  ablation, analysis, and paper-owner roles.
 
 The Interp cohort and discovery stages are separately hashed before matching.
 Matching consumes both accepted locks. The matching stage and its three-lock
@@ -879,7 +878,9 @@ handoff are accepted before ablation begins. The discovery owner cannot read
 confirmation artifacts, and the matching owner cannot read ablation output.
 The ablation owner receives only the preregistration lock and accepted
 matching handoff and cannot edit either. Every later stage verifies its
-accepted parent-lock set.
+accepted parent-lock set. The five Interp roles use five distinct agent IDs.
+The paper owner receives no confirmation artifact until the final verification
+passes and the orchestrator writes the accepted paper handoff.
 
 The ICBINB and Interp paper owners work independently. They receive the shared
 method manifest, the claim registry, and only their own result bundle. They do
@@ -1021,17 +1022,20 @@ Run the ownership checks from the repository root:
   --paper icbinb-bio \
   --root docs/submissions/icbinb-bio \
   --ledger plm_steering/icbinb_audit_out/result_ledger.csv \
-  --ledger-root .
+  --ledger-root . \
+  --claim-registry docs/CLAIM_REGISTRY.md
 
 .venv/bin/python -m plm_steering.submission_ownership \
   --paper interp4discovery \
   --root docs/submissions/interp4discovery \
   --ledger "plm_steering/interp4discovery_out/$EXPERIMENT_ID/result_ledger.csv" \
-  --ledger-root .
+  --ledger-root . \
+  --claim-registry docs/CLAIM_REGISTRY.md
 ```
 
 For Interp4Discovery, `EXPERIMENT_ID` must equal the identifier in the final
-preregistration lock.
+preregistration lock. `pdftotext` must be installed because a missing or
+unreadable root PDF scan fails closed.
 
 ## 15. Current execution board
 
@@ -1044,10 +1048,10 @@ preregistration lock.
 | Portfolio plan | Approved for execution on 2026-08-13 |
 | Subagent review record | Complete in `docs/PAPER_PORTFOLIO_REVIEW.md` |
 | Official venue-policy record | Complete, with unresolved portal fields recorded |
-| Claim registry and shared ledger schemas | Correction candidate; exact-commit reviews pending |
-| ICBINB manifest | Earlier candidate passed statistical review; exact correction-commit review pending |
-| Interp preregistration | Cohort and discovery stage correction in progress; final lock remains unresolved |
-| Independent contract reviews | Exact review of `14baabb` held on 3 Major findings; corrected commit reviews pending |
+| Claim registry and shared ledger schemas | Second correction candidate; exact-commit re-reviews pending |
+| ICBINB manifest | ICB-03 control correction in progress; exact re-review pending |
+| Interp preregistration | Role-barrier correction in progress; final lock remains unresolved |
+| Independent contract reviews | Exact reviews of `0a9ace0` held on 4 total Major findings; second correction reviews pending |
 | Shared audit reanalysis | Not started |
 | Independent Interp experiment | Not started |
 | Manuscript restructuring | Blocked on locked result bundles |

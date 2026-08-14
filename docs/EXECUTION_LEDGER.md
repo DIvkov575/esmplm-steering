@@ -4,7 +4,7 @@ Ledger version: 0.1
 
 Updated: 2026-08-13
 
-Program state: CONTRACT CORRECTION IN PROGRESS
+Program state: SECOND CONTRACT CORRECTION IN PROGRESS
 
 ## Active scope
 
@@ -24,10 +24,10 @@ Program state: CONTRACT CORRECTION IN PROGRESS
 | Program orchestration and claim registry | Codex main session | `019ffc96-17fe-70b0-b7ed-c8d499598db5` | In progress | `docs/CLAIM_REGISTRY.md`, this ledger |
 | Official venue-policy verification | Turing | `019ffd1c-1ea6-7763-9237-cdb0b291111d` | Complete and accepted | `docs/VENUE_POLICY_2026.md` |
 | Artifact provenance inventory | Leibniz | `019ffd1c-24a4-7460-a6ff-47348bfd1dc6` | Complete and accepted | `docs/ARTIFACT_INVENTORY.md` |
-| ICBINB experiment manifest | Pauli | `019ffd1c-2bc4-7412-8740-2ad6648f8fb1` | Earlier candidate passed statistical review; exact correction-commit review pending | `docs/ICBINB_EXPERIMENT_MANIFEST.md` |
-| Interp preregistration | Ramanujan | `019ffd1c-33df-75c1-94d8-ef3244927a5b` | Cohort and discovery stage correction in progress; final lock remains blocked | `docs/INTERP4DISCOVERY_PREREGISTRATION.md` |
-| Statistical contract review | Hume | `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Earlier candidate accepted; exact correction-commit review pending | `docs/STATISTICAL_CONTRACT_ACCEPTANCE.md` |
-| Cross-document contract review | Maxwell | `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Exact review of `14baabb` held on 3 Major findings | `docs/CONTRACT_COMMIT_REVIEW.md` |
+| ICBINB experiment manifest | Pauli | `019ffd1c-2bc4-7412-8740-2ad6648f8fb1` | ICB-03 control correction in progress; exact re-review pending | `docs/ICBINB_EXPERIMENT_MANIFEST.md` |
+| Interp preregistration | Ramanujan | `019ffd1c-33df-75c1-94d8-ef3244927a5b` | Role-barrier correction in progress; final lock remains blocked | `docs/INTERP4DISCOVERY_PREREGISTRATION.md` |
+| Statistical contract review | Hume | `019ffd25-3a51-76a0-8fbe-f1fe825d4af7` | Exact review of `0a9ace0` held on 1 Major finding | `docs/STATISTICAL_CONTRACT_COMMIT_REVIEW.md` |
+| Cross-document contract review | Maxwell | `019ffd25-3fde-7bb2-9bd3-9e326bdd4131` | Exact review of `0a9ace0` held on 3 Major findings | `docs/CONTRACT_CORRECTION_REVIEW.md` |
 
 These agents are contract workers or independent reviewers. They are not final
 reviewers of their own outputs.
@@ -50,6 +50,10 @@ reviewers of their own outputs.
 | Exact baseline consistency review | `docs/CONTRACT_COMMIT_REVIEW.md` | Held with 0 Critical, 3 Major, and 1 Minor findings |
 | Ownership checker correction | Huygens, `019ffd75-3142-74c3-8b51-1391723775e6` | CSV-ledger binding and bypass tests integrated |
 | Correction candidate verification | Full suite, ownership bypass suite, static scans, package rejection, and legacy-runner guards | 152 full tests and 34 ownership tests passed; operational checks passed |
+| First correction commit | `0a9ace04d7e718723aa3fb69aba6320b02eb2f55` | Committed and pushed; exact reviews held on four Major findings |
+| Exact first-correction statistical review | `docs/STATISTICAL_CONTRACT_COMMIT_REVIEW.md` | Held with 0 Critical, 1 Major, and 0 Minor findings |
+| Exact first-correction consistency review | `docs/CONTRACT_CORRECTION_REVIEW.md` | Held with 0 Critical, 3 Major, and 1 Minor findings |
+| Second correction candidate verification | Full suite, semantic ownership bypasses, extracted-PDF scans, static scans, and legacy-runner guards | 165 full tests and 47 ownership tests passed; operational checks passed |
 
 ## Environment baseline
 
@@ -60,7 +64,7 @@ reviewers of their own outputs.
 | Dependency source | `requirements.txt`; exact tested versions in `requirements-lock.txt` |
 | Installation command | `uv pip install --python .venv/bin/python -r requirements.txt` |
 | Test command | `.venv/bin/python -m pytest -p no:cacheprovider -q` |
-| Test result | 152 passed in 5.03 seconds |
+| Test result | 165 passed in 5.38 seconds |
 
 The default Homebrew Python 3.14 environment cannot collect the suite because
 it lacks `torch` and `scikit-learn`. Use the Python 3.11 environment for

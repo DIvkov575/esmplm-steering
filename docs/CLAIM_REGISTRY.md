@@ -81,12 +81,12 @@ Claim:
 | Empirical evidence | `plm_steering/data_cache/immunogenicity/l56_proxy_validation_summary.json` |
 | Narrative context | `docs/L56_IMMUNOGENICITY_KILLED.md` |
 | Statistical unit | Sequence |
-| Control | Group-aware evaluation and explicit checks for species, length, and composition |
-| Required analysis | Reproduce random-fold and organism-grouped predictions with cohort identifiers, organism-level weighting, and clustered uncertainty for their difference |
+| Control | Identical random and organism-grouped folds for prespecified length-only, composition-only, and composition-plus-length models |
+| Required analysis | Reproduce the historical estimate, then fit all three fixed models with organism-level weighting and paired organism-clustered uncertainty for each grouping difference |
 | Main limitation | A performance drop under grouped validation is consistent with confounding but does not identify it as the sole cause |
 | Provenance | Post-hoc grouping sensitivity analysis |
 | Status | Conditional |
-| Gate to confirm | A locked audit bundle identifies which estimate changes under each confound control |
+| Gate to confirm | The composition-only and composition-plus-length grouping differences are positive with 95 percent intervals above zero, and the bundle reports the length-only diagnostic |
 
 ### ICB-04
 
