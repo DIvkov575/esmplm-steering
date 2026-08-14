@@ -1,7 +1,7 @@
 """L54: extend the L42 activation-steering harness to a NEW target property --
 enzyme catalytic activity (turnover number, kcat) -- with the scoring proxy
 validated against real experimental labels BEFORE the steering run, per
-docs/L50_CAPABILITY_GAIN_PROTOCOL.md criterion 4.
+studies/L50_CAPABILITY_GAIN_PROTOCOL.md criterion 4.
 
 Dataset: DLKcat (plm_steering/data_cache/catalytic/dlkcat_wt_mut.json), 17,010
 enzyme/substrate/kcat records from BRENDA+SABIO-RK. Filtered to sequences
@@ -74,7 +74,7 @@ def catalytic_activity_proxy(sequence: str) -> float:
     "higher score = better" convention (L42's ivywrel_fraction, L51's
     aggregation_resistance_proxy). gly_minus_arg already correlates POSITIVELY
     with real log10(kcat) (r=+0.220 full / +0.212 held-out test; see module
-    docstring and docs/L54_CATALYTIC_STEERING.md), so no sign flip is needed.
+    docstring and studies/L54_CATALYTIC_STEERING.md), so no sign flip is needed.
     """
     return gly_minus_arg(sequence)
 

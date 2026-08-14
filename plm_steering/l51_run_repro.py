@@ -4,7 +4,7 @@ bootstrap significance test. Only the target dataset (cmartell/50C_Aggregation,
 cleaned) and scoring proxy (net-charge-based, plm_steering/l51_aggregation_steering.py)
 are new.
 
-Judged against docs/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
+Judged against studies/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
 beats baseline+random control with a real CI; dose-response across >=3
 alphas; survives residue-exclusion; proxy pre-validated against real labels
 (done above, r=-0.20/-0.21 on train/test); n>=150 eval sequences; and (since

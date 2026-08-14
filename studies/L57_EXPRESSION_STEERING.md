@@ -1,6 +1,6 @@
 # L57 — Expression Yield Steering: AMBIGUOUS, explained as a geometric echo of L55's disorder direction
 
-**Pre-registered against `docs/L50_CAPABILITY_GAIN_PROTOCOL.md`'s 6
+**Pre-registered against `studies/L50_CAPABILITY_GAIN_PROTOCOL.md`'s 6
 criteria.** One of 5 parallel new-target attempts. The naive real-vs-random
 result looks like a clean PASS through criteria 1-2, but fails
 residue-exclusion (criterion 3) — and a follow-up vector-geometry check
@@ -71,7 +71,7 @@ label and DisProt's intrinsic-disorder fraction are independently known to
 be related in the literature (disordered regions commonly reduce
 solubility/expression), so a shared component of direction is not a
 coincidence. L55's disorder effect is directionally robust across 3 seeds
-(`docs/L55_DISORDER_STEERING.md`) even though its own residue-exclusion
+(`studies/L55_DISORDER_STEERING.md`) even though its own residue-exclusion
 check is seed-sensitive (2 of 3 seeds pass); L57's result is best read as a
 partial, noisier echo of that same real direction, filtered through a
 proxy (charge-based) that happens to composition-collapse more easily than

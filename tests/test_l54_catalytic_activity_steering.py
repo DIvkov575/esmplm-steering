@@ -37,7 +37,7 @@ def test_catalytic_activity_proxy_higher_for_glycine_rich_sequence():
 
 def test_catalytic_activity_proxy_excluding_removes_specified_residues():
     # excluding one of the proxy's own two terms is the strictest form of
-    # this check -- see docs/L54_CATALYTIC_STEERING.md's robustness section.
+    # this check -- see studies/L54_CATALYTIC_STEERING.md's robustness section.
     assert catalytic_activity_proxy_excluding("GGGRRR", frozenset("R")) == pytest.approx(
         catalytic_activity_proxy("GGG")
     )

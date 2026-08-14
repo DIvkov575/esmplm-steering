@@ -1,4 +1,4 @@
-"""L52: Phase 1 of docs/L50_CAPABILITY_GAIN_PROTOCOL.md -- does restricting
+"""L52: Phase 1 of studies/L50_CAPABILITY_GAIN_PROTOCOL.md -- does restricting
 activation steering to ONLY the 5 layers L45's leave-one-out sweep found
 causally necessary for thermostability (18, 23, 25, 30, 31, out of all 33)
 preserve the steering effect, instead of needing all 33 layers touched
@@ -57,12 +57,11 @@ SEED = 0
 N_BOOT = 10000
 MIN_NONDEGENERATE_PAIRS = 30
 
-# L45's leave-one-out causal-necessity sweep top-5 layers for thermostability
-# (docs/L45_LAYER_SWEEP.md / l45_necessity_sweep_thermostability_out.json),
+# L45's leave-one-out causal-necessity sweep top-5 layers for thermostability,
 # ranked by drop_from_full when excluded: 31, 30, 25, 18, 23.
 NECESSARY_LAYERS = frozenset({18, 23, 25, 30, 31})
 
-# L42's own established constraint (docs/L42_STEERING_REPRO.md, "Honest
+# L42's own established constraint (studies/L42_STEERING_REPRO.md, "Honest
 # verdict" section): alpha >= 1.0 degenerates this eval methodology
 # (single-shot argmax mask-fill) into poly-leucine collapse independent of
 # whether the steering vector/technique is doing anything real, so any

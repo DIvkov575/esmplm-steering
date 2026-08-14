@@ -3,7 +3,7 @@
 scratch, using each target's exact SEED=0 vector-building split and group
 logic, and compute pairwise cosine similarity between them.
 
-Backs the specific numeric claim in docs/L57_EXPRESSION_STEERING.md and the
+Backs the specific numeric claim in studies/L57_EXPRESSION_STEERING.md and the
 paper drafts ("+0.30 overall, rising to +0.40-0.50 at deep layers" between
 L57 and L55's vectors) with a runnable, committed script -- that claim
 previously had no computing code anywhere in this repo's history.
@@ -42,7 +42,7 @@ import pandas as pd
 MODEL_NAME = "facebook/esm2_t33_650M_UR50D"
 OUT_DIR = Path(__file__).resolve().parent / "l58_vector_geometry_out"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
-DEEP_LAYERS = (30, 31, 32)  # matches the "deepest layers" claim in docs/L57_EXPRESSION_STEERING.md
+DEEP_LAYERS = (30, 31, 32)  # matches the "deepest layers" claim in studies/L57_EXPRESSION_STEERING.md
 
 
 @torch.no_grad()

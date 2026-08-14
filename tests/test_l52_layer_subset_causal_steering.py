@@ -10,7 +10,7 @@ from plm_steering.l52_layer_subset_causal_steering import (
 
 def test_necessary_layers_matches_l45s_convergent_5():
     # layers 18, 23, 25, 30, 31 -- L45's sufficiency AND necessity sweeps
-    # both independently converged on this set (docs/L45_LAYER_SWEEP.md).
+    # both independently converged on this set.
     assert NECESSARY_LAYERS == frozenset({18, 23, 25, 30, 31})
 
 
@@ -18,7 +18,7 @@ def test_safe_alphas_excludes_the_known_unsafe_regime():
     # alpha >= 1.0 is where this harness's single-shot argmax mask-fill
     # degenerates independent of any real steering effect (the exact
     # regime whose misuse produced L52's own caught spurious-PASS bug --
-    # see docs/L52_LAYER_SUBSET_STEERING.md's "Critical correction").
+    # see studies/L52_LAYER_SUBSET_STEERING.md's "Critical correction").
     assert 1.0 not in SAFE_ALPHAS
     assert 2.0 not in SAFE_ALPHAS
     assert max(SAFE_ALPHAS) < 1.0

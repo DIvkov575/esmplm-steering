@@ -1,6 +1,6 @@
 # L52 — Phase 1: Does the Causally-Necessary 5-Layer Subset Preserve L42's Steering Effect?
 
-**Pre-registered against `docs/L50_CAPABILITY_GAIN_PROTOCOL.md`'s 6 criteria**,
+**Pre-registered against `studies/L50_CAPABILITY_GAIN_PROTOCOL.md`'s 6 criteria**,
 locked before this run. This is Phase 1 from that protocol: the first
 capability-oriented (not purely diagnostic) experiment in the L41-L52 arc.
 
@@ -13,7 +13,7 @@ That's a mechanistic finding. The capability question it enables: if you
 only ever intervene on those 5 layers (leaving the other 28 completely
 untouched), do you keep the steering effect L42 established, or was the
 "necessity" signal a same-magnitude-either-way artifact of how the sign
-test was scored? Phase 0 (`docs/L50_CAPABILITY_GAIN_PROTOCOL.md`) verified
+test was scored? Phase 0 (`studies/L50_CAPABILITY_GAIN_PROTOCOL.md`) verified
 the layer-subset hook itself is mechanically correct (real modification,
 exact no-op at alpha=0, genuinely different output from the all-33 case)
 before this run tests whether it's *usefully* correct.
@@ -49,7 +49,7 @@ comparison) from *any* alpha with a significant subset5-vs-random effect,
 including alpha=1.0/2.0. That produced a spurious `"PASS"`: at alpha=2.0,
 `all33` has **fully collapsed** into degenerate poly-leucine output
 (0/60 non-degenerate pairs — the exact failure mode L42's own doc already
-documents and explicitly quarantines, `docs/L42_STEERING_REPRO.md`'s
+documents and explicitly quarantines, `studies/L42_STEERING_REPRO.md`'s
 "Honest verdict" section restricting trustworthy comparisons to alpha in
 [0.1, 0.5]), while `subset5` hadn't collapsed yet at that alpha. subset5
 "won" the head-to-head at alpha=2.0 only because it breaks down later than

@@ -1,5 +1,5 @@
 """L53: extend the L42 activation-steering harness (validated on
-thermostability, docs/L42_STEERING_REPRO.md) to a NEW target property --
+thermostability, studies/L42_STEERING_REPRO.md) to a NEW target property --
 binding affinity -- using a proxy validated against real experimental labels
 BEFORE the run, per L50 criterion 4 (the L43 GRAVY lesson: r=-0.03 discovered
 only after that whole run had been wasted).

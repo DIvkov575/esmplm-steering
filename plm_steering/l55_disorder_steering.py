@@ -1,5 +1,5 @@
 """L55: extend the L42 activation-steering harness (validated on
-thermostability, docs/L42_STEERING_REPRO.md) to a NEW target property --
+thermostability, studies/L42_STEERING_REPRO.md) to a NEW target property --
 intrinsic disorder (IDR) content -- using a proxy validated against real
 per-residue disorder annotations BEFORE the run, per L50 criterion 4.
 

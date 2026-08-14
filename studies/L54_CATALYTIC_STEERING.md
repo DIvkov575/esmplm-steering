@@ -5,7 +5,7 @@ capability gain in the whole L41-L57 arc, and the only target of the 5
 tried in this batch (L53 binding, L54 catalytic, L55 disorder, L56
 immunogenicity, L57 expression yield) to clear the full protocol on every
 one of 3 independent seeds. Proxy validated against real labels first, per
-`docs/L50_CAPABILITY_GAIN_PROTOCOL.md` criterion 4.
+`studies/L50_CAPABILITY_GAIN_PROTOCOL.md` criterion 4.
 
 ## Dataset choice: DLKcat, not the single-backbone DMS assays
 
@@ -157,7 +157,7 @@ lucky split:
 Same monotonic shape, same order of magnitude, all 3 seeds independently
 clear every criterion. **This is the one target in the 5-target batch with
 fully unanimous seed-robustness** (contrast with L55's disorder result,
-2 of 3 seeds — see `docs/L55_DISORDER_STEERING.md`). But the *magnitude*
+2 of 3 seeds — see `studies/L55_DISORDER_STEERING.md`). But the *magnitude*
 retained after residue-exclusion is itself seed-sensitive in the opposite
 direction of what SEED=0 alone would suggest: seed 0's dominant substituted
 residues (A, G) shrink the effect to 34%, while seeds 1 and 2's (A, L)
@@ -192,7 +192,7 @@ biophysical property (enzyme turnover) never directly trained for.
 
 **Notable alongside L53 (binding affinity, same batch):** L53's proxy is
 far more strongly validated (r=0.80 vs. this target's r=0.22) yet steers
-nothing (flat null at every alpha, see `docs/L53_BINDING_STEERING.md`).
+nothing (flat null at every alpha, see `studies/L53_BINDING_STEERING.md`).
 Proxy-validation strength and steerability are not the same thing — the
 same "correlational strength doesn't predict causal effect" lesson from
 L48/L49's head-ablation work, recurring one level up: at the level of

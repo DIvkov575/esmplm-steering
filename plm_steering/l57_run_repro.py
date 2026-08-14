@@ -4,7 +4,7 @@ filter, and paired-bootstrap significance test. Only the target dataset
 (eSol, plm_steering/data_cache/expression/esol_clean.csv) and the scoring proxy
 (absolute charge average, plm_steering/l57_expression_yield_steering.py) are new.
 
-Judged against docs/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
+Judged against studies/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
   1 -- real direction beats a matched-norm random direction, direct paired
        bootstrap, plus an unsteered baseline arm for reference.
   2 -- dose-response across SAFE_ALPHAS only (see SAFE_ALPHAS below).
@@ -58,8 +58,8 @@ SEED = 0
 N_BOOT = 10000
 MIN_NONDEGENERATE_PAIRS = 30
 
-# L42's established constraint (docs/L42_STEERING_REPRO.md "Honest verdict";
-# re-affirmed in docs/L52_LAYER_SUBSET_STEERING.md's "Critical correction"):
+# L42's established constraint (studies/L42_STEERING_REPRO.md "Honest verdict";
+# re-affirmed in studies/L52_LAYER_SUBSET_STEERING.md's "Critical correction"):
 # alpha >= 1.0 collapses this eval methodology (single-shot argmax mask-fill)
 # into degenerate output regardless of whether the steering vector is doing
 # anything real, so alpha >= 1.0 is excluded from best_alpha selection and

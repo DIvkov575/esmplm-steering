@@ -4,9 +4,9 @@
 
 ## Why this exists
 
-L41 (docs/L41_PROTOCOL.md, docs/L41_PAPER_ANALYSIS.md) tried activation
-steering on ESM-C-300M toward a discrete function (kinase activity) using a
-raw SAE decoder direction, and got a weak/null result. A dedicated
+L41 tried activation steering on ESM-C-300M toward a discrete function
+(kinase activity) using a raw SAE decoder direction, and got a weak/null
+result. A dedicated
 literature check afterward found this was the *expected* outcome, not an
 anomaly: every published steering success targets a **continuous**
 biophysical property (not a discrete function class) using a

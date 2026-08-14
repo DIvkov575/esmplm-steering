@@ -1,6 +1,6 @@
 # L53 — Binding Affinity Steering: KILL, despite the best-validated proxy in the project
 
-**Pre-registered against `docs/L50_CAPABILITY_GAIN_PROTOCOL.md`'s 6 criteria.**
+**Pre-registered against `studies/L50_CAPABILITY_GAIN_PROTOCOL.md`'s 6 criteria.**
 One of 5 parallel new-target attempts (L53 binding, L54 catalytic, L55
 disorder, L56 immunogenicity, L57 expression yield). This is the sharpest
 single data point in the whole project for "proxy validity does not predict
@@ -99,7 +99,7 @@ setup*.
 This is the single sharpest data point for "proxy validity does not
 predict causal steerability": r=0.80 (best in the project) -> null, versus
 L54's r=0.22 (weakest of the four runnable targets) -> a real, 3-seed-
-replicated PASS (`docs/L54_CATALYTIC_STEERING.md`). Proxy-validation
+replicated PASS (`studies/L54_CATALYTIC_STEERING.md`). Proxy-validation
 strength and steering effect size are not even weakly monotonically
 related in this data.
 

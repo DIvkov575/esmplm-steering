@@ -111,7 +111,7 @@ def renormalize_to_original_norm(perturbed: np.ndarray, original_norm: np.ndarra
 # Used here as a scoring proxy that is NOT derived from anything observed in
 # this project's own generated sequences -- unlike instability_index, which
 # was found to be gameable by this exact steering vector's dominant failure
-# mode (poly-leucine collapse, see docs/L42_STEERING_REPRO.md).
+# mode (poly-leucine collapse, see studies/L42_STEERING_REPRO.md).
 IVYWREL_RESIDUES = frozenset("IVYWREL")
 
 
@@ -129,7 +129,7 @@ def ivywrel_fraction(sequence: str, residues: frozenset = IVYWREL_RESIDUES) -> f
 
 def is_degenerate_sequence(sequence: str, max_single_aa_fraction: float = 0.25) -> bool:
     """Flags homopolymer-collapse artifacts (e.g. poly-leucine) BEFORE any
-    stability scoring -- confirmed via manual inspection (docs/L42_STEERING_REPRO.md)
+    stability scoring -- confirmed via manual inspection (studies/L42_STEERING_REPRO.md)
     that the instability-index proxy is gameable by exactly this artifact
     (leucine-heavy sequences score as artificially "stable"). Filtering
     degenerate sequences out first, rather than trying to build a score

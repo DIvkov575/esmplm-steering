@@ -4,7 +4,7 @@ bootstrap significance test. Only the target dataset (ProteinGym
 RASK_HUMAN_Weng_2022_binding-DARPin_K55) and the scoring proxy
 (plm_steering/l53_binding_affinity_steering.py) are new.
 
-Judged against docs/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
+Judged against studies/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
   1 -- real direction vs matched-norm random direction, direct paired bootstrap.
   2 -- dose-response across ALPHAS, checked only over SAFE_ALPHAS (see below).
   3 -- residue-exclusion robustness at best_alpha.
@@ -71,8 +71,8 @@ SEED = 0
 N_BOOT = 10000
 MIN_NONDEGENERATE_PAIRS = 30
 
-# L42's established constraint (docs/L42_STEERING_REPRO.md "Honest verdict",
-# restated in docs/L52_LAYER_SUBSET_STEERING.md's "Critical correction"):
+# L42's established constraint (studies/L42_STEERING_REPRO.md "Honest verdict",
+# restated in studies/L52_LAYER_SUBSET_STEERING.md's "Critical correction"):
 # alpha >= 1.0 degenerates this eval methodology (single-shot argmax mask-fill)
 # into homopolymer collapse regardless of whether the steering vector is doing
 # anything real, so any alpha >= 1.0 comparison is untrustworthy no matter what

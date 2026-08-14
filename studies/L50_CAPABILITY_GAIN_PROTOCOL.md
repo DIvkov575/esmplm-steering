@@ -118,7 +118,7 @@ the hook itself). Phase 1 (layer-targeted steering at layers
 cleared to run against this protocol.
 
 **Phase 1 complete — AMBIGUOUS, not PASS.** See
-`docs/L52_LAYER_SUBSET_STEERING.md`: the 5-layer subset genuinely steers
+`studies/L52_LAYER_SUBSET_STEERING.md`: the 5-layer subset genuinely steers
 thermostability (passes criteria 1-4, 6) but retains only ~43-59% of
 all33's effect size at every alpha where both are trustworthy — a real,
 significant, non-artifactual shortfall on criterion 5, not a wash. One

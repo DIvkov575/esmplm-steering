@@ -4,7 +4,7 @@
 `"decision": "PASS"` field is misleading — it only checks "did any alpha
 clear a significant real-vs-random CI," the same shallow rule that produced
 L42 v1's false PASS and L43's original false significance before those were
-caught by additional checks. Applying the actual `docs/L50_CAPABILITY_GAIN_PROTOCOL.md`
+caught by additional checks. Applying the actual `studies/L50_CAPABILITY_GAIN_PROTOCOL.md`
 criteria by hand overturns it.
 
 ## Data and proxy
@@ -28,10 +28,10 @@ in the proxy was found and fixed before this run.
 (baseline mean -0.0284, n=150, 8/150 degenerate)
 
 **Only alpha=1.0 is significant, and it is not a safe alpha.** Per the
-lesson later formalized in `docs/L52_LAYER_SUBSET_STEERING.md`'s "Critical
+lesson later formalized in `studies/L52_LAYER_SUBSET_STEERING.md`'s "Critical
 correction" (alpha>=1.0 is exactly the regime where this harness's
 single-shot argmax mask-fill degenerates independent of any real steering
-effect — see `docs/L42_STEERING_REPRO.md`'s established safe range,
+effect — see `studies/L42_STEERING_REPRO.md`'s established safe range,
 alpha in [0.1, 0.5]): at alpha=1.0, **50 of 150 real-direction sequences are
 already degenerate** (1/3 of the eval set), and the CI is computed only
 over the 91 surviving pairs. There is no dose-response across the safe
@@ -60,7 +60,7 @@ metric) and L43 (alpha=2.0 false significance) — a proxy that validates
 against real labels does not protect against a steering harness picking up
 a decoding-degeneracy artifact at high alpha. This is also the direct
 precedent for the alpha-selection bug caught and fixed in
-`docs/L52_LAYER_SUBSET_STEERING.md`: that fix (`SAFE_ALPHAS = (0.1, 0.25, 0.5)`,
+`studies/L52_LAYER_SUBSET_STEERING.md`: that fix (`SAFE_ALPHAS = (0.1, 0.25, 0.5)`,
 restricting `best_alpha` selection) is exactly the guard that would have
 caught this result automatically had it existed when L51 ran. Every
 L53-L57 target script applies that fix from the start.

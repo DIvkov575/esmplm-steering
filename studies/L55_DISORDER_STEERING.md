@@ -1,6 +1,6 @@
 # L55 — Intrinsic Disorder Steering: real, directionally robust effect; residue-robustness is seed-sensitive (2 of 3)
 
-**Pre-registered against `docs/L50_CAPABILITY_GAIN_PROTOCOL.md`'s 6
+**Pre-registered against `studies/L50_CAPABILITY_GAIN_PROTOCOL.md`'s 6
 criteria.** One of 5 parallel new-target attempts (L53 binding, L54
 catalytic, L55 disorder, L56 immunogenicity, L57 expression yield).
 **Do not report this as a clean unanimous PASS** — the effect direction
@@ -103,7 +103,7 @@ Cosine similarity between this target's steering vector and L57's
 (expression-yield) steering vector, computed layer-by-layer and on the
 full 33-layer concatenation: **+0.30 overall, rising to +0.40-0.50 at
 layers 30-32.** Not independent directions — L57's AMBIGUOUS result
-(`docs/L57_EXPRESSION_STEERING.md`) is partially explained as a geometric
+(`studies/L57_EXPRESSION_STEERING.md`) is partially explained as a geometric
 echo of this target's real effect, seen through a noisier, more
 composition-collapse-prone proxy, rather than as independent new evidence
 of a 6th steerable property. See that doc for the full analysis.

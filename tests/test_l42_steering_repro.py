@@ -112,7 +112,7 @@ def test_dose_response_rejects_non_monotonic_dip_even_if_last_beats_first():
 
 
 def test_is_degenerate_sequence_flags_poly_leucine_collapse():
-    # Real observed collapse artifact from the L42 run (docs/L42_STEERING_REPRO.md):
+    # Real observed collapse artifact from the L42 run (studies/L42_STEERING_REPRO.md):
     # sustained runs of a single residue well past what real proteins show.
     poly_leucine = "MAQTLPIAEQMALLNNSLDTLFAADLSLRLLNATCPARLQNSVDQRKILRSFLDLLLSL"
     assert is_degenerate_sequence(poly_leucine) is True

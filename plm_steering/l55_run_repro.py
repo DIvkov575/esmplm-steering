@@ -4,7 +4,7 @@ paired-bootstrap significance test. Only the target dataset (DisProt current
 release, cleaned) and scoring proxy (TOP-IDP based,
 plm_steering/l55_disorder_steering.py) are new.
 
-Judged against docs/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
+Judged against studies/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
   1 -- real direction beats matched-norm random control head-to-head, paired
        bootstrap, per alpha.
   2 -- dose-response across SAFE_ALPHAS (see below), not one lucky alpha.
@@ -70,8 +70,8 @@ MIN_NONDEGENERATE_PAIRS = 30
 # (308) comfortably covers N_EVAL_SEQS=150.
 VECTOR_POOL_SIZE = 1000
 
-# L42's own established constraint (docs/L42_STEERING_REPRO.md "Honest
-# verdict"; docs/L52_LAYER_SUBSET_STEERING.md "Critical correction"):
+# L42's own established constraint (studies/L42_STEERING_REPRO.md "Honest
+# verdict"; studies/L52_LAYER_SUBSET_STEERING.md "Critical correction"):
 # alpha >= 1.0 degenerates this single-shot argmax mask-fill eval into
 # compositional collapse regardless of whether the steering vector is doing
 # anything real, so any alpha >= 1.0 result is untrustworthy no matter what

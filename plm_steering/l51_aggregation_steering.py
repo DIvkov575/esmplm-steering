@@ -1,5 +1,5 @@
 """L51: extend the L42 activation-steering harness (validated on
-thermostability, docs/L42_STEERING_REPRO.md) to a NEW target property --
+thermostability, studies/L42_STEERING_REPRO.md) to a NEW target property --
 aggregation propensity -- using a proxy that was checked against real
 experimental labels BEFORE this run, unlike L43's GRAVY (which was found,
 after the fact, to correlate only r=-0.03 with real solubility labels).
@@ -42,7 +42,7 @@ def aggregation_resistance_proxy(sequence: str) -> float:
     dataset's log2 soluble-fraction convention): net_charge AS DEFINED ABOVE
     (neg - pos) already correlates POSITIVELY with real resistance
     (r=+0.20 on the full set, r=+0.21 on the held-out test split alone --
-    see docs/L51_AGGREGATION_STEERING.md) -- i.e. more D/E-rich (more
+    see studies/L51_AGGREGATION_STEERING.md) -- i.e. more D/E-rich (more
     negatively charged) sequences are more resistant, matching Lawrence et
     al. 2007's supercharging result. No sign flip needed; net_charge IS the
     resistance proxy.

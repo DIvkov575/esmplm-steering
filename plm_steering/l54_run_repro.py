@@ -3,7 +3,7 @@ L42's exact difference-of-means construction, steering hook, degeneracy
 filter, and paired-bootstrap test. Only the target dataset (DLKcat) and the
 scoring proxy (plm_steering/l54_catalytic_activity_steering.py) are new.
 
-Judged against docs/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
+Judged against studies/L50_CAPABILITY_GAIN_PROTOCOL.md's 6 criteria:
   1 real direction beats matched-norm random control head-to-head with a
     paired-bootstrap CI (not two separate vs.-baseline tests);
   2 dose-response coherent across >=3 alphas, checked only inside the safe
@@ -54,7 +54,7 @@ TRAIN_FRACTION = 0.7
 CANONICAL_RESIDUES = frozenset("ACDEFGHIKLMNPQRSTVWY")
 
 # L42's established constraint, restated as L52's "Critical correction"
-# (docs/L52_LAYER_SUBSET_STEERING.md): at alpha >= 1.0 this eval methodology
+# (studies/L52_LAYER_SUBSET_STEERING.md): at alpha >= 1.0 this eval methodology
 # (single-shot argmax mask-fill) collapses into degenerate low-complexity
 # output regardless of whether the steering direction means anything, so no
 # alpha >= 1.0 comparison is trustworthy no matter what its bootstrap CI
