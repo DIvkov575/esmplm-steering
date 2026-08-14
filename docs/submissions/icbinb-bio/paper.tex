@@ -18,7 +18,7 @@
 \usepackage{graphicx}
 
 \title{When Protein Language Model Steering Appears to Work: \\
-Retrospective Checks Across Four Case Studies}
+Three Steering Studies and One Endpoint Analysis}
 
 \author{Anonymous Authors}
 
@@ -29,23 +29,22 @@ Retrospective Checks Across Four Case Studies}
 \begin{abstract}
 Activation steering can change a protein language model's output without
 retraining the model, but a higher sequence score does not by itself establish
-control of a biological property. We retrospectively examine four completed
-ESM2-650M case studies using checks for endpoint validity, output
-low-complexity and denominator adequacy, composition sensitivity, and
-whole-run consistency. First, a composition score correlated with peptide
-MHC-II binding ($r=0.427$) but weakly with measured T-cell response
-($r=0.100$). Its full-length correlation changed from $0.379$ under random
-folds to $-0.323$ under organism-grouped folds. Second, an all-layer
-thermostability intervention retained 57 to 58 evaluable pairs in a shared
-low-strength range, but only 5 and 0 pairs at two higher strengths. The
-five-layer intervention appeared favorable where the all-layer comparison was
-no longer estimable. Third, an eSol soluble-fraction score contrast changed
-from $0.0125$ to $0.00035$ after dominant residues were excluded, and the
-resulting interval included zero. Fourth, a disorder-score contrast was
-positive in three stored configurations, but a residue-exclusion interval
-excluded zero in only two. These cases motivate a staged reporting sequence.
-They do not validate a general audit or establish improved biological
-properties.
+control of a biological property. We retrospectively examine three completed
+ESM2-650M steering studies and one pre-steering endpoint analysis. In the
+endpoint analysis, a peptide-only composition score had held-out correlation
+$r=0.427$ with a per-peptide label defined as the maximum normalized IC50
+score observed across its assayed HLA-II alleles, but only $r=0.100$ with
+measured T-cell response. Its full-length correlation changed from $0.379$
+under random folds to $-0.323$ under organism-grouped folds. No generation was
+run for this target. In the steering studies, an all-layer thermostability
+intervention retained 57 to 58 evaluable pairs in a shared low-strength range,
+but only 5 and 0 pairs at two higher strengths. An eSol soluble-fraction score
+contrast changed from $0.0125$ to $0.00035$ after dominant residues were
+excluded, and the resulting interval included zero. A disorder-score contrast
+was positive in three stored configurations, but a residue-exclusion interval
+excluded zero in only two. These cases motivate this reporting order, but they
+do not show that it generalizes beyond the four analyses or that steering
+improved any biological property.
 \end{abstract}
 
 \section{Problem}
@@ -69,9 +68,10 @@ comparison. Even before steering, a sequence score may perform well on one
 endpoint but poorly on the endpoint named in the claim. These problems concern
 the interpretation of the evidence, not only the strength of the intervention.
 
-This paper asks which checks changed the conclusions of completed ESM2-650M
-studies. We synthesize the evidence as four retrospective case studies rather
-than a catalog of attempted protein properties. The contribution is a proposed
+This paper asks which checks changed the conclusions of three completed
+ESM2-650M steering studies and one pre-steering endpoint analysis. We
+synthesize the evidence as four retrospective case studies rather than a
+catalog of attempted protein properties. The contribution is a proposed
 reporting sequence that separates four questions:
 
 \begin{enumerate}
@@ -86,13 +86,14 @@ configurations?
 
 \subsection{Evidence scope}
 
-The synthesis uses four completed studies. L52 compares a five-layer
-thermostability intervention with an all-layer intervention. L56 evaluates
-sequence-composition scores against several immune endpoints. L55 tests
-intrinsic-disorder steering across three stored whole-run configurations.
-L57 tests an eSol soluble-fraction score before and after excluding dominant
-residues. All steering studies use ESM2-650M, matched-norm random directions,
-and single-shot masked filling.
+The synthesis uses three completed steering studies and one completed
+pre-steering endpoint analysis. L52 compares a five-layer thermostability
+intervention with an all-layer intervention. L56 evaluates
+sequence-composition scores against several immune endpoints and stops before
+generation. L55 tests intrinsic-disorder steering across three stored
+whole-run configurations. L57 tests an eSol soluble-fraction score before and
+after excluding dominant residues. The three steering studies use ESM2-650M,
+matched-norm random directions, and single-shot masked filling.
 
 The analyses are retrospective. Some checks were added after the original
 result had been inspected. We therefore use the studies to show how a check
@@ -132,7 +133,7 @@ A favorable downstream score does not override a failure at an earlier stage.}
 \label{fig:audit}
 \end{figure}
 
-The endpoint check compares the scoring surrogate with the endpoint named in
+The endpoint check compares the sequence score with the endpoint named in
 the claim. The output check records low-complexity output counts and the number
 of source proteins that remain jointly evaluable in every compared arm. The
 composition check removes the dominant substituted residues from the score and
@@ -149,11 +150,16 @@ resamples. We inspect the jointly evaluable denominator before interpreting a
 conditional score.
 
 L56 used records from the Immune Epitope Database
-\citep{vita2019iedb}. It compared fixed motif scores and a fitted
-composition score with peptide MHC-II binding, peptide presentation, measured
-T-cell response, and a full-length antigen label. For the full-length cohort,
-it also compared random-fold cross-validation with organism-grouped folds.
-No steering intervention was run because the endpoint check failed.
+\citep{vita2019iedb}. Its source table contained 125,985 peptide--allele
+binding measurements, covering 15,362 unique peptides and 72 HLA-II alleles.
+The analysis grouped the measurements by peptide and used the maximum score
+observed across each peptide's assayed alleles. The normalized score was
+$1-\log(\mathrm{IC}_{50})/\log(50{,}000)$, so larger values corresponded to
+lower IC50 values. The fitted composition score used peptide sequence but not
+allele identity. Separate cohorts measured peptide presentation, T-cell
+response, and a full-length antigen label. For the full-length cohort, L56
+also compared random-fold cross-validation with organism-grouped folds. No
+steering intervention was run because the endpoint check failed.
 
 L55 used DisProt annotations \citep{quaglia2022disprot} and the published
 TOP-IDP amino-acid scale \citep{campen2008topidp}. L57 used eSol
@@ -195,9 +201,9 @@ differ because each check addresses a different inference.}
 \toprule
 Case & Apparent result & Failed or unstable check & Corrected interpretation \\
 \midrule
-L56 & A composition score predicted a convenient immune surrogate &
-Held-out $r$ fell from 0.427 for binding to 0.100 for T-cell response;
-organism-grouped $r=-0.323$ &
+L56 & A peptide-only score predicted an allele-aggregated assay label &
+Held-out $r$ was 0.427 for each peptide's maximum normalized IC50 score and
+0.100 for T-cell response; organism-grouped $r=-0.323$ &
 Validate the endpoint named in the claim and group by source organism \\
 \addlinespace
 L52 & Five-layer steering appeared favorable at high strength &
@@ -214,11 +220,17 @@ Report composition and whole-run sensitivity with the main score \\
 
 \subsection{Endpoint choice changed the L56 conclusion}
 
-The fitted composition score had held-out correlation $r=0.427$ for peptide
-MHC-II binding. Its held-out correlation was $r=0.100$ for measured T-cell
-response. Fixed motif scores showed the same broad loss of performance as the
-endpoint moved from binding toward response. A score that was useful for
-binding therefore did not justify a claim about immunogenicity.
+The fitted peptide-composition score had held-out correlation $r=0.427$ with
+a per-peptide label formed by taking the maximum normalized IC50 score across
+the alleles assayed for that peptide. The source table spanned 72 HLA-II
+alleles, but allele identity was not an input. The result therefore says that
+peptide composition was associated with this allele-aggregated dataset label.
+It does not estimate affinity for a named HLA-II allele or for a specified
+peptide--allele pair. The score's held-out correlation was $r=0.100$ for
+measured T-cell response. Fixed motif scores showed the same broad loss of
+performance between the binding-assay and T-cell-response cohorts. Performance
+on the allele-aggregated assay label therefore did not justify a claim about
+immunogenicity.
 
 The full-length cohort exposed a second problem. The composition model had
 $r=0.379$ under random five-fold validation. When proteins from the same
@@ -291,11 +303,15 @@ report should place output counts, the evaluable denominator, and the
 conditional score beside each other, then limit method comparisons to a shared
 range.
 
-\subsection{The convenient endpoint was not the claimed endpoint}
+\subsection{The assay label did not match the claimed endpoint}
 
-The L56 target claim concerned measured T-cell response, but the composition
-score performed better on the separate MHC-II binding endpoint. Performance on
-one endpoint did not validate the other. Random folds also allowed
+The L56 target claim concerned measured T-cell response. The peptide-only
+composition score performed better against a per-peptide label defined as the
+maximum normalized IC50 score across the alleles assayed for that peptide.
+Because the score did not model allele identity, its performance describes an
+association with that allele-aggregated label. It is not generic binding
+affinity and does not estimate affinity for a specified peptide--allele pair.
+It also did not validate T-cell response. Random folds allowed
 organism-associated sequence composition to appear in both training and test
 sets. The resulting correlation may partly reflect source identity rather than
 the target endpoint. Endpoint definitions and grouping rules must therefore be
@@ -358,11 +374,12 @@ immunogenicity, or another biological property.
 The completed case studies motivate evaluating protein language model
 steering as a sequence of validity checks rather than by one favorable score.
 A method comparison can become unavailable when one arm loses most evaluable
-outputs. A scoring surrogate may perform differently on the claimed endpoint
-or reflect source identity. A positive score can also depend on the residues
-that define the score and on the full run configuration. These retrospective
-cases do not show that the sequence is a validated audit. They show that
-reporting the checks together produces a narrower and better-supported claim.
+outputs. A sequence score may perform differently on the claimed endpoint or
+reflect source identity. A positive score can also depend on the residues that
+define the score and on the full run configuration. Across these four cases,
+reporting the checks together produced a narrower claim that matched the saved
+evidence. Whether the same order improves evaluations of other models or
+properties remains untested.
 
 \section*{LLM usage disclosure}
 OpenAI Codex assisted with manuscript restructuring, prose editing, and source

@@ -53,19 +53,19 @@ Claim:
 
 Claim:
 
-> In the saved L56 cohorts, sequence-composition scores that were associated
-> with peptide MHC-II binding had weaker validation performance for observed
-> T-cell response.
+> In the saved L56 cohorts, a peptide-only composition score associated with
+> each peptide's maximum normalized IC50 score across its assayed HLA-II
+> alleles had weaker validation performance for observed T-cell response.
 
 | Field | Contract |
 |---|---|
 | Owner | ICBINB-BIO |
-| Empirical evidence | `plm_steering/data_cache/immunogenicity/l56_proxy_validation_summary.json` |
+| Empirical evidence | `plm_steering/l56_immunogenicity_proxy_validation.py`; `plm_steering/data_cache/immunogenicity/l56_proxy_validation_summary.json` |
 | Narrative context | `docs/L56_IMMUNOGENICITY_KILLED.md` |
-| Statistical unit | Peptide or labeled sequence, according to the source cohort |
-| Control | Evaluation against the biological endpoint rather than only the binding surrogate |
+| Statistical unit | Peptide after taking the maximum normalized IC50 score across its assayed alleles, or labeled sequence according to the source cohort |
+| Control | Evaluation against measured T-cell response rather than only the allele-aggregated binding-assay label |
 | Manuscript check | Report only endpoint comparisons present in the saved summary and disclose the missing row-level predictions, fold assignments, source versions, and input hashes |
-| Main limitation | The available work evaluates the listed scores in fixed cohorts. It does not prove that sequence cannot predict T-cell response, and it does not run a steering intervention. |
+| Main limitation | The composition score does not use allele identity, and the label takes the maximum score over each peptide's assayed alleles. Its Tier 1 result is therefore an association with an allele-aggregated dataset label rather than affinity for a specified peptide-allele pair. The fixed cohorts also do not prove that sequence cannot predict T-cell response, and no steering intervention was run. |
 | Provenance | Retrospective endpoint audit |
 | Status | Bounded |
 | Permitted use | Endpoint-selection case before steering, not a failed steering intervention |
