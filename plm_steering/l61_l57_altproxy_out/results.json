@@ -1,0 +1,92 @@
+{
+  "alpha": "0.5",
+  "n_kept": 138,
+  "proxies": {
+    "gravy_hydropathy": {
+      "esol_validation": {
+        "r": -0.29191654545295553,
+        "p": 7.408011948677347e-06,
+        "n": 228
+      },
+      "validated_as_proxy": true,
+      "orientation_toward_soluble": -1.0,
+      "real_vs_random_diff": {
+        "point_estimate": 0.049666938382747945,
+        "ci_lower": 0.034381373663294634,
+        "ci_upper": 0.06550309372023042,
+        "significant_at_95pct": true,
+        "n": 138,
+        "real_mean": 0.10426966788609092,
+        "random_mean": 0.05460272950334296
+      },
+      "steers_toward_soluble": true
+    },
+    "turn_forming_NGPS_frac": {
+      "esol_validation": {
+        "r": -0.05160316773203636,
+        "p": 0.4380886538253161,
+        "n": 228
+      },
+      "validated_as_proxy": false,
+      "orientation_toward_soluble": -1.0,
+      "real_vs_random_diff": {
+        "point_estimate": 0.00761957283831306,
+        "ci_lower": 0.0051079858710405615,
+        "ci_upper": 0.010152392123379848,
+        "significant_at_95pct": true,
+        "n": 138,
+        "real_mean": -0.20148102999227266,
+        "random_mean": -0.20910060283058574
+      },
+      "steers_toward_soluble": true
+    },
+    "aromatic_FWY_frac": {
+      "esol_validation": {
+        "r": -0.30110409756647377,
+        "p": 3.6659986679624065e-06,
+        "n": 228
+      },
+      "validated_as_proxy": true,
+      "orientation_toward_soluble": -1.0,
+      "real_vs_random_diff": {
+        "point_estimate": 0.007990135817369124,
+        "ci_lower": 0.006502297905800128,
+        "ci_upper": 0.009548715431406297,
+        "significant_at_95pct": true,
+        "n": 138,
+        "real_mean": -0.07064484402130985,
+        "random_mean": -0.07863497983867897
+      },
+      "steers_toward_soluble": true
+    },
+    "aliphatic_AVLIM_frac": {
+      "esol_validation": {
+        "r": -0.14445276356538447,
+        "p": 0.029209294391780632,
+        "n": 228
+      },
+      "validated_as_proxy": false,
+      "orientation_toward_soluble": -1.0,
+      "real_vs_random_diff": {
+        "point_estimate": -0.0003384142461063952,
+        "ci_lower": -0.003186820995457717,
+        "ci_upper": 0.002487339573674815,
+        "significant_at_95pct": false,
+        "n": 138,
+        "real_mean": -0.3696450281073162,
+        "random_mean": -0.3693066138612098
+      },
+      "steers_toward_soluble": false
+    }
+  },
+  "sanity_original_charge_proxy": {
+    "point_estimate": 0.012516997924281837,
+    "ci_lower": 0.00856514484475696,
+    "ci_upper": 0.01661256688477948,
+    "significant_at_95pct": true,
+    "n": 138,
+    "real_mean": 0.04093115020201717,
+    "random_mean": 0.02841415227773533
+  },
+  "conclusion": "INDEPENDENT solubility gain: at least one E-free eSol-validated proxy is steered toward more soluble -- effect is not merely the charge/E artifact"
+}

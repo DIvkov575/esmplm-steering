@@ -143,3 +143,34 @@ clock for the full run (embedding + all 20 generation arms + bootstrap).
 Raw per-arm scores and generated sequences saved to
 `plm_steering/l52_repro_out/results.json` alongside the verdict, so the head-to-
 head or robustness numbers can be recomputed without rerunning the model.
+
+## Validation follow-up (2026-08-17): 3-seed robustness — AMBIGUOUS replicates
+
+The original verdict rested on a single SEED=0 run. To check whether "real
+but ~half the size of all33" is a one-seed accident, the IDENTICAL experiment
+was rerun across seeds 0, 1, 2 (`plm_steering/l59_l52_multiseed_validation.py`,
+which reuses L52's exact compute primitives; seed 0 reproduces
+`l52_repro_out/results.json` to the digit, confirming the harness is
+deterministic and the runner is faithful). Results
+(`plm_steering/l52_multiseed_out/summary.json`):
+
+| seed | subset5 eff @0.5 (sig) | all33 eff @0.5 (sig) | subset5/all33 ratio (α=0.1/0.25/0.5) | crit 5 | decision |
+|---|---|---|---|---|---|
+| 0 | +0.0236 (yes) | +0.0498 (yes) | 0.585 / 0.428 / 0.473 | FAIL | AMBIGUOUS |
+| 1 | +0.0115 (yes) | +0.0318 (yes) | 0.515 / 0.379 / 0.362 | FAIL | AMBIGUOUS |
+| 2 | (sig) | (sig) | 0.326 / 0.243 / 0.303 | FAIL | AMBIGUOUS |
+
+**Conclusion: the AMBIGUOUS verdict is robust, not a seed artifact.** In all
+three seeds subset5's real effect beats its matched-norm random control
+(criteria 1-3 hold) yet is significantly *smaller* than all33 (criterion 5
+fails). The subset5/all33 ratio ranges 0.24-0.59 across seeds and safe alphas
+(mean 0.40). This is exactly the outcome more testing *should* produce here:
+if subset5 is genuinely a smaller effect than all33, extra seeds re-measure
+that gap, they cannot close it into a PASS. "5 necessary layers carry a real
+but ~40% share of the full-33-layer thermostability effect" is now a
+confident, replicated statement.
+
+Runnable check: `python3 -m plm_steering.l59_l52_multiseed_validation --meltome
+<path-to>/data_cache/meltome/mixed_split.csv` (meltome data is 16MB and
+gitignored). Per-seed verdicts + `summary.json` land in
+`plm_steering/l52_multiseed_out/`.

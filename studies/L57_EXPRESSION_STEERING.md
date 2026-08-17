@@ -96,6 +96,12 @@ is: **this result is not independent evidence for expression yield as a
 already-established effect leaking through a related, weaker, more
 collapse-prone proxy.
 
+> **SUPERSEDED (2026-08-17):** the "largely explained by disorder" claim in
+> this paragraph was tested causally and REFUTED — see "Validation follow-up"
+> at the end of this file. The effect is disorder-independent (99% survives
+> projecting L55 out); it remains AMBIGUOUS only because it still fails
+> residue-exclusion on the charge proxy.
+
 ## Methodological takeaway
 
 Before writing off (or accepting) an AMBIGUOUS steering result as pure
@@ -115,3 +121,47 @@ cost one additional ~2-minute embedding pass, not a full steering sweep.
 Raw scores/sequences saved to `plm_steering/l57_repro_out/results.json`;
 the rebuilt vectors and cosine-similarity table saved to
 `plm_steering/l58_vector_geometry_out/`.
+
+## Validation follow-up (2026-08-17): the "echo of disorder" reading is REFUTED; verdict stays AMBIGUOUS for a different reason
+
+The cosine-only argument above ("largely explained by disorder's effect
+leaking through") was tested causally and does not hold. Two experiments:
+
+**1. Orthogonalize disorder out and re-steer**
+(`plm_steering/l60_l57_orthogonalized_validation.py`,
+`l60_l57_ortho_out/results.json`). L57's per-layer steering vector was
+Gram-Schmidt-orthogonalized against L55's disorder vector, renormalized to
+L57's original per-layer norm, and rerun through L57's exact eval.
+  - The L55-parallel component is only **8.9% of L57's norm** on average
+    (≤25% even in the deep layers 30-32, where the +0.67 cosine lives — norm
+    fraction removed is `1-√(1-cos²)`, small for moderate cosine, so a high
+    cosine is NOT high shared magnitude).
+  - Removing it retains **99% of the steering effect** (+0.0124 vs. +0.0125 at
+    α=0.5, still significant and dose-responsive). Arm A (unmodified) reproduces
+    the committed AMBIGUOUS/crit3-fail verdict as a built-in correctness check.
+  - **Therefore the effect is NOT carried by disorder overlap.** Calling L57 "a
+    partial echo of L55" overstated a directional correlation as a causal
+    dependence. The effect is disorder-INDEPENDENT.
+
+**2. Re-score on independent, E-free, eSol-validated proxies**
+(`plm_steering/l61_l57_altproxy_validation.py`, `l61_l57_altproxy_out/`; CPU
+re-scoring of the already-saved generations, so it reproduces the +0.0125
+charge-proxy effect exactly as a sanity check). The residue-exclusion collapse
+is partly circular (E is one of the charge proxy's four terms). On proxies
+that contain no charge term and independently validate against eSol labels,
+steering still moves generations toward *more soluble* composition:
+  - GRAVY hydropathy (eSol r=-0.29): real-vs-random +0.0497, significant.
+  - Aromatic F/W/Y fraction (eSol r=-0.30): +0.0080, significant.
+  So the effect is **broader than E-insertion** — a genuine compositional shift
+  toward solubility-associated composition, not only the proxy's own residue.
+
+**Corrected verdict.** L57 is a REAL, disorder-independent steering effect that
+shifts multiple solubility-associated composition measures — more than the
+original "echo of disorder / charge-composition artifact" framing allowed. It
+nonetheless **remains AMBIGUOUS**: the headline charge-proxy effect still fails
+residue-exclusion (collapses when E and L are excluded, with OR without disorder
+removed — `l60` arm B), so it does not clear the L50 artifact gate. The honest
+characterization is now "a real but composition-entangled expression effect,
+independent of disorder, that fails strict residue-exclusion on its charge
+proxy," NOT "a noisier echo of disorder." The paper drafts' "geometric echo of
+L55" language should be softened accordingly.

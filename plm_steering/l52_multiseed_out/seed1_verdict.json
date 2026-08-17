@@ -1,0 +1,151 @@
+{
+  "seed": 1,
+  "criteria": {
+    "1_beats_controls": true,
+    "2_dose_response": true,
+    "3_residue_robust": true,
+    "4_proxy_pre_validated": true,
+    "5_non_inferior_to_all33": false,
+    "6_adequately_powered": true
+  },
+  "decision": "AMBIGUOUS",
+  "best_alpha": 0.5,
+  "subset5_vs_random_by_alpha": {
+    "0.1": {
+      "point_estimate": 0.002405382637090778,
+      "ci_lower": 0.0014090693470254045,
+      "ci_upper": 0.003414663888309024,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.5
+    },
+    "0.25": {
+      "point_estimate": 0.005123783516282979,
+      "ci_lower": 0.0030849474583093373,
+      "ci_upper": 0.007267745853391872,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.6206896551724138
+    },
+    "0.5": {
+      "point_estimate": 0.011501763155524957,
+      "ci_lower": 0.008279548452148237,
+      "ci_upper": 0.01477209135654483,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.8275862068965517
+    },
+    "1.0": {
+      "point_estimate": 0.025395301177168508,
+      "ci_lower": 0.021521080195932754,
+      "ci_upper": 0.02934779753814196,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.9482758620689655
+    },
+    "2.0": {
+      "point_estimate": 0.04431259961942934,
+      "ci_lower": 0.036395049367822875,
+      "ci_upper": 0.05236450947712573,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.9482758620689655
+    }
+  },
+  "all33_vs_random_by_alpha": {
+    "0.1": {
+      "point_estimate": 0.0046755466016075,
+      "ci_lower": 0.0024034756829861706,
+      "ci_upper": 0.006859902087988923,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.6724137931034483
+    },
+    "0.25": {
+      "point_estimate": 0.013529066589518747,
+      "ci_lower": 0.009512664354928051,
+      "ci_upper": 0.01778778286271607,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.7241379310344828
+    },
+    "0.5": {
+      "point_estimate": 0.031778331882904916,
+      "ci_lower": 0.02570686609304045,
+      "ci_upper": 0.03800502448228738,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.896551724137931
+    },
+    "1.0": {
+      "point_estimate": 0.06704321945411838,
+      "ci_lower": 0.046191736214031255,
+      "ci_upper": 0.08879272713186137,
+      "significant_at_95pct": true,
+      "n": 35,
+      "pct_b_beats_a": 0.8285714285714286
+    },
+    "2.0": {
+      "point_estimate": null,
+      "ci_lower": null,
+      "ci_upper": null,
+      "significant_at_95pct": false,
+      "n": 0
+    }
+  },
+  "subset5_vs_all33_by_alpha": {
+    "0.1": {
+      "point_estimate": -0.002529906612613048,
+      "ci_lower": -0.004616183328973503,
+      "ci_upper": -0.00044575930120529557,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.22413793103448276
+    },
+    "0.25": {
+      "point_estimate": -0.009139614142759918,
+      "ci_lower": -0.01349544468246514,
+      "ci_upper": -0.005000986446050006,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.25862068965517243
+    },
+    "0.5": {
+      "point_estimate": -0.022355017651291574,
+      "ci_lower": -0.02786878313687479,
+      "ci_upper": -0.016898360103888153,
+      "significant_at_95pct": true,
+      "n": 58,
+      "pct_b_beats_a": 0.13793103448275862
+    },
+    "1.0": {
+      "point_estimate": -0.04502334379725593,
+      "ci_lower": -0.0654264726945379,
+      "ci_upper": -0.024867269613664363,
+      "significant_at_95pct": true,
+      "n": 35,
+      "pct_b_beats_a": 0.2857142857142857
+    },
+    "2.0": {
+      "point_estimate": null,
+      "ci_lower": null,
+      "ci_upper": null,
+      "significant_at_95pct": false,
+      "n": 0
+    }
+  },
+  "robustness_check": {
+    "alpha": 0.5,
+    "excluded_residues": [
+      "A",
+      "E"
+    ],
+    "diff_with_exclusion": {
+      "point_estimate": 0.011999892086678806,
+      "ci_lower": 0.008982737276592751,
+      "ci_upper": 0.015137209563023385,
+      "significant_at_95pct": true,
+      "n": 58
+    }
+  }
+}
