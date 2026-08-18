@@ -17,6 +17,7 @@ plm_steering/data_cache/*
 # regeneratable training data -- keep them committed.
 !plm_steering/data_cache/aggregation/
 !plm_steering/data_cache/binding/
+!plm_steering/data_cache/transmembrane/
 !plm_steering/data_cache/catalytic/
 !plm_steering/data_cache/disorder/
 !plm_steering/data_cache/expression/
