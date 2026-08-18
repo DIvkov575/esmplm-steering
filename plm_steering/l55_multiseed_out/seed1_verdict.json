@@ -1,0 +1,49 @@
+{
+  "seed": 1,
+  "best_alpha": 0.5,
+  "crit1_beats_control": true,
+  "crit2_dose_response": true,
+  "crit3_residue_robust": false,
+  "decision": "AMBIGUOUS",
+  "effect_at_best": 0.03731304492877876,
+  "residue_exclusion_diff": 0.0038518501328237546,
+  "excluded_residues": [
+    "E",
+    "S"
+  ],
+  "real_vs_random_by_alpha": {
+    "0.1": {
+      "point_estimate": 0.003687433419627148,
+      "ci_lower": 0.002160891376610395,
+      "ci_upper": 0.005245671960385814,
+      "significant_at_95pct": true,
+      "n": 139
+    },
+    "0.25": {
+      "point_estimate": 0.015195595124180604,
+      "ci_lower": 0.012223727454443365,
+      "ci_upper": 0.01810257087579637,
+      "significant_at_95pct": true,
+      "n": 133
+    },
+    "0.5": {
+      "point_estimate": 0.03731304492877876,
+      "ci_lower": 0.02977868197666869,
+      "ci_upper": 0.04483169250371035,
+      "significant_at_95pct": true,
+      "n": 102
+    },
+    "1.0": {
+      "point_estimate": 0.11527796446026983,
+      "ci_lower": 0.1067281759772226,
+      "ci_upper": 0.12378512538894357,
+      "significant_at_95pct": true,
+      "n": 84
+    },
+    "2.0": {
+      "point_estimate": null,
+      "significant_at_95pct": false,
+      "n": 5
+    }
+  }
+}

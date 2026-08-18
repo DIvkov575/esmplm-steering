@@ -218,3 +218,28 @@ python3 -m plm_steering.l54_run_repro     # writes plm_steering/l54_repro_out/re
 ```
 
 11 arms x 150 sequences on a shared MPS GPU, ~5 minutes wall clock.
+
+## Validation follow-up (2026-08-18): causally confirmed by a 2nd intervention (activation patching)
+
+All of L54's evidence came from ONE intervention type — ADD alpha*(high-low
+difference-of-means) to the residual stream and beat a matched-norm random
+control. To rule out that this is an artifact of additive perturbation rather
+than a real causal handle on catalytic-activity information, L54 was re-tested
+with the DISTINCT intervention L47 used to validate L42's thermostability
+steering: activation PATCHING — per layer, SUBSTITUTE the mean high-kcat
+activation (vs. the mean low-kcat activation, as control) into the masked
+positions of low-kcat eval enzymes, then score the mask-fill output with L54's
+catalytic proxy (`plm_steering/l65_l54_causal_patching_validation.py`,
+`l65_l54_patching_out/results.json`; L47's patch harness ported verbatim,
+N_EVAL=60 per L47 precedent).
+
+Result: **high-kcat patching beats low-kcat patching at 25 of 31 valid layers
+(sign-test p=0.00088), significant at 12 layers.** A substitution intervention
+converges with L54's addition intervention on the same direction — the same
+pattern of cross-intervention agreement L47 found for L42 (27/31 layers,
+p=3e-5). **L54's catalytic steering is therefore causally triangulated, not an
+additive-hook idiosyncrasy** — the project's strongest single result, now
+backed by two independent causal handles.
+
+Runnable check: `python3 -m plm_steering.l65_l54_causal_patching_validation`
+(DLKcat data ships in-tree; ~15-20 min).

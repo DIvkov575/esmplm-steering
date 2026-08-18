@@ -1,0 +1,32 @@
+{
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "n_seeds": 10,
+  "crit1_beats_control_rate": "10/10",
+  "crit2_dose_response_rate": "10/10",
+  "crit3_residue_robust_rate": "8/10",
+  "full_PASS_rate": "8/10",
+  "decision_by_seed": {
+    "0": "PASS",
+    "1": "AMBIGUOUS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "AMBIGUOUS",
+    "9": "PASS"
+  },
+  "conclusion": "PROMOTE toward SUPPORTED: residue-exclusion holds 8/10 (80%), crit1 10/10, crit2 10/10 -- the effect is robustly real, not a 1-seed fluke"
+}

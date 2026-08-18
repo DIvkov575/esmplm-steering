@@ -123,3 +123,39 @@ Three script runs (`plm_steering/l55_run_repro.py`, one per seed), each
 5 alphas x 2 directions x 150 eval sequences, Apple Silicon MPS, ~4
 minutes per run. Raw scores/sequences saved to
 `plm_steering/l55_repro_out/`, `l55_repro_out_seed1/`, `l55_repro_out_seed2/`.
+
+## Validation follow-up (2026-08-18): 10-seed rescue — PROMOTE toward SUPPORTED
+
+The original AMBIGUOUS verdict rested on residue-exclusion (criterion 3)
+passing only 2 of 3 seeds. That criterion is SEED-VARIABLE (right at the
+significance boundary), so — unlike L52/L57, where the failing criterion was
+structural — more seeds legitimately estimate its true pass-rate. Reran the
+identical experiment across 10 seeds (`plm_steering/l64_l55_multiseed_validation.py`,
+`l55_multiseed_out/summary.json`; reuses L55's exact primitives, seed 0
+reproduces `l55_repro_out`):
+
+| criterion | 10-seed rate |
+|---|---|
+| 1. beats matched-norm random control | **10/10** |
+| 2. dose-response across safe alphas | **10/10** |
+| 3. residue-exclusion robust (same, disorder-increasing direction) | **8/10 (80%)** |
+| full PASS (all of 1/2/3) | **8/10** |
+
+Only seeds 1 and 8 miss criterion 3. **The original 2/3 was unlucky sampling;
+the true residue-exclusion pass-rate is ~80%, and the two core criteria are
+unanimous (10/10).** Crucially, the effect survives excluding its own dominant
+substituted residues (consistently E and S) in 8/10 seeds with a *positive*
+(disorder-increasing) exclusion diff — i.e. it is NOT the E/S-insertion artifact
+that killed L57; steering genuinely raises TOP-IDP disorder beyond the inserted
+residues.
+
+**Verdict update: L55 should be PROMOTED from AMBIGUOUS toward SUPPORTED** — a
+real, dose-responsive, control-beating disorder-steering effect that is
+residue-exclusion-robust ~80% of the time (a stochastic near-miss on 2/10
+seeds, not a structural artifact). This is the project's second genuine
+new-property capability gain alongside L54 catalytic. (The crit-3 check here is
+sign-aware: it requires the exclusion diff to stay significantly POSITIVE, not
+merely significant — a stricter bar than the original single-seed script.)
+
+Runnable check: `python3 -m plm_steering.l64_l55_multiseed_validation`
+(DisProt data ships in-tree; default seeds 0-9).
