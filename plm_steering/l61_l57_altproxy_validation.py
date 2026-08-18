@@ -131,16 +131,25 @@ def main():
         print(f"    real-vs-random (oriented + = more soluble) = {d['point_estimate']:+.4f} "
               f"[{d['ci_lower']:+.4f},{d['ci_upper']:+.4f}] sig={d['significant_at_95pct']}", flush=True)
 
-    any_indep = any(
+    any_moves = any(
         p["validated_as_proxy"] and p["steers_toward_soluble"]
         for p in results["proxies"].values()
     )
+    # IMPORTANT: moving an E-free-FORMULA proxy at a fixed alpha does NOT establish
+    # independence from the E/L insertion -- GRAVY/aromatic fraction are themselves
+    # functions of E content (E is hydrophilic; inserting it lowers GRAVY). The
+    # decisive test is residue-exclusion on the independent proxy, done in
+    # l63_l57_gravy_endtoend_validation.py, which shows the GRAVY effect REVERSES
+    # sign when E/L are excluded -- i.e. it is the SAME composition artifact, not
+    # independent evidence. This script only measures the raw shift; see L63 for
+    # the verdict.
     results["conclusion"] = (
-        "INDEPENDENT solubility gain: at least one E-free eSol-validated proxy is steered "
-        "toward more soluble -- effect is not merely the charge/E artifact"
-        if any_indep else
-        "CHARGE/E-SPECIFIC: no E-free eSol-validated proxy is steered toward more soluble; "
-        "the L57 effect is specific to its own charge proxy (artifact reading holds)"
+        ("Steering moves E-free-FORMULA eSol-validated proxies (GRAVY, aromatic frac) toward "
+         "soluble at alpha=0.5. BUT this is NOT independent evidence: those proxies are "
+         "E-content-driven, and L63's residue-exclusion shows the GRAVY effect reverses when "
+         "E/L are removed -- the SAME composition artifact as the charge proxy. See L63."
+         if any_moves else
+         "No E-free eSol-validated proxy is even nominally steered toward soluble.")
     )
     with open(OUT_DIR / "results.json", "w") as f:
         json.dump(results, f, indent=2, default=str)

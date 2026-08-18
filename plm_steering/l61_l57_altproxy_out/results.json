@@ -88,5 +88,5 @@
     "real_mean": 0.04093115020201717,
     "random_mean": 0.02841415227773533
   },
-  "conclusion": "INDEPENDENT solubility gain: at least one E-free eSol-validated proxy is steered toward more soluble -- effect is not merely the charge/E artifact"
+  "conclusion": "Steering moves E-free-FORMULA eSol-validated proxies (GRAVY, aromatic frac) toward soluble at alpha=0.5. BUT this is NOT independent evidence: those proxies are E-content-driven, and L63's residue-exclusion shows the GRAVY effect reverses when E/L are removed -- the SAME composition artifact as the charge proxy. See L63."
 }

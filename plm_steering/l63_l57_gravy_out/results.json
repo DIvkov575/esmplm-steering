@@ -1,0 +1,90 @@
+{
+  "proxy": "GRAVY hydropathy (soluble-oriented = -mean KD), E-free FORMULA (but E-content-driven)",
+  "esol_validation": {
+    "r": 0.29191654545295553,
+    "p": 7.408011948677347e-06,
+    "n": 228
+  },
+  "criteria": {
+    "1_beats_random": true,
+    "2_dose_response": true,
+    "3_residue_robust_same_direction": false
+  },
+  "residue_exclusion_reversed_sign": true,
+  "decision": "AMBIGUOUS",
+  "best_alpha": 0.5,
+  "real_vs_random_by_alpha": {
+    "0.1": {
+      "point_estimate": 0.005277518563145806,
+      "ci_lower": -0.0007085493188694312,
+      "ci_upper": 0.011337408626309326,
+      "significant_at_95pct": false,
+      "n": 141
+    },
+    "0.25": {
+      "point_estimate": 0.012410011247186624,
+      "ci_lower": 0.0020239045158985166,
+      "ci_upper": 0.0232491825696404,
+      "significant_at_95pct": true,
+      "n": 140
+    },
+    "0.5": {
+      "point_estimate": 0.049666938382747945,
+      "ci_lower": 0.034381373663294634,
+      "ci_upper": 0.06550309372023042,
+      "significant_at_95pct": true,
+      "n": 138
+    },
+    "1.0": {
+      "point_estimate": 0.47020664669503526,
+      "ci_lower": 0.39409222170703573,
+      "ci_upper": 0.5447521331640112,
+      "significant_at_95pct": true,
+      "n": 108
+    },
+    "2.0": {
+      "point_estimate": 1.1801071318640926,
+      "ci_lower": 1.1404989565237236,
+      "ci_upper": 1.2190462064832184,
+      "significant_at_95pct": true,
+      "n": 78
+    }
+  },
+  "robustness_check": {
+    "alpha": 0.5,
+    "excluded_residues": [
+      "E",
+      "L"
+    ],
+    "substitution_counts_top5": [
+      [
+        "E",
+        825
+      ],
+      [
+        "L",
+        608
+      ],
+      [
+        "A",
+        587
+      ],
+      [
+        "K",
+        461
+      ],
+      [
+        "V",
+        403
+      ]
+    ],
+    "diff_with_exclusion": {
+      "point_estimate": -0.039132632622020574,
+      "ci_lower": -0.05764045642463116,
+      "ci_upper": -0.020158306378281362,
+      "significant_at_95pct": true,
+      "n": 138
+    }
+  },
+  "conclusion": "ARTIFACT CONFIRMED on an independent proxy: the GRAVY soluble-direction effect (+0.0497 @alpha=0.5) REVERSES to -0.0391 once its inserted residues ['E', 'L'] are excluded -- the whole soluble-direction shift was carried by those residues (E is hydrophilic, so inserting it lowers GRAVY). GRAVY being an E-free FORMULA does not make the effect E-independent. Same collapse as the charge proxy -> the L57 effect is a composition artifact, not a broad solubility gain. Trends toward KILL."
+}

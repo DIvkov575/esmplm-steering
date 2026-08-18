@@ -99,8 +99,10 @@ collapse-prone proxy.
 > **SUPERSEDED (2026-08-17):** the "largely explained by disorder" claim in
 > this paragraph was tested causally and REFUTED — see "Validation follow-up"
 > at the end of this file. The effect is disorder-independent (99% survives
-> projecting L55 out); it remains AMBIGUOUS only because it still fails
-> residue-exclusion on the charge proxy.
+> projecting L55 out). It is instead an **E/L composition artifact**, now
+> confirmed non-circularly on an independent hydropathy proxy (L63: the GRAVY
+> soluble-direction effect reverses under E/L exclusion), so the verdict is
+> AMBIGUOUS **trending KILL**, not an echo of disorder.
 
 ## Methodological takeaway
 
@@ -143,25 +145,39 @@ L57's original per-layer norm, and rerun through L57's exact eval.
     partial echo of L55" overstated a directional correlation as a causal
     dependence. The effect is disorder-INDEPENDENT.
 
-**2. Re-score on independent, E-free, eSol-validated proxies**
-(`plm_steering/l61_l57_altproxy_validation.py`, `l61_l57_altproxy_out/`; CPU
-re-scoring of the already-saved generations, so it reproduces the +0.0125
-charge-proxy effect exactly as a sanity check). The residue-exclusion collapse
-is partly circular (E is one of the charge proxy's four terms). On proxies
-that contain no charge term and independently validate against eSol labels,
-steering still moves generations toward *more soluble* composition:
-  - GRAVY hydropathy (eSol r=-0.29): real-vs-random +0.0497, significant.
-  - Aromatic F/W/Y fraction (eSol r=-0.30): +0.0080, significant.
-  So the effect is **broader than E-insertion** — a genuine compositional shift
-  toward solubility-associated composition, not only the proxy's own residue.
+**2. Test the artifact non-circularly on an independent, E-free proxy**
+The residue-exclusion collapse on the charge proxy is partly circular (E is one
+of its four terms `|(K+R)-(D+E)|`). So the effect was re-scored end-to-end with
+GRAVY hydropathy — an E-free FORMULA that independently validates against eSol
+labels (r=-0.29) — through the full L50 pipeline
+(`plm_steering/l63_l57_gravy_endtoend_validation.py`, `l63_l57_gravy_out/`; CPU
+re-analysis of the saved generations, which are proxy-independent because the
+steering vector is built on real labels).
+  - At fixed alpha the effect shows up on E-free-formula proxies too
+    (`l61_l57_altproxy_validation.py`: GRAVY +0.0497, aromatic +0.0080, both
+    significant at α=0.5) — which at first looks like "broader than E-insertion."
+  - **But under residue-exclusion it does NOT survive — it REVERSES.** Excluding
+    the inserted residues E and L, the GRAVY soluble-direction effect flips from
+    **+0.0497 to −0.0391** (significant, opposite sign). GRAVY being an E-free
+    formula does not make the effect E-independent: GRAVY is a function of E
+    content (E is hydrophilic, so inserting it lowers GRAVY), so the whole
+    soluble-direction shift was carried by the E/L insertion, exactly like the
+    charge proxy. Once E/L are removed the rest of the composition moves the
+    *wrong* way.
+  - **This confirms the residue-exclusion failure is real, not a circularity
+    of the charge proxy.** (Correcting an earlier draft of this section: the
+    "broader than E-insertion / genuine compositional shift" reading was wrong —
+    it came from the fixed-alpha L61 numbers before the L63 residue-exclusion.)
 
-**Corrected verdict.** L57 is a REAL, disorder-independent steering effect that
-shifts multiple solubility-associated composition measures — more than the
-original "echo of disorder / charge-composition artifact" framing allowed. It
-nonetheless **remains AMBIGUOUS**: the headline charge-proxy effect still fails
-residue-exclusion (collapses when E and L are excluded, with OR without disorder
-removed — `l60` arm B), so it does not clear the L50 artifact gate. The honest
-characterization is now "a real but composition-entangled expression effect,
-independent of disorder, that fails strict residue-exclusion on its charge
-proxy," NOT "a noisier echo of disorder." The paper drafts' "geometric echo of
-L55" language should be softened accordingly.
+**Corrected verdict.** Two independent facts, don't conflate them:
+  1. L57 is **disorder-INDEPENDENT** (L60: removing L55 keeps 99% of the effect)
+     — the "echo of disorder" reading is refuted.
+  2. L57 is a **composition artifact concentrated in E/L**, now confirmed on an
+     independent hydropathy proxy (L63), not just its own charge proxy — the
+     effect collapses/reverses under residue-exclusion regardless of proxy or of
+     whether disorder is projected out.
+So L57 is best read as **AMBIGUOUS trending KILL**: the raw magnitude is real
+but it is the E/L insertion, not a broad, transferable solubility gain, and it
+is not disorder in disguise either. It does not clear the L50 artifact gate. The
+paper drafts' "geometric echo of L55" language is simply wrong and should be
+replaced with "an E/L composition artifact, independent of disorder."

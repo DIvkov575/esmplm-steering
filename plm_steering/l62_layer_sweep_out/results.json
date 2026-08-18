@@ -1,0 +1,237 @@
+{
+  "seed": 0,
+  "subset_sizes": [
+    5,
+    10,
+    15,
+    20,
+    25,
+    33
+  ],
+  "per_k": {
+    "5": {
+      "layers": [
+        18,
+        23,
+        25,
+        30,
+        31
+      ],
+      "best_alpha": 0.5,
+      "steers_vs_random_at_best": true,
+      "non_inferior_to_all33": false,
+      "subset_vs_all33_at_best": {
+        "point_estimate": -0.03048342564778902,
+        "ci_lower": -0.03692851325154141,
+        "ci_upper": -0.02403092423837131,
+        "significant_at_95pct": true,
+        "n": 57
+      },
+      "ratio_by_safe_alpha": {
+        "0.1": 0.5851,
+        "0.25": 0.4279,
+        "0.5": 0.4732
+      }
+    },
+    "10": {
+      "layers": [
+        0,
+        10,
+        14,
+        18,
+        20,
+        23,
+        24,
+        25,
+        30,
+        31
+      ],
+      "best_alpha": 0.5,
+      "steers_vs_random_at_best": true,
+      "non_inferior_to_all33": false,
+      "subset_vs_all33_at_best": {
+        "point_estimate": -0.025982567380007465,
+        "ci_lower": -0.032212142820529054,
+        "ci_upper": -0.019798203221015748,
+        "significant_at_95pct": true,
+        "n": 57
+      },
+      "ratio_by_safe_alpha": {
+        "0.1": 0.7661,
+        "0.25": 0.5706,
+        "0.5": 0.5694
+      }
+    },
+    "15": {
+      "layers": [
+        0,
+        8,
+        10,
+        12,
+        13,
+        14,
+        18,
+        19,
+        20,
+        23,
+        24,
+        25,
+        28,
+        30,
+        31
+      ],
+      "best_alpha": 0.5,
+      "steers_vs_random_at_best": true,
+      "non_inferior_to_all33": false,
+      "subset_vs_all33_at_best": {
+        "point_estimate": -0.019947382963540306,
+        "ci_lower": -0.025501280944137627,
+        "ci_upper": -0.014566448141888058,
+        "significant_at_95pct": true,
+        "n": 57
+      },
+      "ratio_by_safe_alpha": {
+        "0.1": 0.7324,
+        "0.25": 0.7032,
+        "0.5": 0.6777
+      }
+    },
+    "20": {
+      "layers": [
+        0,
+        3,
+        6,
+        8,
+        10,
+        12,
+        13,
+        14,
+        16,
+        18,
+        19,
+        20,
+        21,
+        23,
+        24,
+        25,
+        26,
+        28,
+        30,
+        31
+      ],
+      "best_alpha": 0.5,
+      "steers_vs_random_at_best": true,
+      "non_inferior_to_all33": false,
+      "subset_vs_all33_at_best": {
+        "point_estimate": -0.016699615909502384,
+        "ci_lower": -0.021689330118266077,
+        "ci_upper": -0.011928976501843979,
+        "significant_at_95pct": true,
+        "n": 57
+      },
+      "ratio_by_safe_alpha": {
+        "0.1": 0.9551,
+        "0.25": 0.8011,
+        "0.5": 0.7242
+      }
+    },
+    "25": {
+      "layers": [
+        0,
+        1,
+        3,
+        4,
+        6,
+        7,
+        8,
+        10,
+        12,
+        13,
+        14,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        23,
+        24,
+        25,
+        26,
+        28,
+        29,
+        30,
+        31
+      ],
+      "best_alpha": 0.5,
+      "steers_vs_random_at_best": true,
+      "non_inferior_to_all33": false,
+      "subset_vs_all33_at_best": {
+        "point_estimate": -0.01093506136188788,
+        "ci_lower": -0.014571196400218181,
+        "ci_upper": -0.007490748178368435,
+        "significant_at_95pct": true,
+        "n": 57
+      },
+      "ratio_by_safe_alpha": {
+        "0.1": 0.999,
+        "0.25": 0.9192,
+        "0.5": 0.83
+      }
+    },
+    "33": {
+      "layers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32
+      ],
+      "best_alpha": 0.5,
+      "steers_vs_random_at_best": true,
+      "non_inferior_to_all33": true,
+      "subset_vs_all33_at_best": {
+        "point_estimate": 0.0,
+        "ci_lower": 0.0,
+        "ci_upper": 0.0,
+        "significant_at_95pct": false,
+        "n": 57
+      },
+      "ratio_by_safe_alpha": {
+        "0.1": 1.0,
+        "0.25": 1.0,
+        "0.5": 1.0
+      }
+    }
+  },
+  "smallest_non_inferior_subset": null,
+  "conclusion": "NO proper subset (up to 25/33) matches all-33: the thermostability steering effect is genuinely DISTRIBUTED across layers -- criterion 5 is a clean, principled FAIL for any layer-subset claim, not an ambiguous one"
+}

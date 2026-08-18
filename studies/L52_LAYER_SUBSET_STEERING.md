@@ -174,3 +174,36 @@ Runnable check: `python3 -m plm_steering.l59_l52_multiseed_validation --meltome
 <path-to>/data_cache/meltome/mixed_split.csv` (meltome data is 16MB and
 gitignored). Per-seed verdicts + `summary.json` land in
 `plm_steering/l52_multiseed_out/`.
+
+## Validation follow-up (2026-08-17): layer-count sweep — criterion 5 is a principled FAIL, not an ambiguity
+
+The remaining question ("is stopping at 5 layers the problem — would MORE
+layers suffice?") is a binary one, answered by sweeping subset size over the
+L45 thermostability necessity ranking
+(`plm_steering/l62_l52_layer_count_sweep.py`,
+`l62_layer_sweep_out/results.json`; SEED=0, K=5 reproduces subset5 and K=33
+reproduces all33 as built-in checks). subsetK-vs-all33 effect ratio at the
+judged alpha (0.5):
+
+| K (top necessity-ranked layers) | ratio to all33 @α=0.5 | non-inferior to all33? |
+|---|---|---|
+| 5  | 0.47 | no |
+| 10 | 0.57 | no |
+| 15 | 0.68 | no |
+| 20 | 0.72 | no |
+| 25 | 0.83 | no |
+| 33 | 1.00 | (yes — is all33) |
+
+**No proper subset up to 25/33 matches all-33.** The effect rises monotonically
+with layer count and only reaches parity at the full set (at the weakest safe
+alpha 0.1 the ratio approaches ~1.0 by K=20-25, but at the judged best alpha it
+stays significantly below all33 for every proper subset). So criterion 5 is a
+**clean, principled FAIL for any layer-subset "sufficiency" claim** — the
+thermostability steering mechanism is genuinely DISTRIBUTED across layers, with
+no small sufficient set. This matches L45's finding that 27/33 layers carry
+nonzero necessity. The honest one-line verdict for L52: *"a real causal effect
+concentrated in but not localized to the necessary layers; fewer than 33 layers
+never fully reproduce it."* That is a definite answer, not an open ambiguity.
+
+Runnable check: `python3 -m plm_steering.l62_l52_layer_count_sweep --meltome
+<path-to>/data_cache/meltome/mixed_split.csv`.
