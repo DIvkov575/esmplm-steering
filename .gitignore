@@ -40,3 +40,4 @@ papers/**/*.fls
 papers/**/*.log
 papers/**/*.out
 papers/**/*.synctex.gz
+!plm_steering/data_cache/l61_*/
