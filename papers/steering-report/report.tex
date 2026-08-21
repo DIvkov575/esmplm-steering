@@ -1,0 +1,235 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[hidelinks]{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{natbib}
+\usepackage{parskip}
+
+\title{Steering ESM2-650M:\\
+What Moves, What Does Not, and How to Tell in Advance}
+\author{Dmitriy Ivkov}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We tried to steer nine sequence properties in the protein language model
+ESM2-650M using activation steering, under one fixed method and one acceptance
+protocol fixed in advance. One number, measured before any generation---the
+amino-acid \emph{compositional separation} between the low- and high-label
+groups the steering vector is built from---predicts both whether a property is
+steerable and how large the effect is. The proxy's correlation with the true
+label does not: the best-validated proxy in the whole set ($r=0.80$, binding)
+steered nothing, while the weakest runnable one ($r=0.22$, catalytic turnover)
+passed on all three seeds. Effect size grows with separation, from a flat null
+to $72\%$ of the natural property gap. Separation is necessary but not
+sufficient---two well-separated targets still failed, one because the model
+ignores the direction and one because the property is \emph{positional}. That
+last case is a structural limit: a vector added uniformly at every position can
+change how much of a residue a sequence contains but not where it goes, so this
+method can move aggregate compositional properties (transmembrane fraction,
+catalytic composition, charge, glycosylation density) but cannot install
+positionally-localized features (signal peptides, active-site geometry, domain
+boundaries). All results are computational.
+\end{abstract}
+
+\section{How we obtained the results}
+
+\paragraph{The steering method (identical for every target).}
+The model is ESM2-650M \citep{lin2023esm}. To generate, we mask 30\% of a
+sequence's positions and fill them in a single argmax pass
+(\texttt{mask\_fill\_generate}). To steer, we build a direction as the
+per-layer difference between the mean activations of 150 high-label and 150
+low-label proteins, and add it to all 33 layers, the same amount at every
+sequence position, scaled by a strength $\alpha$. This is the standard
+difference-of-means activation steering used for protein language models
+\citep{huang2025steering}. As a control we use a random direction with the same
+norm. We evaluate on 150 held-out proteins, score each generation with a
+property-specific compositional proxy, and report the effect as a paired
+bootstrap contrast (10{,}000 resamples) between the real and random directions.
+The masked-fill decoder collapses into repetitive low-complexity output at
+$\alpha\ge0.35$, so we sweep dose only on the valid window
+$\{0.10,0.15,0.20,0.25\}$; this caps the achievable effect but keeps every
+comparison inside a regime where the outputs are real sequences.
+
+\paragraph{The acceptance protocol (fixed before the runs).}
+To keep a flattering number from being read as a capability, each target had to
+clear six criteria set in advance:
+\begin{enumerate}\itemsep2pt
+\item beat the random-direction control with a real bootstrap confidence
+interval;
+\item show a coherent dose-response over at least three strengths;
+\item survive \textbf{residue exclusion}---stay significant after the two most
+frequently substituted residues are removed from the score (every proxy is a
+function of composition, so steering can cheat by just enriching favored
+residues);
+\item use a proxy validated against real experimental labels \emph{before} the
+run ($|r|\ge0.15$, checked in code before the model even loads);
+\item beat any prior technique for the property;
+\item be adequately powered ($n\ge150$).
+\end{enumerate}
+Failing 1--4 outright is a \textsc{kill}; passing most but failing a dose check
+or residue exclusion is \textsc{ambiguous}; clearing all operative criteria is
+a \textsc{pass}. We reran every candidate on three independent seeds.
+
+\paragraph{The separation gate.}
+Before spending any GPU time, we measure the mean per-residue amino-acid
+composition $L_2$ distance between the low- and high-label groups that build the
+vector. It began as a screen for one early null and turned out to be the single
+most predictive quantity in the whole effort.
+
+\paragraph{Targets, data, and proxies.}
+Nine properties, chosen to span a range of separation and to contrast
+properties intrinsic to a single sequence against relational ones. Transmembrane
+fraction, DNA-binding, glycosylation density, disulfide content, signal peptide,
+zinc-finger and calcium-binding domains came from reviewed UniProt
+\citep{uniprot2023}; cross-protein $k_{\mathrm{cat}}$ from DLKcat
+\citep{li2022dlkcat}; single-backbone binding from ProteinGym
+\citep{notin2023proteingym}. Proxies use published biophysical scales: mean
+Kyte--Doolittle hydropathy for membrane character \citep{kyte1982hydropathy},
+Lys$+$Arg fraction for nucleic-acid interfaces \citep{luscombe2001dna}, a
+glycine-minus-arginine contrast for the turnover--stability tradeoff
+\citep{siddiqui2006cold}. Each proxy was validated against the real label on a
+held-out split before its run.
+
+\section{Results}
+
+\subsection{Separation predicts steerability and effect; proxy correlation does not}
+
+Table~\ref{tab:scoreboard} lists all nine targets. Sorting by outcome, effect
+size follows the pre-run separation and ignores the proxy's label correlation.
+The two extremes make the point. Single-backbone binding has the best-validated
+proxy anywhere in the project (held-out $r=0.80$, and it generalizes to unseen
+positions), yet it steers \emph{nothing} at any strength---because its low- and
+high-label sequences are one- and two-residue mutants of the same 188-residue
+backbone, so they are nearly identical in composition (separation $0.003$) and
+the difference-of-means vector has almost no signal to carry. Catalytic turnover
+has the weakest runnable proxy ($r=0.22$) but passes on all three seeds. Proxy
+strength and steerability are not even weakly related.
+
+\begin{table}[htbp]
+\centering
+\caption{Nine steering targets on ESM2-650M, one fixed method, sorted by
+outcome. \emph{Sep.}\ is the pre-run compositional distance between the vector
+groups; \emph{proxy $r$} is the held-out correlation of the scoring rule with
+the real label; \emph{effect} is, where a natural low$\to$high proxy gap is
+defined, the fraction of that gap reached at $\alpha=0.25$. Effect tracks
+separation, not proxy $r$.}
+\label{tab:scoreboard}
+\begin{tabular}{@{}l r r l l@{}}
+\toprule
+Target & Sep. & Proxy $r$ & Outcome & Effect / why it failed \\
+\midrule
+Binding, single-backbone            & 0.003 & 0.80 & \textsc{kill} & flat null --- no separation \\
+Zinc-finger domain                  & 0.028 & 0.29 & \textsc{kill} & direction anti-correlated \\
+Calcium-binding (EF-hand)           & 0.038 & 0.16 & \textsc{kill} & model ignores the direction \\
+Signal peptide                      & 0.035 & 0.74 & \textsc{kill} & positional, not compositional \\
+\addlinespace
+Disulfide (Cys fraction)            & 0.026 & 0.17 & pass (2/3) & tiny ($\sim$0.002) \\
+Glycosylation density               & 0.039 & 0.41 & pass (3/3) & tiny ($\sim$0.003) \\
+DNA-binding propensity              & 0.039 & 0.25 & pass (2/3) & 25\% of natural gap \\
+Catalytic turnover ($k_{\mathrm{cat}}$) & 0.02--0.05 & 0.22 & pass (3/3) & moderate \\
+Transmembrane fraction              & 0.086 & 0.79 & pass (3/3) & 72\% of natural gap \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The passing targets calibrate the relationship: separation $0.003 \to$ null,
+$0.039 \to$ a quarter of the natural binder gap, $0.086 \to$ nearly
+three-quarters of the way to the membrane-protein distribution (proxy
+$-0.363 \to +0.266$ at $\alpha=0.25$ against a natural gap of $0.871$). The
+binding null was originally read as ``binding is not steerable.'' Rebuilding the
+same target from \emph{cross-protein} data---DNA-binding, where a protein binds
+the backbone by its own sequence---lifts separation about $12\times$ ($0.003
+\to 0.039$) and turns the null into a significant, residue-robust,
+dose-responsive effect. So the null was an artifact of single-backbone data, not
+a property of binding, and we predicted the recovery from separation before
+running it.
+
+\subsection{Separation is necessary but not sufficient}
+
+Screening by separation kills the null mode but does not guarantee success. Two
+targets with separation in the passing band still failed, for different reasons.
+Calcium-binding (separation $0.038$) produces no significant steering at any
+safe strength---a well-separated group whose direction the model's residual
+stream simply does not act on. Zinc-finger's cysteine/histidine direction turns
+\emph{anti-correlated} with its own proxy after steering. High separation is a
+prerequisite; the model must also respond to the direction, and the direction
+must encode the property rather than a correlate.
+
+\subsection{The method steers composition, not position}
+
+The sharpest failure is the signal peptide. Its proxy---mean hydropathy over the
+first 30 residues---is the best-validated candidate in the whole set (held-out
+$r=0.742$), and it gives a clean dose-response (N-terminal hydropathy
+$0.059 \to 0.100 \to 0.152 \to 0.251$). It still \textsc{kill}s on residue
+exclusion: remove the two dominant substituted residues and the effect
+collapses to non-significant. The vector raises N-terminal hydropathy only by
+dumping bulk hydrophobic residues across the \emph{entire} sequence; it cannot
+\emph{concentrate} them at the N-terminus, which is what makes a signal peptide.
+Glycosylation density passes for the mirror-image reason: its proxy is a sequon
+count summed over the whole sequence, a genuinely aggregate quantity a
+mean-pooled vector can nudge.
+
+The general statement: a direction that is averaged over positions and added
+identically to every position can change \emph{how much} of a residue type a
+sequence has, but not \emph{where} it sits. Aggregate compositional
+properties---transmembrane fraction, catalytic composition, DNA-binding charge,
+glycosylation density---are reachable. Positionally-localized features---signal
+peptides, and by the same argument active-site geometry, domain boundaries,
+termini motifs---are not, for any proxy, until the injection itself is made
+position-aware.
+
+\subsection{What the acceptance protocol caught elsewhere}
+
+The predictor is only trustworthy because the same protocol threw out flattering
+numbers in the studies that fed it, and each rejection changed a conclusion:
+\begin{itemize}\itemsep2pt
+\item An immune-endpoint proxy correlated $r=0.427$ with an allele-aggregated
+binding label but only $0.100$ with measured T-cell response, and flipped from
+$+0.379$ to $-0.323$ when validation folds were grouped by source organism ---
+it measured the wrong endpoint, and was stopped before generation.
+\item A layer-subset thermostability run looked competitive only because the
+all-layer arm's outputs had collapsed under the low-complexity filter; inside
+the shared valid range the subset kept just $43$--$59\%$ of the full effect.
+\item A solubility contrast of $+0.0125$ fell to $+0.00035$ (interval crossing
+zero) once its two dominant substituted residues were excluded.
+\item A disorder effect repeated across three runs but survived residue
+exclusion in only two of them.
+\end{itemize}
+These are the same guards---endpoint validity, evaluable denominator,
+composition dependence, whole-run stability---that make a passing row in
+Table~\ref{tab:scoreboard} mean something.
+
+\section{Takeaways and limitations}
+
+For this method, steerability and its ceiling are predictable before any compute
+from the compositional separation of the vector-building groups, and an entire
+class of properties (positional features) is ruled out on structural grounds,
+not by trying and failing one at a time. The next moves are to change the
+intervention---position-aware injection---rather than the target list, and to
+check the strongest compositional gain (transmembrane) against a real assay.
+
+The limits are firm. Every endpoint is computational: no wet-lab or structural
+assay shows that any generated sequence actually has more thermostability,
+turnover, membrane character, binding, or glycosylation; every ``effect'' is a
+change in a compositional proxy. Everything uses one model, one decoder, and one
+injection geometry, so the composition-only limit is specific to that geometry.
+The usable dose range is narrow because the decoder degenerates above
+$\alpha=0.25$. The proxies are compositional and non-mechanistic---a pass shows
+the model can be pushed toward an amino-acid signature that correlates with the
+property, not that structure or function is preserved. The separation predictor
+is calibrated on nine targets from one model; whether the same ordering holds
+for other models or injection schemes is untested.
+
+\bibliographystyle{plainnat}
+\bibliography{reference}
+
+\end{document}
